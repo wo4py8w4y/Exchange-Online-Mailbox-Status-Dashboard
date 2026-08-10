@@ -1,0 +1,5 @@
+{
+    "scm.alwaysShowRepositories": true,
+    "explorer.excludeGitIgnore": true,
+    "explorer.fileNesting.enabled": true
+}

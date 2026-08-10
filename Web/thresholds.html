@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Mailbox Thresholds</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body data-page="thresholds">
+    <header>
+        <div>
+            <h1>Mailbox Thresholds</h1>
+            <p id="lastUpdated">Loading...</p>
+        </div>
+        <button id="refreshButton">Refresh now</button>
+    </header>
+
+    <nav class="panel view-nav" aria-label="Views">
+        <strong>Views:</strong>
+        <a href="index.html">Dashboard</a> |
+        <a href="history.html">History</a> |
+        <a href="permissions.html">Permissions</a> |
+        <a href="thresholds.html">Thresholds</a>
+    </nav>
+
+    <main>
+        <section class="panel critical-panel">
+            <h2>Mailboxes at or above 94% utilisation</h2>
+            <p class="muted">
+                These mailboxes have reached the critical utilisation threshold and should be reviewed.
+            </p>
+
+            <div class="table-wrap">
+                <table id="thresholdTable">
+                    <thead>
+                        <tr>
+                            <th>Mailbox</th>
+                            <th>Type</th>
+                            <th>Storage GB</th>
+                            <th>Quota GB</th>
+                            <th>Usage</th>
+                            <th>Items</th>
+                            <th>Permissions</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel">
+            <h2>Critical utilisation chart</h2>
+            <canvas id="thresholdChart" width="1100" height="420"></canvas>
+        </section>
+    </main>
+
+    <script defer src="dashboard.js"></script>
+</body>
+
+</html>

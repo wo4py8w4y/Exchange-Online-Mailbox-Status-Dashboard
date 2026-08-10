@@ -1,0 +1,15 @@
+C:\MailboxDashboard\
+│
+├── Collector\
+│ ├── Get-ExchangeOnlineAccessToken.ps1
+│ ├── HistoryCollector.ps1
+│ ├── Start-HistoryCollectorThreaded.ps1
+│ └── Config\
+│ └── dashboardConfig.json
+│
+├── Web\
+│ └── history.json
+│
+├── Logs\
+│
+└── Mailboxes\

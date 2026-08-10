@@ -1,0 +1,55 @@
+// 1. Update Global Variable assignments to use PascalCase
+function getMailboxes() {
+    return dashboardData?.Mailboxes || [];
+}
+
+function updateGlobalStats() {
+    document.getElementById("mailboxCount").textContent = dashboardData.MailboxCount || 0;
+    
+    let totalStorage = 0;
+    let totalPerms = 0;
+    
+    getMailboxes().forEach(m => {
+        totalStorage += (m.TotalGB || 0);
+        // Ensure Permissions exists before counting
+        if (m.Permissions && Array.isArray(m.Permissions)) {
+            totalPerms += m.Permissions.length;
+        }
+    });
+
+    document.getElementById("totalStorage").textContent = totalStorage.toFixed(2) + " GB";
+    document.getElementById("totalPermissions").textContent = totalPerms;
+    document.getElementById("thresholdCount").textContent = dashboardData.ThresholdCount || 0;
+}
+
+// 2. Update Table Rendering to use flattened PascalCase properties
+function renderUsageTable() {
+    const tbody = document.querySelector("#usageTable tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    for (const m of getMailboxes()) {
+        const tr = document.createElement("tr");
+
+        if (m.Error) {
+            tr.innerHTML = `
+        <td>${escapeHtml(m.PrimarySmtpAddress || m.DisplayName)}</td>
+        <td colspan="7"><span class="badge danger">Error</span> ${escapeHtml(m.Error)}</td>
+      `;
+        } else {
+            // Updated to strip 'current' nesting and use PascalCase
+            tr.innerHTML = `
+        <td>${escapeHtml(m.PrimarySmtpAddress)}</td>
+        <td>${escapeHtml(m.RecipientTypeDetails || "")}</td>
+        <td>${formatGB(m.TotalGB)}</td>
+        <td>${formatNumber(m.ItemCount)}</td>
+        <td>${formatGB(m.QuotaGB)}</td>
+        <td>${m.UsagePercent}%</td>
+        <td>${m.Permissions ? m.Permissions.length : 0}</td>
+        <td>${escapeHtml(m.ThresholdState || "ok")}</td>
+      `;
+        }
+        tbody.appendChild(tr);
+    }
+}

@@ -1,0 +1,96 @@
+{
+  "project": {
+    "name": "Exchange Online Mailbox Dashboard",
+    "status": "In Development",
+    "phase": "Historical Data Collection"
+  },
+  "completedMilestones": [
+    "Solution Architecture",
+    "Historical Data Model",
+    "Configuration Framework",
+    "Historical JSON Storage"
+  ],
+  "activeMilestone": {
+    "name": "Historical Collector Development",
+    "status": "Testing",
+    "script": "HistoryCollector.ps1"
+  },
+  "nextMilestones": [
+    "Logging Framework",
+    "Current Snapshot Service",
+    "Dashboard UI",
+    "Scheduling",
+    "Alerting"
+  ],
+  "historyTracking": {
+    "primaryKey": "ExchangeGuid",
+    "reason": "Mailbox renames and SMTP changes do not affect ExchangeGuid"
+  },
+  "dataSources": [
+    "Get-EXOMailbox",
+    "Get-EXOMailboxStatistics",
+    "Get-EXOMailboxStatistics -Archive",
+    "Get-EXOMailboxPermission"
+  ],
+  "collectedMetrics": [
+    "ExchangeGuid",
+    "PrimarySmtpAddress",
+    "DisplayName",
+    "MailboxSizeGB",
+    "QuotaGB",
+    "UsagePercent",
+    "ItemCount",
+    "PermissionCount",
+    "LastLogonTime",
+    "ArchiveEnabled",
+    "ArchiveSizeGB",
+    "ArchiveItemCount"
+  ],
+  "scripts": [
+    {
+      "name": "HistoryCollector.ps1",
+      "purpose": "Collect historical mailbox data and store history.json"
+    },
+    {
+      "name": "Update-MailboxDashboard.ps1",
+      "purpose": "Master orchestration script"
+    },
+    {
+      "name": "Logging.psm1",
+      "purpose": "Logging framework"
+    },
+    {
+      "name": "ExchangeCollector.psm1",
+      "purpose": "Exchange Online data collection"
+    },
+    {
+      "name": "JsonStorage.psm1",
+      "purpose": "History and snapshot JSON management"
+    },
+    {
+      "name": "Thresholds.psm1",
+      "purpose": "Capacity threshold calculations"
+    },
+    {
+      "name": "Alerts.psm1",
+      "purpose": "Teams and email notifications"
+    },
+    {
+      "name": "Scheduler.psm1",
+      "purpose": "Scheduled task management"
+    }
+  ],
+  "thresholds": {
+    "warning": 85,
+    "critical": 94
+  },
+  "schedule": {
+    "intervalMinutes": 30
+  },
+  "outputs": [
+    "history.json",
+    "data.json",
+    "reports",
+    "logs"
+  ]
+}

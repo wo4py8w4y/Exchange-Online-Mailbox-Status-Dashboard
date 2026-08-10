@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Mailbox Permissions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body data-page="permissions">
+    <header>
+        <div>
+            <h1>Current Mailbox Permissions</h1>
+            <p id="lastUpdated">Loading...</p>
+        </div>
+        <button id="refreshButton">Refresh now</button>
+    </header>
+
+    <nav class="panel view-nav" aria-label="Views">
+        <strong>Views:</strong>
+        <a href="index.html">Dashboard</a> |
+        <a href="history.html">History</a> |
+        <a href="permissions.html">Permissions</a> |
+        <a href="thresholds.html">Thresholds</a>
+    </nav>
+
+    <main>
+        <section class="panel">
+            <h2>Explicit permissions</h2>
+            <div id="permissionsContainer"></div>
+        </section>
+    </main>
+
+    <script defer src="dashboard.js"></script>
+</body>
+
+</html>

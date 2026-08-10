@@ -1,0 +1,619 @@
+﻿[2026-06-22T17:14:27.1434645+10:00] [START] [INFO] Transcript file initialised: ..\Web\MailboxDashboardCollector-20260622-171427-WG898JB4-PID12896.transcript.log
+**********************
+Windows PowerShell transcript start
+Start time: 20260622171427
+Username: DPWSERVICES\aaron.francis.na
+RunAs User: DPWSERVICES\aaron.francis.na
+Configuration Name: 
+Machine: WG898JB4 (Microsoft Windows NT 10.0.26100.0)
+Host Application: C:\WINDOWS\system32\WindowsPowerShell\v1.0\PowerShell_ISE.exe
+Process ID: 12896
+PSVersion: 5.1.26100.8655
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.26100.8655
+BuildVersion: 10.0.26100.8655
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+[2026-06-22T17:14:27.1542055+10:00] [START] [INFO] PowerShell transcript started: ..\Web\MailboxDashboardCollector-20260622-171427-WG898JB4-PID12896.transcript.log
+..\Web\MailboxDashboardCollector-20260622-171427-WG898JB4-PID12896.log
+**********************
+Command start time: 20260622171443
+**********************
+PS D:\MailboxDashboard\Collector> cd ..\Web
+**********************
+Command start time: 20260622171443
+**********************
+PS D:\MailboxDashboard\Web> ls
+
+
+    Directory: D:\MailboxDashboard\Web
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----        22/06/2026   5:02 PM          13586 .tmp
+-a----        22/06/2026   3:57 AM          17661 dashboard.js
+-a----        22/06/2026   4:54 PM              2 data.json
+-a----        22/06/2026   3:57 AM           1517 history.html
+-a----        22/06/2026   3:57 AM              0 history.json
+-a----        22/06/2026   3:57 AM           2973 index.html
+-a----        22/06/2026   5:14 PM            148 MailboxDashboardCollector-20260622-171427-WG898JB4-PID12896.log
+-a----        22/06/2026   5:14 PM           1032 MailboxDashboardCollector-20260622-171427-WG898JB4-PID12896.transcript.log
+-a----        22/06/2026   3:57 AM           1036 permissions.html
+-a----        22/06/2026   3:57 AM           5219 styles.css
+-a----        22/06/2026   3:57 AM           1997 thresholds.html
+-a----        22/06/2026   4:23 PM            472 web.config
+
+
+**********************
+Command start time: 20260622171659
+**********************
+PS D:\MailboxDashboard\Web> cd ..
+**********************
+Command start time: 20260622171702
+**********************
+PS D:\MailboxDashboard>  cd .\Collector
+**********************
+Command start time: 20260622171703
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(TabExpansion2): "Exception calling "CompleteInput" with "4" argument(s): "Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index""
+**********************
+Command start time: 20260622171704
+**********************
+PS D:\MailboxDashboard\Collector> . .\Update-MailboxDashboard.ps1
+[2026-06-22T17:17:04.8339464+10:00] [START] [INFO] PowerShell transcript started: C:\MailboxDashboard\Logs\MailboxDashboardCollector-20260622-171704-WG898JB4-PID12896.transcript.log
+[2026-06-22T17:17:04.8439433+10:00] [START] [INFO] Collector runtime execution initialized.
+[2026-06-22T17:17:04.8495808+10:00] [ERROR] [ERROR] Execution block validation faulted out globally. Message details: CSV target data mapping missing: .\mailboxes.csv
+[2026-06-22T17:17:04.8495808+10:00] [ERROR] [ERROR] at <ScriptBlock>, D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1: line 446
+[2026-06-22T17:17:04.8495808+10:00] [ERROR] [ERROR] at <ScriptBlock>, <No file>: line 1
+[2026-06-22T17:17:04.8495808+10:00] [EXO] [INFO] Terminating active Exchange cloud infrastructure endpoints cleanly.
+**********************
+Command start time: 20260622171705
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+**********************
+Command start time: 20260622171712
+**********************
+PS D:\MailboxDashboard\Collector> . .\Update-MailboxDashboard.ps1 -Interactive
+[2026-06-22T17:17:12.4745155+10:00] [START] [INFO] PowerShell transcript started: C:\MailboxDashboard\Logs\MailboxDashboardCollector-20260622-171712-WG898JB4-PID12896.transcript.log
+[2026-06-22T17:17:12.4745155+10:00] [START] [INFO] Collector runtime execution initialized.
+[2026-06-22T17:17:12.4745155+10:00] [ERROR] [ERROR] Execution block validation faulted out globally. Message details: CSV target data mapping missing: .\mailboxes.csv
+[2026-06-22T17:17:12.4745155+10:00] [ERROR] [ERROR] at <ScriptBlock>, D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1: line 446
+[2026-06-22T17:17:12.4745155+10:00] [ERROR] [ERROR] at <ScriptBlock>, <No file>: line 1
+[2026-06-22T17:17:12.4745155+10:00] [EXO] [INFO] Terminating active Exchange cloud infrastructure endpoints cleanly.
+INFO: Disconnected successfully !
+[2026-06-22T17:17:13.5622771+10:00] [END] [INFO] Data lifecycle synchronization runtime finished completely.
+[2026-06-22T17:17:13.5622771+10:00] [END] [INFO] Stopping PowerShell transcript.
+**********************
+Command start time: 20260622171713
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(): "CSV target data mapping missing: .\mailboxes.csv"
+>> TerminatingError(): "CSV target data mapping missing: .\mailboxes.csv"
+CSV target data mapping missing: .\mailboxes.csv
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:446 char:51
++ ... Path $CsvPath)) { throw "CSV target data mapping missing: $CsvPath" }
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (CSV target data....\mailboxes.csv:String) [], RuntimeException
+    + FullyQualifiedErrorId : CSV target data mapping missing: .\mailboxes.csv
+
+**********************
+Command start time: 20260622171733
+**********************
+PS D:\MailboxDashboard\Collector> $CsvPath
+.\mailboxes.csv
+**********************
+Command start time: 20260622171832
+**********************
+PS D:\MailboxDashboard\Collector> . .\Update-MailboxDashboard.ps1 -Interactive
+[2026-06-22T17:18:32.6002027+10:00] [START] [INFO] PowerShell transcript started: C:\MailboxDashboard\Logs\MailboxDashboardCollector-20260622-171832-WG898JB4-PID12896.transcript.log
+[2026-06-22T17:18:32.6002027+10:00] [START] [INFO] Collector runtime execution initialized.
+
+============================================================
+ Exchange Online Mailbox Dashboard Collector Configuration
+============================================================
+CSV input file:              .\mailboxes.csv
+Current data JSON:           C:\MailboxDashboard\Web\data.json
+Historical data JSON:        C:\MailboxDashboard\Web\history.json
+Web root path:               C:\MailboxDashboard\Web
+
+Dashboard URL:               http://localhost/index.html
+Overview page:               http://localhost/index.html/index.html
+
+Organization:                
+App ID:                      
+Warning threshold:           85%
+Critical threshold:          94%
+============================================================
+[2026-06-22T17:18:32.6119695+10:00] [INPUT] [INFO] Processing structural targets from matching CSV mappings.
+[2026-06-22T17:18:32.6247250+10:00] [EXO] [INFO] Loading endpoint interaction module layers.
+[2026-06-22T17:24:31.3531416+10:00] [EXO] [SUCCESS] Remote endpoint synchronization pipeline connected.
+**********************
+Command start time: 20260622172533
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(Get-EXOMailbox): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: The underlying connection was closed: An unexpected error occurred on a receive."
+>> TerminatingError(Get-EXOMailbox): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: The underlying connection was closed: An unexpected error occurred on a receive."
+[2026-06-22T17:25:33.8850970+10:00] [QUERY] [ERROR] Target collection step dropped for entry ID: aaron.francis@hpw.qld.gov.au. Failure: The underlying connection was closed: An unexpected error occurred on a receive.
+**********************
+Command start time: 20260622172636
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(Get-EXOMailbox): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: The underlying connection was closed: An unexpected error occurred on a receive."
+>> TerminatingError(Get-EXOMailbox): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: The underlying connection was closed: An unexpected error occurred on a receive."
+[2026-06-22T17:26:36.1428231+10:00] [QUERY] [ERROR] Target collection step dropped for entry ID: BurandaTenancyTeam@hpw.qld.gov.au. Failure: The underlying connection was closed: An unexpected error occurred on a receive.
+**********************
+Command start time: 20260622172636
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(Show-CriticalThresholdReport): "Cannot bind argument to parameter 'ThresholdMailboxes' because it is an empty collection."
+[2026-06-22T17:26:36.1586436+10:00] [ERROR] [ERROR] Execution block validation faulted out globally. Message details: Cannot bind argument to parameter 'ThresholdMailboxes' because it is an empty collection.
+[2026-06-22T17:26:36.1586436+10:00] [ERROR] [ERROR] at <ScriptBlock>, D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1: line 491
+[2026-06-22T17:26:36.1586436+10:00] [ERROR] [ERROR] at <ScriptBlock>, <No file>: line 1
+[2026-06-22T17:26:36.1586436+10:00] [EXO] [INFO] Terminating active Exchange cloud infrastructure endpoints cleanly.
+INFO: Disconnected successfully !
+[2026-06-22T17:26:36.6032704+10:00] [END] [INFO] Data lifecycle synchronization runtime finished completely.
+[2026-06-22T17:26:36.6032704+10:00] [END] [INFO] Stopping PowerShell transcript.
+**********************
+Command start time: 20260622172636
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(Show-CriticalThresholdReport): "Cannot bind argument to parameter 'ThresholdMailboxes' because it is an empty collection."
+>> TerminatingError(Show-CriticalThresholdReport): "Cannot bind argument to parameter 'ThresholdMailboxes' because it is an empty collection."
+Show-CriticalThresholdReport : Cannot bind argument to parameter 'ThresholdMailboxes' because it is an empty
+collection.
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:491 char:54
++ ... iticalThresholdReport -ThresholdMailboxes $thresholdMailboxes -Critic ...
++                                               ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidData: (:) [Show-CriticalThresholdReport], ParameterBindingValidationExcepti
+   on
+    + FullyQualifiedErrorId : ParameterArgumentValidationErrorEmptyCollectionNotAllowed,Show-CriticalThresholdRe
+   port
+
+**********************
+Command start time: 20260622172907
+**********************
+PS D:\MailboxDashboard\Collector>  $thresholdMailboxes
+**********************
+Command start time: 20260622173020
+**********************
+PS D:\MailboxDashboard\Collector> $CriticalThresholdPercent
+94
+**********************
+Command start time: 20260622173435
+**********************
+PS D:\MailboxDashboard\Collector> $temppath
+>> TerminatingError(): "The variable '$temppath' cannot be retrieved because it has not been set."
+The variable '$temppath' cannot be retrieved because it has not been set.
+At line:1 char:1
++ $temppath
++ ~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (temppath:String) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : VariableIsUndefined
+
+**********************
+Command start time: 20260622173449
+**********************
+PS D:\MailboxDashboard\Collector> $path.tmp
+>> TerminatingError(): "The variable '$path' cannot be retrieved because it has not been set."
+The variable '$path' cannot be retrieved because it has not been set.
+At line:1 char:1
++ $path.tmp
++ ~~~~~
+    + CategoryInfo          : InvalidOperation: (path:String) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : VariableIsUndefined
+
+**********************
+Command start time: 20260622173709
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(TabExpansion2): "Exception calling "CompleteInput" with "4" argument(s): "Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index""
+**********************
+Command start time: 20260622173711
+**********************
+PS D:\MailboxDashboard\Collector> . .\Update-MailboxDashboard.ps1
+[2026-06-22T17:37:11.4674407+10:00] [START] [INFO] PowerShell transcript started: C:\MailboxDashboard\Logs\MailboxDashboardCollector-20260622-173711-WG898JB4-PID12896.transcript.log
+[2026-06-22T17:37:11.4674407+10:00] [START] [INFO] Collector runtime execution initialized.
+
+============================================================
+ Exchange Online Mailbox Dashboard Collector Configuration
+============================================================
+CSV input file:              .\mailboxes.csv
+Current data JSON:           C:\MailboxDashboard\Web\data.json
+Historical data JSON:        C:\MailboxDashboard\Web\history.json
+Web root path:               C:\MailboxDashboard\Web
+
+Dashboard URL:               http://localhost/index.html
+Overview page:               http://localhost/index.html/index.html
+
+Organization:                
+App ID:                      
+Warning threshold:           85%
+Critical threshold:          94%
+============================================================
+[2026-06-22T17:37:11.4748344+10:00] [INPUT] [INFO] Processing structural targets from matching CSV mappings.
+[2026-06-22T17:37:11.4748344+10:00] [EXO] [INFO] Loading endpoint interaction module layers.
+**********************
+Command start time: 20260622173711
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(): "For unattended execution, supply -AppId, -Organization and -CertificateThumbprint."
+[2026-06-22T17:37:11.4947403+10:00] [ERROR] [ERROR] Execution block validation faulted out globally. Message details: For unattended execution, supply -AppId, -Organization and -CertificateThumbprint.
+[2026-06-22T17:37:11.4985594+10:00] [ERROR] [ERROR] at Connect-ToExchangeOnline, D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1: line 276
+[2026-06-22T17:37:11.4985594+10:00] [ERROR] [ERROR] at <ScriptBlock>, D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1: line 457
+[2026-06-22T17:37:11.5011441+10:00] [ERROR] [ERROR] at <ScriptBlock>, <No file>: line 1
+[2026-06-22T17:37:11.5031497+10:00] [EXO] [INFO] Terminating active Exchange cloud infrastructure endpoints cleanly.
+INFO: Disconnected successfully !
+[2026-06-22T17:37:11.5051559+10:00] [END] [INFO] Data lifecycle synchronization runtime finished completely.
+[2026-06-22T17:37:11.5066613+10:00] [END] [INFO] Stopping PowerShell transcript.
+**********************
+Command start time: 20260622173711
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(): "For unattended execution, supply -AppId, -Organization and -CertificateThumbprint."
+>> TerminatingError(): "For unattended execution, supply -AppId, -Organization and -CertificateThumbprint."
+For unattended execution, supply -AppId, -Organization and -CertificateThumbprint.
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:276 char:9
++         throw "For unattended execution, supply -AppId, -Organization ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (For unattended ...cateThumbprint.:String) [], RuntimeException
+    + FullyQualifiedErrorId : For unattended execution, supply -AppId, -Organization and -CertificateThumbprint.
+
+**********************
+Command start time: 20260622173714
+**********************
+PS D:\MailboxDashboard\Collector> . .\Update-MailboxDashboard.ps1 -Interactive
+[2026-06-22T17:37:14.4986751+10:00] [START] [INFO] PowerShell transcript started: C:\MailboxDashboard\Logs\MailboxDashboardCollector-20260622-173714-WG898JB4-PID12896.transcript.log
+[2026-06-22T17:37:14.5131778+10:00] [START] [INFO] Collector runtime execution initialized.
+
+============================================================
+ Exchange Online Mailbox Dashboard Collector Configuration
+============================================================
+CSV input file:              .\mailboxes.csv
+Current data JSON:           C:\MailboxDashboard\Web\data.json
+Historical data JSON:        C:\MailboxDashboard\Web\history.json
+Web root path:               C:\MailboxDashboard\Web
+
+Dashboard URL:               http://localhost/index.html
+Overview page:               http://localhost/index.html/index.html
+
+Organization:                
+App ID:                      
+Warning threshold:           85%
+Critical threshold:          94%
+============================================================
+[2026-06-22T17:37:14.5131778+10:00] [INPUT] [INFO] Processing structural targets from matching CSV mappings.
+[2026-06-22T17:37:14.5131778+10:00] [EXO] [INFO] Loading endpoint interaction module layers.
+**********************
+Command start time: 20260622173734
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(New-EXOModule): "One or more errors occurred."
+**********************
+Command start time: 20260622173734
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(): "An error occurred while sending the request."
+>> TerminatingError(): "An error occurred while sending the request."
+[2026-06-22T17:37:34.9777097+10:00] [ERROR] [ERROR] Execution block validation faulted out globally. Message details: An error occurred while sending the request.
+[2026-06-22T17:37:34.9777097+10:00] [ERROR] [ERROR] at Connect-ExchangeOnline<Process>, C:\Program Files\WindowsPowerShell\Modules\ExchangeOnlineManagement\3.9.2\netFramework\ExchangeOnlineManagement.psm1: line 591
+[2026-06-22T17:37:34.9777097+10:00] [ERROR] [ERROR] at Connect-ToExchangeOnline, D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1: line 274
+[2026-06-22T17:37:34.9777097+10:00] [ERROR] [ERROR] at <ScriptBlock>, D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1: line 457
+[2026-06-22T17:37:34.9777097+10:00] [ERROR] [ERROR] at <ScriptBlock>, <No file>: line 1
+[2026-06-22T17:37:34.9850797+10:00] [EXO] [INFO] Terminating active Exchange cloud infrastructure endpoints cleanly.
+INFO: Disconnected successfully !
+[2026-06-22T17:37:34.9900653+10:00] [END] [INFO] Data lifecycle synchronization runtime finished completely.
+[2026-06-22T17:37:34.9900653+10:00] [END] [INFO] Stopping PowerShell transcript.
+**********************
+Command start time: 20260622173735
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(): "An error occurred while sending the request."
+>> TerminatingError(): "An error occurred while sending the request."
+An error occurred while sending the request.
+At C:\Program Files\WindowsPowerShell\Modules\ExchangeOnlineManagement\3.9.2\netFramework\ExchangeOnlineManagement.psm1:591 char:21
++                     throw $_.Exception.InnerException;
++                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (:) [], HttpRequestException
+    + FullyQualifiedErrorId : An error occurred while sending the request.
+
+**********************
+Command start time: 20260622173837
+**********************
+PS D:\MailboxDashboard\Collector> $Error
+An error occurred while sending the request.
+At C:\Program Files\WindowsPowerShell\Modules\ExchangeOnlineManagement\3.9.2\netFramework\ExchangeOnlineManagement.psm1:591 char:21
++                     throw $_.Exception.InnerException;
++                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (:) [], HttpRequestException
+    + FullyQualifiedErrorId : An error occurred while sending the request.
+
+New-EXOModule : One or more errors occurred.
+At C:\Program Files\WindowsPowerShell\Modules\ExchangeOnlineManagement\3.9.2\netFramework\ExchangeOnlineManagement.psm1:498 char:35
++ ... tedModule = New-EXOModule -ConnectionContext $ConnectionContext -Skip ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [New-EXOModule], AggregateException
+    + FullyQualifiedErrorId : System.AggregateException,Microsoft.Exchange.Management.ExoPowershellSnapin.NewEXOModule
+
+For unattended execution, supply -AppId, -Organization and -CertificateThumbprint.
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:276 char:9
++         throw "For unattended execution, supply -AppId, -Organization ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (For unattended ...cateThumbprint.:String) [], RuntimeException
+    + FullyQualifiedErrorId : For unattended execution, supply -AppId, -Organization and -CertificateThumbprint.
+
+Exception calling "CompleteInput" with "4" argument(s): "Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index"
+Exception calling "CompleteInput" with "4" argument(s): "Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index"
+At line:45 char:16
++ ...      return [System.Management.Automation.CommandCompletion]::Complet ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : ArgumentOutOfRangeException
+
+The variable '$path' cannot be retrieved because it has not been set.
+The variable '$path' cannot be retrieved because it has not been set.
+At line:1 char:1
++ $path.tmp
++ ~~~~~
+    + CategoryInfo          : InvalidOperation: (path:String) [], RuntimeException
+    + FullyQualifiedErrorId : VariableIsUndefined
+
+The variable '$temppath' cannot be retrieved because it has not been set.
+The variable '$temppath' cannot be retrieved because it has not been set.
+At line:1 char:1
++ $temppath
++ ~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (temppath:String) [], RuntimeException
+    + FullyQualifiedErrorId : VariableIsUndefined
+
+Show-CriticalThresholdReport : Cannot bind argument to parameter 'ThresholdMailboxes' because it is an empty collection.
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:491 char:54
++ ... iticalThresholdReport -ThresholdMailboxes $thresholdMailboxes -Critic ...
++                                               ~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidData: (:) [Show-CriticalThresholdReport], ParameterBindingValidationException
+    + FullyQualifiedErrorId : ParameterArgumentValidationErrorEmptyCollectionNotAllowed,Show-CriticalThresholdReport
+
+Get-EXOMailbox : The underlying connection was closed: An unexpected error occurred on a receive.
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:308 char:16
++ ...  $mailbox = Get-EXOMailbox -Identity $Identity -Properties DisplayNam ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ProtocolError: (:) [Get-EXOMailbox], DataServiceTransportException
+    + FullyQualifiedErrorId : The underlying connection was closed: An unexpected error occurred on a receive.,Microsoft.Exchange.Management.RestApiClient.GetExoMailbox
+
+Get-EXOMailbox : The underlying connection was closed: An unexpected error occurred on a receive.
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:308 char:16
++ ...  $mailbox = Get-EXOMailbox -Identity $Identity -Properties DisplayNam ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ProtocolError: (:) [Get-EXOMailbox], DataServiceTransportException
+    + FullyQualifiedErrorId : The underlying connection was closed: An unexpected error occurred on a receive.,Microsoft.Exchange.Management.RestApiClient.GetExoMailbox
+
+CSV target data mapping missing: .\mailboxes.csv
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:446 char:51
++ ... Path $CsvPath)) { throw "CSV target data mapping missing: $CsvPath" }
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (CSV target data....\mailboxes.csv:String) [], RuntimeException
+    + FullyQualifiedErrorId : CSV target data mapping missing: .\mailboxes.csv
+
+Disconnect-ExchangeOnline : The 'Disconnect-ExchangeOnline' command was found in the module 'ExchangeOnlineManagement', but the module could not be loaded. For more information, run 'Import-Module ExchangeOnlineManagement'.
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:543 char:5
++     Disconnect-ExchangeOnline -Confirm:$false -ErrorAction SilentlyCo ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (Disconnect-ExchangeOnline:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CouldNotAutoloadMatchingModule
+
+CSV target data mapping missing: .\mailboxes.csv
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:446 char:51
++ ... Path $CsvPath)) { throw "CSV target data mapping missing: $CsvPath" }
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (CSV target data....\mailboxes.csv:String) [], RuntimeException
+    + FullyQualifiedErrorId : CSV target data mapping missing: .\mailboxes.csv
+
+Exception calling "CompleteInput" with "4" argument(s): "Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index"
+Exception calling "CompleteInput" with "4" argument(s): "Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index"
+At line:45 char:16
++ ...      return [System.Management.Automation.CommandCompletion]::Complet ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : ArgumentOutOfRangeException
+
+Could not find file 'D:\MailboxDashboard\Collector\mailboxes.csv'.
+Import-Csv : Could not find file 'D:\MailboxDashboard\Collector\mailboxes.csv'.
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:1035 char:20
++     $mailboxRows = Import-Csv -LiteralPath $CsvPath
++                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OpenError: (:) [Import-Csv], FileNotFoundException
+    + FullyQualifiedErrorId : FileOpenFailure,Microsoft.PowerShell.Commands.ImportCsvCommand
+
+CSV file not found: .\mailboxes.csv
+At D:\MailboxDashboard\Collector\Update-MailboxDashboard.ps1:1009 char:9
++         throw "CSV file not found: $CsvPath"
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (CSV file not found: .\mailboxes.csv:String) [], RuntimeException
+    + FullyQualifiedErrorId : CSV file not found: .\mailboxes.csv
+
+Exception calling "CompleteInput" with "4" argument(s): "Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index"
+At line:45 char:16
++ ...      return [System.Management.Automation.CommandCompletion]::Complet ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [], MethodInvocationException
+    + FullyQualifiedErrorId : ArgumentOutOfRangeException
+
+..\ : The term '..\' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ ..\
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (..\:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+Start-DashboardLogging : The term 'Start-DashboardLogging' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ Start-DashboardLogging
++ ~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (Start-DashboardLogging:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+Invoke-WebRequest : HTTP Error 404.4 - Not Found
+The resource you are looking for does not have a handler associated with it.Most likely causes:
+The file extension for the requested URL does not have a handler configured to process the request on the Web server.
+ Things you can try:
+If the file extension does not have a handler associated with it, add a handler mapping for the extension.
+Verify that the handler associated with the file extension is properly installed and configured.
+Create a tracing rule to track failed requests for this HTTP status code. For more information about creating a tracing rule for failed requests, click here.
+ Detailed Error Information:
+Module   IIS Web Core
+Notification   MapRequestHandler
+Handler   Not yet determined
+Error Code   0x80070002
+Requested URL   http://localhost:8080/
+Physical Path   D:\MailboxDashboard\Web
+Logon Method   Anonymous
+Logon User   Anonymous
+ More Information:
+This error means that the Web server does not recognize the file extension of the requested resource. A module handler is not configured on the Web server for this extension. If the file extension being denied is required by the Web server, add the
+appropriate handler for the file extension.
+View more information »
+At line:1 char:1
++ Invoke-WebRequest http://localhost:8080
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+dL : The term 'dL' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ dL
++ ~~
+    + CategoryInfo          : ObjectNotFound: (dL:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+` : The term '`' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:167 char:1
++ ``
++ ~~
+    + CategoryInfo          : ObjectNotFound: (`:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+Start-Website : Cannot create a file when that file already exists. (Exception from HRESULT: 0x800700B7)
+At line:154 char:1
++ Start-Website -Name $SiteName
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (:) [Start-Website], COMException
+    + FullyQualifiedErrorId : InvalidOperation,Microsoft.IIs.PowerShell.Provider.StartWebsiteCommand
+
+Add-WebConfigurationProperty : Filename:
+Error: Cannot add duplicate collection entry of type 'add' with unique key attribute 'value' set to 'index.html'
+
+
+At line:142 char:5
++     Add-WebConfigurationProperty `
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Add-WebConfigurationProperty], COMException
+    + FullyQualifiedErrorId : System.Runtime.InteropServices.COMException,Microsoft.IIs.PowerShell.Provider.AddConfigurationPropertyCommand
+
+Install-WindowsFeature : The target of the specified cmdlet cannot be a Windows client-based operating system.
+At line:53 char:5
++     Install-WindowsFeature -Name Web-Server -IncludeManagementTools | ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : DeviceError: (localhost:String) [Install-WindowsFeature], Exception
+    + FullyQualifiedErrorId : WindowsClient_NotSupported,Microsoft.Windows.ServerManager.Commands.AddWindowsFeatureCommand
+Get-WindowsFeature : The target of the specified cmdlet cannot be a Windows client-based operating system.
+At line:50 char:12
++ $feature = Get-WindowsFeature -Name Web-Server
++            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : DeviceError: (localhost:String) [Get-WindowsFeature], Exception
+    + FullyQualifiedErrorId : WindowsClient_NotSupported,Microsoft.Windows.ServerManager.Commands.GetWindowsFeatureCommand
+**********************
+Command start time: 20260622173955
+**********************
+PS D:\MailboxDashboard\Collector> $error = $null
+>> TerminatingError(): "Cannot overwrite variable Error because it is read-only or constant."
+Cannot overwrite variable Error because it is read-only or constant.
+At line:1 char:1
++ $error = $null
++ ~~~~~~~~~~~~~~
+    + CategoryInfo          : WriteError: (Error:String) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : VariableNotWritable
+
+**********************
+Command start time: 20260622174006
+**********************
+PS D:\MailboxDashboard\Collector> $error =
+You must provide a value expression following the '=' operator.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : ExpectedValueExpression
+
+**********************
+Command start time: 20260622174011
+**********************
+PS D:\MailboxDashboard\Collector> $Error[0]
+You must provide a value expression following the '=' operator.
+**********************
+Command start time: 20260623194014
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(TabExpansion2): "Exception calling "CompleteInput" with "4" argument(s): "Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index""
+**********************
+Command start time: 20260623194053
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(TabExpansion2): "Exception calling "CompleteInput" with "4" argument(s): "Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index""
+**********************
+Command start time: 20260623194138
+**********************
+PS D:\MailboxDashboard\Collector> TerminatingError(TabExpansion2): "Exception calling "CompleteInput" with "4" argument(s): "Index was out of range. Must be non-negative and less than the size of the collection.
+Parameter name: index""
+**********************
+Command start time: 20260623203934
+**********************
+PS D:\MailboxDashboard\Collector> New-HTMLTable -DataTable $mailboxData -Title 'Mailbox Usage Metrics' -paginglength 50 -DefaultSortOrder Descending
+>> TerminatingError(): "The variable '$mailboxData' cannot be retrieved because it has not been set."
+The variable '$mailboxData' cannot be retrieved because it has not been set.
+At line:1 char:26
++ New-HTMLTable -DataTable $mailboxData -Title 'Mailbox Usage Metrics'  ...
++                          ~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (mailboxData:String) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : VariableIsUndefined
+
+**********************
+Command start time: 20260623204011
+**********************
+PS D:\MailboxDashboard\Collector> $mailboxdata = "ok"
+**********************
+Command start time: 20260623204013
+**********************
+PS D:\MailboxDashboard\Collector> New-HTMLTable -DataTable $mailboxData -Title 'Mailbox Usage Metrics' -paginglength 50 -DefaultSortOrder Descending
+>> TerminatingError(): "The term 'New-HTMLTable' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again."
+New-HTMLTable : The term 'New-HTMLTable' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the
+name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:1
++ New-HTMLTable -DataTable $mailboxData -Title 'Mailbox Usage Metrics'  ...
++ ~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (New-HTMLTable:String) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+**********************
+Command start time: 20260623205402
+**********************
+PS D:\MailboxDashboard\Collector> pw
+>> TerminatingError(): "The term 'pw' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again."
+pw : The term 'pw' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was
+included, verify that the path is correct and try again.
+At line:1 char:1
++ pw
++ ~~
+    + CategoryInfo          : ObjectNotFound: (pw:String) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+**********************
+Command start time: 20260624023530
+**********************
+PS D:\MailboxDashboard\Collector> impor-module pshtml
+>> TerminatingError(): "The term 'impor-module' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again."
+impor-module : The term 'impor-module' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the
+path is correct and try again.
+At line:1 char:1
++ impor-module pshtml
++ ~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (impor-module:String) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
