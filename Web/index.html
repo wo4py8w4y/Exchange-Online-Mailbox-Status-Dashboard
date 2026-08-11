@@ -1,18 +1,15 @@
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <title>Exchange Online Mailbox Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="styles.css" />
-    
     <script>
         const savedTheme = localStorage.getItem('dashboardTheme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 </head>
-
 <body data-page="overview">
     <header style="display: flex; justify-content: space-between; align-items: center;">
         <div>
@@ -34,27 +31,18 @@
     </nav>
 
     <main>
+        <section class="panel search-container">
+            <label for="mailboxSearch"><strong>Find Mailbox:</strong></label>
+            <input list="mailboxList" id="mailboxSearch" placeholder="Type a Name or SMTP address to filter...">
+            <datalist id="mailboxList"></datalist>
+            <button id="clearSearchBtn" class="btn-secondary">Clear Filter</button>
+        </section>
+
         <section class="cards">
-            <article>
-                <span class="label">Mailboxes</span>
-                <strong id="mailboxCount">0</strong>
-            </article>
-            <article>
-                <span class="label">Total storage</span>
-                <strong id="totalStorage">0 GB</strong>
-            </article>
-            <article>
-                <span class="label">Total permissions</span>
-                <strong id="totalPermissions">0</strong>
-            </article>
-            <article>
-                <span class="label">Threshold alerts</span>
-                <strong id="thresholdCount">0</strong>
-            </article>
-            <article>
-                <span class="label">Largest mailbox</span>
-                <strong id="largestMailbox">N/A</strong>
-            </article>
+            <article><span class="label">Mailboxes</span><strong id="mailboxCount">0</strong></article>
+            <article><span class="label">Total storage</span><strong id="totalStorage">0 GB</strong></article>
+            <article><span class="label">Threshold alerts</span><strong id="thresholdCount">0</strong></article>
+            <article><span class="label">Largest mailbox</span><strong id="largestMailbox">N/A</strong></article>
         </section>
 
         <section class="chart-grid">
@@ -62,7 +50,6 @@
                 <h2>Mailbox health</h2>
                 <canvas id="usageDonutChart" width="520" height="360"></canvas>
             </article>
-
             <article class="panel">
                 <h2>Top storage consumers</h2>
                 <canvas id="topStorageChart" width="760" height="420"></canvas>
@@ -70,13 +57,13 @@
         </section>
 
         <section class="panel">
-            <h2>Current usage</h2>
+            <h2 id="tableTitle">Current usage</h2>
             <div class="table-wrap">
                 <table id="usageTable">
                     <thead>
                         <tr>
                             <th>Mailbox</th>
-                            <th>Type</th>
+                            <th>SMTP Address</th>
                             <th>Storage GB</th>
                             <th>Items</th>
                             <th>Quota GB</th>
@@ -90,24 +77,6 @@
             </div>
         </section>
     </main>
-
-    <script>
-        const themeBtn = document.getElementById('themeToggle');
-        
-        // Set initial button text based on the early-load script in <head>
-        themeBtn.textContent = document.documentElement.getAttribute('data-theme') === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode';
-
-        themeBtn.addEventListener('click', () => {
-            let currentTheme = document.documentElement.getAttribute('data-theme');
-            let newTheme = currentTheme === 'light' ? 'dark' : 'light';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('dashboardTheme', newTheme);
-            themeBtn.textContent = newTheme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode';
-        });
-    </script>
-
     <script defer src="dashboard.js"></script>
 </body>
-
 </html>

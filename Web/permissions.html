@@ -1,20 +1,25 @@
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <title>Mailbox Permissions</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="styles.css" />
+    <script>
+        const savedTheme = localStorage.getItem('dashboardTheme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 </head>
-
 <body data-page="permissions">
-    <header>
+    <header style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <h1>Current Mailbox Permissions</h1>
             <p id="lastUpdated">Loading...</p>
         </div>
-        <button id="refreshButton">Refresh now</button>
+        <div style="display: flex; gap: 10px;">
+            <button id="themeToggle" class="btn-secondary">Switch to Dark Mode</button>
+            <button id="refreshButton" class="btn-primary">Refresh now</button>
+        </div>
     </header>
 
     <nav class="panel view-nav" aria-label="Views">
@@ -26,13 +31,30 @@
     </nav>
 
     <main>
+        <section class="panel search-container">
+            <label for="mailboxSearch"><strong>Find Mailbox:</strong></label>
+            <input list="mailboxList" id="mailboxSearch" placeholder="Search a specific mailbox for permissions...">
+            <datalist id="mailboxList"></datalist>
+            <button id="clearSearchBtn" class="btn-secondary">Clear Filter</button>
+        </section>
+
         <section class="panel">
             <h2>Explicit permissions</h2>
-            <div id="permissionsContainer"></div>
+            <div class="table-wrap">
+                <table id="permsTable">
+                    <thead>
+                        <tr>
+                            <th>Mailbox</th>
+                            <th>Delegate User</th>
+                            <th>Rights</th>
+                            <th>Inherited</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </section>
     </main>
-
     <script defer src="dashboard.js"></script>
 </body>
-
 </html>

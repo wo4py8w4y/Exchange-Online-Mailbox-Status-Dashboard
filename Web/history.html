@@ -1,20 +1,25 @@
 <!doctype html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8" />
     <title>Mailbox History</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="styles.css" />
+    <script>
+        const savedTheme = localStorage.getItem('dashboardTheme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 </head>
-
 <body data-page="history">
-    <header>
+    <header style="display: flex; justify-content: space-between; align-items: center;">
         <div>
             <h1>Mailbox Historical Usage</h1>
             <p id="lastUpdated">Loading...</p>
         </div>
-        <button id="refreshButton">Refresh now</button>
+        <div style="display: flex; gap: 10px;">
+            <button id="themeToggle" class="btn-secondary">Switch to Dark Mode</button>
+            <button id="refreshButton" class="btn-primary">Refresh now</button>
+        </div>
     </header>
 
     <nav class="panel view-nav" aria-label="Views">
@@ -26,25 +31,36 @@
     </nav>
 
     <main>
-        <section class="panel">
-            <h2>Historical storage and utilisation</h2>
-            <label for="mailboxSelect">Mailbox</label>
-            <select id="mailboxSelect"></select>
+        <section class="panel search-container">
+            <label for="mailboxSearch"><strong>Find Mailbox:</strong></label>
+            <input list="mailboxList" id="mailboxSearch" placeholder="Type a Name or SMTP address to chart...">
+            <datalist id="mailboxList"></datalist>
+            <button id="clearSearchBtn" class="btn-secondary">Clear Filter</button>
+        </section>
 
+        <section class="panel">
+            <h2 id="tableTitle">Historical storage and utilisation</h2>
             <div class="chart-grid">
                 <div>
-                    <h3>Storage GB</h3>
+                    <h3>Storage Trend (GB)</h3>
                     <canvas id="historyStorageChart" width="1000" height="320"></canvas>
                 </div>
-                <div>
-                    <h3>Utilisation %</h3>
-                    <canvas id="historyUtilisationChart" width="1000" height="320"></canvas>
-                </div>
+            </div>
+            <div class="table-wrap">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Snapshot Date</th>
+                            <th>Storage GB</th>
+                            <th>Items</th>
+                            <th>Usage %</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </section>
     </main>
-
     <script defer src="dashboard.js"></script>
 </body>
-
 </html>
