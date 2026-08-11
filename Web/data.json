@@ -1,0 +1,32 @@
+[
+  {
+    "ExchangeGuid": "GeneratedUtc",
+    "PrimarySmtpAddress": null,
+    "DisplayName": null,
+    "MailboxSizeGB": null,
+    "ItemCount": null,
+    "PermissionCount": null,
+    "QuotaGB": null,
+    "UsagePercent": null,
+    "LastLogonTime": null,
+    "ArchiveEnabled": null,
+    "ArchiveSizeGB": null,
+    "ArchiveItemCount": null,
+    "Permissions": null
+  },
+  {
+    "ExchangeGuid": "MailboxHistory",
+    "PrimarySmtpAddress": "AccountsPayable@smartservice.qld.gov.au",
+    "DisplayName": "SSQ Accounts Payable",
+    "MailboxSizeGB": null,
+    "ItemCount": null,
+    "PermissionCount": null,
+    "QuotaGB": null,
+    "UsagePercent": null,
+    "LastLogonTime": null,
+    "ArchiveEnabled": null,
+    "ArchiveSizeGB": null,
+    "ArchiveItemCount": null,
+    "Permissions": null
+  }
+]

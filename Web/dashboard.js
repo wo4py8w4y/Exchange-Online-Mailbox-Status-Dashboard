@@ -2,7 +2,7 @@ const DATA_URL = "data.json";
 const HISTORY_URL = "history.json";
 let refreshTimer = null;
 let refreshMs = 60000;
-let historyData = null;
+let historyData = createEmptyHistoryData();
 
 // Global array holding normalized mailbox records
 window.allMailboxes = [];
@@ -56,7 +56,9 @@ async function loadDashboard() {
     const rawDashboardData = await dataResponse.json();
     
     if (historyResponse.ok) {
-        historyData = await historyResponse.json();
+        historyData = normaliseHistoryData(await historyResponse.json());
+    } else {
+        historyData = createEmptyHistoryData();
     }
 
     // 1. Extract array safely (handles top-level arrays or wrapped properties)
@@ -81,7 +83,12 @@ async function loadDashboard() {
         console.info("Target mailbox successfully bound:", targetMailbox);
     }
 
-    populateSearchDropdown(window.allMailboxes);
+    populateSearchDropdown(getSearchMailboxSource());
+    updateLastUpdated(
+        rawDashboardData?.GeneratedUtc ||
+        rawDashboardData?.generatedUtc ||
+        historyData.generatedUtc
+    );
     highlightNav();
 
     // 4. Render active page
@@ -105,7 +112,15 @@ function populateSearchDropdown(mailboxes) {
 function getMailboxes() {
     const searchInput = document.getElementById("mailboxSearch");
     const searchText = searchInput ? searchInput.value : "";
-    return filterMailboxes(window.allMailboxes, searchText);
+    return filterMailboxes(getSearchMailboxSource(), searchText);
+}
+
+function getSearchMailboxSource() {
+    const page = document.body.getAttribute("data-page");
+    if (page === "history" && historyData.mailboxes.length > 0) {
+        return historyData.mailboxes;
+    }
+    return window.allMailboxes;
 }
 
 function applyFilter() {
@@ -246,8 +261,7 @@ function renderHistoryPage() {
         return;
     }
 
-    const guid = mailboxes[0].exchangeGuid;
-    const histPoints = historyData?.[guid] || [];
+    const histPoints = getHistoryPointsForMailbox(mailboxes[0]);
 
     if (tbody) {
         tbody.innerHTML = "";
@@ -403,6 +417,15 @@ function getNumber(record, propertyNames) {
     return null;
 }
 
+function createEmptyHistoryData() {
+    return {
+        generatedUtc: null,
+        mailboxes: [],
+        byGuid: {},
+        bySmtp: {}
+    };
+}
+
 function extractMailboxArray(payload) {
     if (Array.isArray(payload)) {
         // Strip string timestamp at index 0 if present
@@ -413,6 +436,76 @@ function extractMailboxArray(payload) {
     if (Array.isArray(payload.data)) return payload.data;
     if (Array.isArray(payload.value)) return payload.value;
     return [];
+}
+
+function normaliseHistoryData(payload) {
+    const normalised = createEmptyHistoryData();
+    if (!payload || typeof payload !== "object") return normalised;
+
+    normalised.generatedUtc =
+        payload.GeneratedUtc ??
+        payload.generatedUtc ??
+        null;
+
+    const mailboxHistory = Array.isArray(payload.MailboxHistory)
+        ? payload.MailboxHistory
+        : Array.isArray(payload.mailboxHistory)
+            ? payload.mailboxHistory
+            : null;
+
+    if (mailboxHistory) {
+        mailboxHistory.forEach(record => {
+            addHistoryMailboxRecord(normalised, record);
+        });
+        return normalised;
+    }
+
+    if (Array.isArray(payload)) {
+        payload.forEach(record => {
+            addHistoryMailboxRecord(normalised, record);
+        });
+        return normalised;
+    }
+
+    Object.entries(payload).forEach(([key, value]) => {
+        if (key === "GeneratedUtc" || key === "generatedUtc" || !Array.isArray(value)) return;
+
+        const samples = normaliseHistorySamples(value);
+        if (samples.length === 0) return;
+
+        normalised.byGuid[key] = samples;
+    });
+
+    return normalised;
+}
+
+function addHistoryMailboxRecord(target, record) {
+    const mailbox = normaliseMailbox(record);
+    const samples = normaliseHistorySamples(record?.Samples ?? record?.samples);
+    if (samples.length === 0) return;
+
+    target.mailboxes.push(mailbox);
+
+    if (mailbox.exchangeGuid) {
+        target.byGuid[mailbox.exchangeGuid] = samples;
+    }
+
+    if (mailbox.primarySmtpAddress) {
+        target.bySmtp[mailbox.primarySmtpAddress.toLowerCase()] = samples;
+    }
+}
+
+function normaliseHistorySamples(samples) {
+    if (!Array.isArray(samples)) return [];
+
+    return samples
+        .filter(sample => sample && typeof sample === "object")
+        .map(sample => ({
+            TimestampUtc: sample.TimestampUtc ?? sample.timestampUtc ?? sample.Timestamp ?? sample.timestamp ?? null,
+            SizeGB: getNumber(sample, ["SizeGB", "sizeGB", "TotalGB", "totalGB", "StorageGB", "MailboxSizeGB"]) ?? 0,
+            ItemCount: getNumber(sample, ["ItemCount", "itemCount", "Items"]) ?? 0,
+            UsagePercent: getNumber(sample, ["UsagePercent", "usagePercent"]) ?? 0
+        }));
 }
 
 function normaliseMailbox(source) {
@@ -470,6 +563,21 @@ function normaliseMailbox(source) {
         },
         permissions: source.permissions || new Array(permCount)
     };
+}
+
+function getHistoryPointsForMailbox(mailbox) {
+    if (!mailbox) return [];
+
+    if (mailbox.exchangeGuid && Array.isArray(historyData.byGuid[mailbox.exchangeGuid])) {
+        return historyData.byGuid[mailbox.exchangeGuid];
+    }
+
+    const smtpAddress = String(mailbox.primarySmtpAddress || "").toLowerCase();
+    if (smtpAddress && Array.isArray(historyData.bySmtp[smtpAddress])) {
+        return historyData.bySmtp[smtpAddress];
+    }
+
+    return [];
 }
 
 function extractPermissions(payload) {
