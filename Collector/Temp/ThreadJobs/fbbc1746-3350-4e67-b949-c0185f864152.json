@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "fbbc1746-3350-4e67-b949-c0185f864152",
+  "PrimarySmtpAddress": "Scott.Lai@hpw.qld.gov.au",
+  "DisplayName": "Scott Lai",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 7.0,
+  "ItemCount": 13192,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}

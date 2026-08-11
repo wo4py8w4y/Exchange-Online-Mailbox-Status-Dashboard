@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "bf65e6fc-2c91-41dc-9086-5912bb2bb531",
+  "PrimarySmtpAddress": "Kelvin.Moll@hpw.qld.gov.au",
+  "DisplayName": "Kelvin Moll",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 1.0,
+  "ItemCount": 2494,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}

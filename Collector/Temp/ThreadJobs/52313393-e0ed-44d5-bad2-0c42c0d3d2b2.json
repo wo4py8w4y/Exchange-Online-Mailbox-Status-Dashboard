@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "52313393-e0ed-44d5-bad2-0c42c0d3d2b2",
+  "PrimarySmtpAddress": "Cassandra.Koch@hpw.qld.gov.au",
+  "DisplayName": "Cassandra Koch",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 2.0,
+  "ItemCount": 4298,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}

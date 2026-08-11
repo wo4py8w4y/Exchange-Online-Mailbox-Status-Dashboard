@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "ce43fbe0-27d2-4706-9de5-4bb5ce226527",
+  "PrimarySmtpAddress": "Jean.Kassman@hpw.qld.gov.au",
+  "DisplayName": "Jean Kassman",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 6.0,
+  "ItemCount": 20818,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}

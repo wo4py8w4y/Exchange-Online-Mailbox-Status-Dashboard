@@ -10,32 +10,50 @@ if (-not (Test-Path $TempDir)) { New-Item -ItemType Directory -Path $TempDir -Fo
 Remove-Item "$TempDir\*.json" -Force -ErrorAction SilentlyContinue
 
 Write-Host "Gathering Mailbox list from Exchange Online..." -ForegroundColor Cyan
-$Mailboxes = Get-EXOMailbox -ResultSize Unlimited -PropertySets Minimum, Archive
+# EXPLICITLY requesting ExchangeGuid to ensure the EXO module populates it
+$Mailboxes = Get-EXOMailbox -ResultSize 200 -PropertySets Minimum, Archive -Properties ExchangeGuid, ExternalDirectoryObjectId
 $TimestampUtc = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
-
+write-color -Color Yellow -BackGroundColor DarkBlue -Text "TEST MODE! ONLY PROCESSING 200 MAILBOXES"
 Write-Host "Spawning threads for $($Mailboxes.Count) mailboxes..." -ForegroundColor Cyan
 
 # 2. Run background threads in parallel
 $Mailboxes | ForEach-Object -Parallel {
     $mbx = $_
-    $Guid = $mbx.ExchangeGuid.Guid
     $OutDir = $using:TempDir
     $CurrentTime = $using:TimestampUtc
 
+    # EXPLICIT EXTRACTION AND FALLBACK LOGIC
+    $SafeIdentity = $null
+    
+    if ($null -ne $mbx.ExchangeGuid) {
+        # Sometimes it's a string, sometimes it's an object with a .Guid property
+        $SafeIdentity = if ($mbx.ExchangeGuid -is [string]) { $mbx.ExchangeGuid } else { $mbx.ExchangeGuid.Guid }
+    }
+    
+    # Fallback to Entra ID Object ID, then finally PrimarySmtpAddress if GUID is completely missing
+    if ([string]::IsNullOrWhiteSpace($SafeIdentity)) { $SafeIdentity = $mbx.ExternalDirectoryObjectId }
+    if ([string]::IsNullOrWhiteSpace($SafeIdentity)) { $SafeIdentity = $mbx.PrimarySmtpAddress }
+
+    # If it's STILL empty (highly unlikely), skip it safely
+    if ([string]::IsNullOrWhiteSpace($SafeIdentity)) {
+        Write-Warning "Skipping mailbox with missing Identifier: $($mbx.DisplayName)"
+        return 
+    }
+
     # Fetch stats
-    $PrimaryStats = Get-EXOMailboxStatistics -Identity $Guid
+    $PrimaryStats = Get-EXOMailboxStatistics -Identity $SafeIdentity -Archive:$false
     
     $ArchiveStats = $null
     if ($mbx.ArchiveStatus -eq 'Active') {
-        $ArchiveStats = try { Get-EXOMailboxStatistics -Identity $Guid -Archive } catch { $null }
+        $ArchiveStats = try { Get-EXOMailboxStatistics -Identity $SafeIdentity -Archive } catch { $null }
     }
 
-    $Perms = Get-EXOMailboxPermission -Identity $Guid | 
+    $Perms = Get-EXOMailboxPermission -Identity $SafeIdentity | 
         Where-Object { $_.User -notmatch 'NT AUTHORITY|S-1-5' -and $_.IsInherited -eq $false -and $_.User -ne $mbx.PrimarySmtpAddress }
 
     # Build the record
     $Record = [ordered]@{
-        ExchangeGuid       = $Guid
+        ExchangeGuid       = $SafeIdentity
         PrimarySmtpAddress = $mbx.PrimarySmtpAddress
         DisplayName        = $mbx.DisplayName
         TimestampUtc       = $CurrentTime
@@ -49,8 +67,9 @@ $Mailboxes | ForEach-Object -Parallel {
         Permissions        = $Perms
     }
 
-    # WRITE TO A UNIQUE TEMP FILE NAMED AFTER THE GUID
-    $TempFilePath = Join-Path -Path $OutDir -ChildPath "$Guid.json"
+    # WRITE TO A UNIQUE TEMP FILE NAMED AFTER THE GUID OR SMTP
+    $SafeFileName = ($SafeIdentity -replace '[\\/:*?"<>|]', '_') + ".json"
+    $TempFilePath = Join-Path -Path $OutDir -ChildPath $SafeFileName
     $Record | ConvertTo-Json -Depth 10 | Set-Content -Path $TempFilePath -Encoding utf8
 
 } -ThrottleLimit $MaxThreads

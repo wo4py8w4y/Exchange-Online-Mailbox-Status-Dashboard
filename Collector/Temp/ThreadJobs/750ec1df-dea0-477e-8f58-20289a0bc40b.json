@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "750ec1df-dea0-477e-8f58-20289a0bc40b",
+  "PrimarySmtpAddress": "Thomas.Toomey@hpw.qld.gov.au",
+  "DisplayName": "Thomas Toomey",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 22.0,
+  "ItemCount": 8177,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": true,
+  "ArchiveSizeGB": 0.0,
+  "ArchiveItemCount": 17,
+  "Permissions": null
+}

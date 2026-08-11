@@ -165,30 +165,45 @@ function renderPermissionsTable() {
     if (!tbody) return;
     tbody.innerHTML = "";
 
-    const perms = extractPermissions(window.allMailboxes);
     const searchInput = document.getElementById("mailboxSearch");
     const filterTerm = searchInput ? searchInput.value.toLowerCase() : "";
 
-    const filteredPerms = perms.filter(p => 
-        p.mailbox.toLowerCase().includes(filterTerm) || 
-        p.delegate.toLowerCase().includes(filterTerm)
-    );
+    const mailboxes = window.allMailboxes || [];
+    let hasAny = false;
 
-    if (filteredPerms.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No explicit permissions found matching search criteria.</td></tr>`;
-        return;
-    }
+    mailboxes.forEach(m => {
+        const perms = m.permissions || [];
+        if (!Array.isArray(perms)) return;
 
-    filteredPerms.forEach(p => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-            <td>${escapeHtml(p.mailbox)}</td>
-            <td>${escapeHtml(p.delegate)}</td>
-            <td>${escapeHtml(Array.isArray(p.rights) ? p.rights.join(", ") : p.rights)}</td>
-            <td>${p.inherited ? "Yes" : "No"}</td>
-        `;
-        tbody.appendChild(tr);
+        perms.forEach(p => {
+            const mailboxName = (m.displayName || m.primarySmtpAddress || "").toLowerCase();
+            const delegateName = (p.User || p.user || p.Delegate || "").toLowerCase();
+
+            // Apply search filter if one exists
+            if (filterTerm && !mailboxName.includes(filterTerm) && !delegateName.includes(filterTerm)) {
+                return; // Skip if it doesn't match the search
+            }
+
+            hasAny = true;
+            const tr = document.createElement("tr");
+
+            // Handle rights array or string safely
+            let rights = p.AccessRights || p.accessRights || p.Rights || [];
+            let rightsStr = Array.isArray(rights) ? rights.join(", ") : String(rights);
+
+            tr.innerHTML = `
+                <td>${escapeHtml(m.displayName || m.primarySmtpAddress)}</td>
+                <td>${escapeHtml(p.User || p.user || p.Delegate || "")}</td>
+                <td>${escapeHtml(rightsStr)}</td>
+                <td>${(p.IsInherited || p.isInherited) ? "Yes" : "No"}</td>
+            `;
+            tbody.appendChild(tr);
+        });
     });
+
+    if (!hasAny) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px;">No explicit permissions found matching search criteria.</td></tr>`;
+    }
 }
 
 function renderThresholdsTable() {

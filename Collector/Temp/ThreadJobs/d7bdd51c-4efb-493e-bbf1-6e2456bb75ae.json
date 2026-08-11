@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "d7bdd51c-4efb-493e-bbf1-6e2456bb75ae",
+  "PrimarySmtpAddress": "Cody.Hodges@hpw.qld.gov.au",
+  "DisplayName": "Cody Hodges",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 2.0,
+  "ItemCount": 8177,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}

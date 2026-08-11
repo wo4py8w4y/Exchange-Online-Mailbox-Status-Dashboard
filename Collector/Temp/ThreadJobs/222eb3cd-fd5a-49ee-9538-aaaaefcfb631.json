@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "222eb3cd-fd5a-49ee-9538-aaaaefcfb631",
+  "PrimarySmtpAddress": "Neal.Baxter@hpw.qld.gov.au",
+  "DisplayName": "Neal Baxter",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 3.0,
+  "ItemCount": 10854,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}

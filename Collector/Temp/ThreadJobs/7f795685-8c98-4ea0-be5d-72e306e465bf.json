@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "7f795685-8c98-4ea0-be5d-72e306e465bf",
+  "PrimarySmtpAddress": "Peter.Haggan.admin@hpwqld.onmicrosoft.com",
+  "DisplayName": "Peter Haggan (Admin)",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 0.0,
+  "ItemCount": 150,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}

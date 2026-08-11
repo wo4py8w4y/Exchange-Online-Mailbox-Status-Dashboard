@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "150ee0c5-d253-4a00-bdce-7c911b3d5a4b",
+  "PrimarySmtpAddress": "Travis.Auton@hpw.qld.gov.au",
+  "DisplayName": "Travis Auton",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 0.0,
+  "ItemCount": 720,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}

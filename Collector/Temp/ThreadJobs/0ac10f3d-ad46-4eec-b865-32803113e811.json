@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "0ac10f3d-ad46-4eec-b865-32803113e811",
+  "PrimarySmtpAddress": "Prue.Peart@hpw.qld.gov.au",
+  "DisplayName": "Prue Peart",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 22.0,
+  "ItemCount": 45229,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}

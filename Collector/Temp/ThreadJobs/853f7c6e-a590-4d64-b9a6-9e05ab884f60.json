@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "853f7c6e-a590-4d64-b9a6-9e05ab884f60",
+  "PrimarySmtpAddress": "Nathan.Schumacher@cdsb.qld.gov.au",
+  "DisplayName": "Nathan Schumacher",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 1.0,
+  "ItemCount": 6511,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}

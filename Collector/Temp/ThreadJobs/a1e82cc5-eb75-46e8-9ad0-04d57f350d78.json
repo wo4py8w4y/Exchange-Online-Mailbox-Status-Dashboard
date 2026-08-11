@@ -1,0 +1,14 @@
+{
+  "ExchangeGuid": "a1e82cc5-eb75-46e8-9ad0-04d57f350d78",
+  "PrimarySmtpAddress": "Susan.Lackey@chde.qld.gov.au",
+  "DisplayName": "Susan Lackey",
+  "TimestampUtc": "2026-08-11T08:46:33Z",
+  "SizeGB": 0.0,
+  "ItemCount": 23,
+  "QuotaGB": 50.0,
+  "LastLogonTime": null,
+  "ArchiveEnabled": false,
+  "ArchiveSizeGB": 0,
+  "ArchiveItemCount": 0,
+  "Permissions": null
+}
