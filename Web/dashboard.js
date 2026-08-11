@@ -2,8 +2,102 @@ const DATA_URL = "data.json";
 const HISTORY_URL = "history.json";
 const MAX_SEARCH_RESULTS = 24;
 const MAX_TABLE_ROWS = 250;
+const DEFAULT_PAGE_SIZE = 50;
 const WARNING_THRESHOLD = 85;
 const CRITICAL_THRESHOLD = 94;
+
+const AVAILABLE_THEMES = [
+    { id: "default-light",  name: "Default Light",   file: null,                         baseTheme: "light" },
+    { id: "default-dark",   name: "Default Dark",    file: null,                         baseTheme: "dark"  },
+    { id: "github-dark",    name: "GitHub Dark",     file: "theme/dark.jsonc",           baseTheme: "dark"  },
+    { id: "neon-punk",      name: "Neon Punk",       file: "theme/neon-punk.jsonc",      baseTheme: "dark"  },
+    { id: "undershaddows",  name: "Under Shadows",   file: "theme/undershaddows.jsonc",  baseTheme: "dark"  },
+    { id: "splendid",       name: "Splendid",        file: "theme/splendid.jsonc",       baseTheme: "light" },
+    { id: "eyes-wide-open", name: "Eyes Wide Open",  file: "theme/eyes-wide-open.jsonc", baseTheme: "light" },
+];
+
+const TABLE_EXPORT_CONFIG = {
+    usageTable: {
+        title: "Current Mailbox Usage",
+        toExportRow: m => ({
+            displayName: m.displayName, primarySmtpAddress: m.primarySmtpAddress,
+            storageGB: m.current.totalGB, itemCount: m.current.itemCount,
+            quotaGB: m.current.quotaGB, usagePercent: m.current.usagePercent,
+            permissions: m.permissions.length, lastLogonTime: m.current.lastLogonTime
+        }),
+        columns: [
+            { header: "Mailbox",       value: m => m.displayName },
+            { header: "SMTP Address",  value: m => m.primarySmtpAddress },
+            { header: "Storage GB",    value: m => m.current.totalGB },
+            { header: "Items",         value: m => m.current.itemCount },
+            { header: "Quota GB",      value: m => m.current.quotaGB ?? "Unlimited" },
+            { header: "Usage %",       value: m => m.current.usagePercent },
+            { header: "Permissions",   value: m => m.permissions.length },
+            { header: "Last Logon",    value: m => m.current.lastLogonTime ?? "" },
+        ]
+    },
+    permsTable: {
+        title: "Mailbox Permissions",
+        toExportRow: ({ mailbox, permission }) => ({
+            mailboxName: mailbox.displayName, mailboxAddress: mailbox.primarySmtpAddress,
+            delegateUser: permission.User, accessRights: Array.isArray(permission.AccessRights) ? permission.AccessRights.join(", ") : permission.AccessRights,
+            isInherited: permission.IsInherited
+        }),
+        columns: [
+            { header: "Mailbox",      value: r => r.mailbox.displayName },
+            { header: "SMTP Address", value: r => r.mailbox.primarySmtpAddress },
+            { header: "Delegate",     value: r => r.permission.User },
+            { header: "Rights",       value: r => Array.isArray(r.permission.AccessRights) ? r.permission.AccessRights.join(", ") : String(r.permission.AccessRights || "") },
+            { header: "Inherited",    value: r => r.permission.IsInherited ? "Yes" : "No" },
+        ]
+    },
+    thresholdTable: {
+        title: "Mailboxes at Threshold",
+        toExportRow: m => ({
+            displayName: m.displayName, primarySmtpAddress: m.primarySmtpAddress,
+            storageGB: m.current.totalGB, quotaGB: m.current.quotaGB,
+            usagePercent: m.current.usagePercent,
+            status: (m.current.usagePercent || 0) >= CRITICAL_THRESHOLD ? "Critical" : "Warning"
+        }),
+        columns: [
+            { header: "Mailbox",    value: m => m.displayName },
+            { header: "Storage GB", value: m => m.current.totalGB },
+            { header: "Quota GB",   value: m => m.current.quotaGB ?? "Unlimited" },
+            { header: "Usage %",    value: m => m.current.usagePercent },
+            { header: "Status",     value: m => (m.current.usagePercent || 0) >= CRITICAL_THRESHOLD ? "Critical" : "Warning" },
+        ]
+    },
+    historyTable: {
+        title: "Mailbox History",
+        toExportRow: p => ({ timestampUtc: p.TimestampUtc, storageGB: p.SizeGB, itemCount: p.ItemCount, usagePercent: p.UsagePercent }),
+        columns: [
+            { header: "Snapshot Date", value: p => p.TimestampUtc },
+            { header: "Storage GB",    value: p => p.SizeGB },
+            { header: "Items",         value: p => p.ItemCount },
+            { header: "Usage %",       value: p => p.UsagePercent },
+        ]
+    },
+    mailboxSnapshotsTable: {
+        title: "Mailbox Snapshots",
+        toExportRow: p => ({ timestampUtc: p.TimestampUtc, primaryGB: p.SizeGB, archiveGB: p.ArchiveSizeGB, itemCount: p.ItemCount, usagePercent: p.UsagePercent }),
+        columns: [
+            { header: "Snapshot Date", value: p => p.TimestampUtc },
+            { header: "Primary GB",    value: p => p.SizeGB },
+            { header: "Archive GB",    value: p => p.ArchiveSizeGB },
+            { header: "Items",         value: p => p.ItemCount },
+            { header: "Usage %",       value: p => p.UsagePercent },
+        ]
+    },
+    mailboxPermissionsTable: {
+        title: "Explicit Permissions",
+        toExportRow: p => ({ user: p.User, accessRights: Array.isArray(p.AccessRights) ? p.AccessRights.join(", ") : String(p.AccessRights || ""), isInherited: p.IsInherited }),
+        columns: [
+            { header: "Delegate", value: p => p.User },
+            { header: "Rights",   value: p => Array.isArray(p.AccessRights) ? p.AccessRights.join(", ") : String(p.AccessRights || "") },
+            { header: "Inherited", value: p => p.IsInherited ? "Yes" : "No" },
+        ]
+    },
+};
 
 let refreshTimer = null;
 let refreshMs = 60000;
@@ -13,7 +107,16 @@ const state = {
     currentMailboxes: [],
     selectableMailboxes: [],
     mailboxLookup: new Map(),
-    selectedMailboxKey: null
+    selectedMailboxKey: null,
+    pagination: {
+        usageTable:              { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        permsTable:              { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        thresholdTable:          { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        historyTable:            { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        mailboxSnapshotsTable:   { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        mailboxPermissionsTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 }
+    },
+    tableData: {}
 };
 
 window.allMailboxes = [];
@@ -21,6 +124,7 @@ window.allMailboxes = [];
 document.addEventListener("DOMContentLoaded", () => {
     bindHeaderControls();
     bindSearchControls();
+    bindTableControls();
     loadDashboard().catch(showError);
     resetAutoRefreshTimer();
 });
@@ -31,21 +135,7 @@ function bindHeaderControls() {
         refreshButton.addEventListener("click", () => loadDashboard().catch(showError));
     }
 
-    const themeBtn = document.getElementById("themeToggle");
-    if (themeBtn) {
-        themeBtn.textContent = document.documentElement.getAttribute("data-theme") === "light"
-            ? "Switch to Dark Mode"
-            : "Switch to Light Mode";
-
-        themeBtn.addEventListener("click", () => {
-            const currentTheme = document.documentElement.getAttribute("data-theme");
-            const newTheme = currentTheme === "light" ? "dark" : "light";
-            document.documentElement.setAttribute("data-theme", newTheme);
-            localStorage.setItem("dashboardTheme", newTheme);
-            themeBtn.textContent = newTheme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode";
-            applyFilter();
-        });
-    }
+    initThemeSelector();
 }
 
 function bindSearchControls() {
@@ -224,7 +314,10 @@ function getMailboxes() {
     return filterMailboxes(state.currentMailboxes, getSearchInputValue());
 }
 
-function applyFilter() {
+function applyFilter(opts = {}) {
+    if (!opts.keepPagination) {
+        Object.keys(state.pagination).forEach(k => { state.pagination[k].page = 1; });
+    }
     renderSearchUi();
 
     switch (getCurrentPage()) {
@@ -458,13 +551,20 @@ function renderUsageTable(mailboxes) {
     if (!tbody) return;
 
     const sorted = [...mailboxes].sort((a, b) => (b.current.totalGB || 0) - (a.current.totalGB || 0));
-    const rows = sorted.slice(0, MAX_TABLE_ROWS);
+    state.tableData.usageTable = sorted;
+
+    const pg = state.pagination.usageTable;
+    const totalPages = Math.max(1, Math.ceil(sorted.length / pg.pageSize));
+    pg.page = Math.max(1, Math.min(pg.page, totalPages));
+    const rows = sorted.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
 
     if (tableMeta) {
-        tableMeta.textContent = rows.length < sorted.length
-            ? `Showing ${formatNumber(rows.length)} of ${formatNumber(sorted.length)} matching mailboxes.`
-            : `${formatNumber(sorted.length)} mailbox${sorted.length === 1 ? "" : "es"} shown.`;
+        tableMeta.textContent = sorted.length === 0
+            ? "No mailboxes found matching that search."
+            : `${formatNumber(sorted.length)} mailbox${sorted.length === 1 ? "" : "es"}`;
     }
+
+    renderPaginationBar("usageTablePagination", "usageTable");
 
     if (rows.length === 0) {
         tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No mailboxes found matching that search.</td></tr>`;
@@ -502,10 +602,16 @@ function renderPermissionsTable() {
             if (query && !selected && !mailboxName.includes(query) && !delegateName.includes(query)) {
                 return;
             }
-
             rows.push({ mailbox, permission });
         });
     });
+
+    state.tableData.permsTable = rows;
+
+    const pg = state.pagination.permsTable;
+    const totalPages = Math.max(1, Math.ceil(rows.length / pg.pageSize));
+    pg.page = Math.max(1, Math.min(pg.page, totalPages));
+    const pageRows = rows.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
 
     if (tableMeta) {
         tableMeta.textContent = selected
@@ -513,12 +619,14 @@ function renderPermissionsTable() {
             : `${formatNumber(rows.length)} explicit permission row${rows.length === 1 ? "" : "s"} in view.`;
     }
 
-    if (rows.length === 0) {
+    renderPaginationBar("permsTablePagination", "permsTable");
+
+    if (pageRows.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No explicit permissions found for the current view.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = rows.slice(0, MAX_TABLE_ROWS).map(({ mailbox, permission }) => `
+    tbody.innerHTML = pageRows.map(({ mailbox, permission }) => `
         <tr>
             <td><a class="table-link" href="${escapeHtml(buildMailboxUrl("mailbox.html", mailbox))}">${escapeHtml(mailbox.displayName)}</a></td>
             <td>${escapeHtml(permission.User || permission.user || permission.Delegate || "")}</td>
@@ -533,15 +641,24 @@ function renderThresholdsTable() {
     const tableMeta = document.getElementById("tableMeta");
     if (!tbody) return;
 
-    const rows = getMailboxes()
+    const sorted = getMailboxes()
         .filter(mailbox => (mailbox.current.usagePercent || 0) >= WARNING_THRESHOLD)
         .sort((a, b) => (b.current.usagePercent || 0) - (a.current.usagePercent || 0));
 
+    state.tableData.thresholdTable = sorted;
+
+    const pg = state.pagination.thresholdTable;
+    const totalPages = Math.max(1, Math.ceil(sorted.length / pg.pageSize));
+    pg.page = Math.max(1, Math.min(pg.page, totalPages));
+    const rows = sorted.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
+
     if (tableMeta) {
-        tableMeta.textContent = rows.length === 0
+        tableMeta.textContent = sorted.length === 0
             ? "No warning or critical mailboxes in the current view."
-            : `${formatNumber(rows.length)} mailbox${rows.length === 1 ? "" : "es"} at or above ${WARNING_THRESHOLD}% usage.`;
+            : `${formatNumber(sorted.length)} mailbox${sorted.length === 1 ? "" : "es"} at or above ${WARNING_THRESHOLD}% usage.`;
     }
+
+    renderPaginationBar("thresholdTablePagination", "thresholdTable");
 
     if (rows.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No mailboxes currently over warning/critical thresholds.</td></tr>`;
@@ -568,17 +685,25 @@ function renderHistoryTable(histPoints) {
     if (!tbody) return;
 
     const sorted = [...histPoints].sort((a, b) => new Date(b.TimestampUtc) - new Date(a.TimestampUtc));
+    state.tableData.historyTable = sorted;
+
+    const pg = state.pagination.historyTable;
+    const totalPages = Math.max(1, Math.ceil(sorted.length / pg.pageSize));
+    pg.page = Math.max(1, Math.min(pg.page, totalPages));
+    const rows = sorted.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
 
     if (tableMeta) {
         tableMeta.textContent = `${formatNumber(sorted.length)} historical snapshot${sorted.length === 1 ? "" : "s"} loaded.`;
     }
 
-    if (sorted.length === 0) {
+    renderPaginationBar("historyTablePagination", "historyTable");
+
+    if (rows.length === 0) {
         tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No history data available for this mailbox.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = sorted.map(point => `
+    tbody.innerHTML = rows.map(point => `
         <tr>
             <td>${formatDate(point.TimestampUtc)}</td>
             <td>${formatGB(point.SizeGB)}</td>
@@ -594,14 +719,23 @@ function renderMailboxSnapshotsTable(selected) {
     if (!tbody || !meta) return;
 
     const history = selected ? getHistoryPointsForMailbox(selected).slice().sort((a, b) => new Date(b.TimestampUtc) - new Date(a.TimestampUtc)) : [];
+    state.tableData.mailboxSnapshotsTable = history;
+
+    const pg = state.pagination.mailboxSnapshotsTable;
+    const totalPages = Math.max(1, Math.ceil(history.length / pg.pageSize));
+    pg.page = Math.max(1, Math.min(pg.page, totalPages));
+    const rows = history.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
+
     meta.textContent = `${formatNumber(history.length)} snapshot${history.length === 1 ? "" : "s"} available.`;
 
-    if (!selected || history.length === 0) {
+    renderPaginationBar("mailboxSnapshotsTablePagination", "mailboxSnapshotsTable");
+
+    if (!selected || rows.length === 0) {
         tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Select a mailbox to inspect recent snapshots.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = history.slice(0, 25).map(point => `
+    tbody.innerHTML = rows.map(point => `
         <tr>
             <td>${formatDate(point.TimestampUtc)}</td>
             <td>${formatGB(point.SizeGB)}</td>
@@ -618,14 +752,23 @@ function renderMailboxPermissionsTable(selected) {
     if (!tbody || !meta) return;
 
     const permissions = selected ? selected.permissions : [];
+    state.tableData.mailboxPermissionsTable = permissions;
+
+    const pg = state.pagination.mailboxPermissionsTable;
+    const totalPages = Math.max(1, Math.ceil(permissions.length / pg.pageSize));
+    pg.page = Math.max(1, Math.min(pg.page, totalPages));
+    const rows = permissions.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
+
     meta.textContent = `${formatNumber(permissions.length)} explicit permission row${permissions.length === 1 ? "" : "s"}.`;
 
-    if (!selected || permissions.length === 0) {
+    renderPaginationBar("mailboxPermissionsTablePagination", "mailboxPermissionsTable");
+
+    if (!selected || rows.length === 0) {
         tbody.innerHTML = `<tr><td colspan="3" class="empty-state">No explicit permissions are available for this mailbox.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = permissions.map(permission => `
+    tbody.innerHTML = rows.map(permission => `
         <tr>
             <td>${escapeHtml(permission.User || permission.user || permission.Delegate || "")}</td>
             <td>${escapeHtml(Array.isArray(permission.AccessRights || permission.accessRights) ? (permission.AccessRights || permission.accessRights).join(", ") : String(permission.AccessRights || permission.accessRights || permission.Rights || ""))}</td>
@@ -1351,4 +1494,271 @@ function showError(error) {
     if (status) {
         status.textContent = error instanceof Error ? error.message : "An unexpected error occurred while loading the dashboard.";
     }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   THEME SYSTEM
+═══════════════════════════════════════════════════════════════ */
+
+function initThemeSelector() {
+    const sel = document.getElementById("themeSelect");
+    if (!sel) return;
+
+    AVAILABLE_THEMES.forEach(theme => {
+        const opt = document.createElement("option");
+        opt.value = theme.id;
+        opt.textContent = theme.name;
+        sel.appendChild(opt);
+    });
+
+    const savedId = localStorage.getItem("dashboardThemeId") || "default-light";
+    sel.value = savedId;
+    applyThemeById(savedId);
+
+    sel.addEventListener("change", () => applyThemeById(sel.value));
+}
+
+async function applyThemeById(themeId) {
+    const theme = AVAILABLE_THEMES.find(t => t.id === themeId) || AVAILABLE_THEMES[0];
+
+    if (!theme.file) {
+        clearAppliedThemeVars();
+        document.documentElement.setAttribute("data-theme", theme.baseTheme);
+        localStorage.setItem("dashboardThemeId", themeId);
+        localStorage.setItem("dashboardTheme", theme.baseTheme);
+        applyFilter({ keepPagination: true });
+        return;
+    }
+
+    try {
+        const response = await fetch(theme.file, { cache: "force-cache" });
+        if (!response.ok) throw new Error(`Could not load ${theme.file}`);
+        const { type, colors } = parseJsoncColors(await response.text());
+        applyVSCodeTheme({ type, colors });
+        localStorage.setItem("dashboardThemeId", themeId);
+        localStorage.setItem("dashboardTheme", type);
+        applyFilter({ keepPagination: true });
+    } catch (err) {
+        console.warn("Theme load failed:", err.message);
+    }
+}
+
+function clearAppliedThemeVars() {
+    ["--bg-color","--panel-bg","--panel-alt-bg","--text-primary","--text-secondary",
+     "--border-color","--header-bg","--header-text","--nav-link","--nav-link-hover",
+     "--shadow","--chart-primary","--chart-secondary","--chart-success",
+     "--chart-warning","--chart-danger","--chart-muted"]
+        .forEach(v => document.documentElement.style.removeProperty(v));
+}
+
+function parseJsoncColors(text) {
+    let result = "";
+    let inString = false;
+    let i = 0;
+    while (i < text.length) {
+        if (inString) {
+            if (text[i] === "\\" && i + 1 < text.length) { result += text[i] + text[i + 1]; i += 2; continue; }
+            if (text[i] === "\"") inString = false;
+            result += text[i++];
+        } else {
+            if (text[i] === "\"") { inString = true; result += text[i++]; continue; }
+            if (text[i] === "/" && text[i + 1] === "/") { while (i < text.length && text[i] !== "\n") i++; continue; }
+            if (text[i] === "/" && text[i + 1] === "*") { while (i < text.length && !(text[i] === "*" && text[i + 1] === "/")) i++; i += 2; continue; }
+            result += text[i++];
+        }
+    }
+    result = result.replace(/,(\s*[}\]])/g, "$1");
+    try {
+        const parsed = JSON.parse(result);
+        return { type: parsed.type || "dark", colors: parsed.colors || {} };
+    } catch {
+        return { type: "dark", colors: {} };
+    }
+}
+
+function applyVSCodeTheme({ type, colors }) {
+    document.documentElement.setAttribute("data-theme", type);
+    const root = document.documentElement;
+
+    const MAPPING = [
+        ["--bg-color",        ["editor.background"]],
+        ["--panel-bg",        ["sideBar.background","panel.background","editorWidget.background","breadcrumbPicker.background"]],
+        ["--panel-alt-bg",    ["list.hoverBackground","editor.lineHighlightBackground","list.focusBackground"]],
+        ["--text-primary",    ["editor.foreground","foreground"]],
+        ["--text-secondary",  ["descriptionForeground","activityBar.inactiveForeground","editorLineNumber.foreground","breadcrumb.foreground"]],
+        ["--border-color",    ["panel.border","editorGroup.border","activityBar.border","checkbox.border","input.border"]],
+        ["--header-text",     ["activityBar.foreground","titleBar.activeForeground"]],
+        ["--nav-link",        ["list.highlightForeground","textLink.foreground","focusBorder","activityBarBadge.background"]],
+        ["--nav-link-hover",  ["button.hoverBackground","button.background","focusBorder"]],
+        ["--chart-primary",   ["badge.background","activityBarBadge.background","focusBorder","button.background"]],
+        ["--chart-secondary", ["terminal.ansiBlue","terminal.ansiCyan","editorBracketHighlight.foreground1","editorInfo.foreground"]],
+        ["--chart-success",   ["gitDecoration.addedResourceForeground","terminal.ansiGreen","terminal.ansiBrightGreen","debugTokenExpression.boolean"]],
+        ["--chart-warning",   ["debugConsole.warningForeground","terminal.ansiYellow","gitDecoration.modifiedResourceForeground","editorWarning.foreground"]],
+        ["--chart-danger",    ["errorForeground","debugIcon.breakpointForeground","terminal.ansiRed","gitDecoration.deletedResourceForeground"]],
+        ["--chart-muted",     ["editorLineNumber.foreground","activityBar.inactiveForeground","breadcrumb.foreground"]],
+    ];
+
+    MAPPING.forEach(([cssVar, keys]) => {
+        const value = pickVSCodeColor(colors, keys);
+        if (value) root.style.setProperty(cssVar, stripColorAlpha(value));
+    });
+
+    // Header gradient from title bar + status bar colors
+    const hStart = pickVSCodeColor(colors, ["titleBar.activeBackground","activityBar.background","statusBar.background"]);
+    const hEnd   = pickVSCodeColor(colors, ["statusBar.background","activityBar.background","titleBar.activeBackground"]);
+    if (hStart) {
+        const s = stripColorAlpha(hStart);
+        const e = hEnd ? stripColorAlpha(hEnd) : s;
+        root.style.setProperty("--header-bg", s === e ? s : `linear-gradient(135deg, ${s}, ${e})`);
+    }
+
+    root.style.setProperty("--shadow", type === "dark"
+        ? "0 18px 42px rgba(0,0,0,0.4)"
+        : "0 18px 42px rgba(14,40,74,0.1)");
+}
+
+function pickVSCodeColor(colors, keys) {
+    for (const key of keys) {
+        const v = colors[key];
+        if (v && v.startsWith("#") && v.length >= 4) return v;
+    }
+    return null;
+}
+
+function stripColorAlpha(hex) {
+    if (!hex || !hex.startsWith("#")) return hex;
+    if (hex.length === 9) return hex.slice(0, 7);
+    if (hex.length === 5) return hex.slice(0, 4);
+    return hex;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PAGINATION
+═══════════════════════════════════════════════════════════════ */
+
+function bindTableControls() {
+    document.addEventListener("change", event => {
+        const select = event.target.closest(".page-size-select");
+        if (!select || !select.dataset.paginationKey) return;
+        const key = select.dataset.paginationKey;
+        if (!state.pagination[key]) return;
+        state.pagination[key].pageSize = Number(select.value);
+        state.pagination[key].page = 1;
+        applyFilter({ keepPagination: true });
+    });
+
+    document.addEventListener("click", event => {
+        const btn = event.target.closest("[data-export][data-format]");
+        if (!btn) return;
+        exportTable(btn.dataset.export, btn.dataset.format);
+    });
+}
+
+function goToPage(paginationKey, newPage) {
+    const pg = state.pagination[paginationKey];
+    if (!pg) return;
+    const total = (state.tableData[paginationKey] || []).length;
+    const totalPages = Math.max(1, Math.ceil(total / pg.pageSize));
+    pg.page = Math.max(1, Math.min(Number(newPage), totalPages));
+    applyFilter({ keepPagination: true });
+}
+
+function renderPaginationBar(containerId, paginationKey) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const pg = state.pagination[paginationKey];
+    const data = state.tableData[paginationKey] || [];
+    const total = data.length;
+
+    if (total <= pg.pageSize) {
+        container.innerHTML = "";
+        return;
+    }
+
+    const totalPages = Math.ceil(total / pg.pageSize);
+    const start = (pg.page - 1) * pg.pageSize + 1;
+    const end = Math.min(pg.page * pg.pageSize, total);
+    const prevDis = pg.page <= 1 ? "disabled" : "";
+    const nextDis = pg.page >= totalPages ? "disabled" : "";
+
+    container.innerHTML = `
+        <span class="pg-info">Rows ${formatNumber(start)}–${formatNumber(end)} of ${formatNumber(total)}</span>
+        <div class="pg-controls">
+            <button class="btn-pg" onclick="goToPage('${paginationKey}',1)" ${prevDis} title="First">«</button>
+            <button class="btn-pg" onclick="goToPage('${paginationKey}',${pg.page - 1})" ${prevDis} title="Previous">‹</button>
+            <span class="pg-current">Page ${pg.page} of ${totalPages}</span>
+            <button class="btn-pg" onclick="goToPage('${paginationKey}',${pg.page + 1})" ${nextDis} title="Next">›</button>
+            <button class="btn-pg" onclick="goToPage('${paginationKey}',${totalPages})" ${nextDis} title="Last">»</button>
+        </div>
+    `;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPORT (JSON / CSV / PDF)
+═══════════════════════════════════════════════════════════════ */
+
+function exportTable(tableId, format) {
+    const data = state.tableData[tableId];
+    const config = TABLE_EXPORT_CONFIG[tableId];
+    if (!config) return;
+    if (!data || data.length === 0) { alert("No data to export."); return; }
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    const name = `${tableId}-${stamp}`;
+
+    if (format === "json") {
+        downloadBlob(
+            new Blob([JSON.stringify(data.map(config.toExportRow), null, 2)], { type: "application/json" }),
+            `${name}.json`
+        );
+    } else if (format === "csv") {
+        const cols = config.columns;
+        const header = cols.map(c => csvQuote(c.header)).join(",");
+        const lines = data.map(row => cols.map(c => csvQuote(c.value(row))).join(","));
+        downloadBlob(
+            new Blob([[header, ...lines].join("\r\n")], { type: "text/csv;charset=utf-8;" }),
+            `${name}.csv`
+        );
+    } else if (format === "pdf") {
+        const tableEl = document.getElementById(tableId);
+        if (!tableEl) return;
+        const win = window.open("", "_blank", "width=1000,height=720");
+        win.document.write(`<!doctype html><html><head>
+            <title>${escapeHtml(config.title)}</title>
+            <style>
+                body{font-family:Arial,sans-serif;padding:20px;color:#111}
+                h1{font-size:17px;margin-bottom:12px}
+                p{font-size:12px;color:#555;margin-bottom:10px}
+                table{border-collapse:collapse;width:100%;font-size:11px}
+                th,td{border:1px solid #ccc;padding:5px 9px;text-align:left}
+                th{background:#f0f0f0;font-weight:bold}
+                tr:nth-child(even){background:#f8f8f8}
+                a{color:#000;text-decoration:none}
+                @media print{body{padding:0}}
+            </style>
+        </head><body>
+            <h1>${escapeHtml(config.title)}</h1>
+            <p>Exported ${new Date().toLocaleString()} — ${formatNumber(data.length)} records</p>
+            ${tableEl.outerHTML}
+            <script>window.onload=()=>window.print()<\/script>
+        </body></html>`);
+        win.document.close();
+    }
+}
+
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+}
+
+function csvQuote(value) {
+    const str = String(value == null ? "" : value);
+    return (str.includes(",") || str.includes("\"") || str.includes("\n"))
+        ? `"${str.replace(/"/g, '""')}"` : str;
 }

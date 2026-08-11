@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Dashboard Validation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+        const savedTheme = localStorage.getItem('dashboardTheme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<body data-page="validate">
+    <header class="app-header">
+        <div>
+            <h1>Dashboard Validation</h1>
+            <p id="runStatus">Press Run Checks to begin</p>
+        </div>
+        <div class="header-actions">
+            <button id="runBtn" class="btn-primary" onclick="runAllChecks()">▶ Run Checks</button>
+        </div>
+    </header>
+
+    <main>
+        <div id="valSummary" class="val-summary" hidden>
+            <div class="val-summary-item">
+                <span class="val-count" id="countPass" style="color:var(--chart-success)">0</span>
+                <span>Passed</span>
+            </div>
+            <div class="val-summary-item">
+                <span class="val-count" id="countFail" style="color:var(--chart-danger)">0</span>
+                <span>Failed</span>
+            </div>
+            <div class="val-summary-item">
+                <span class="val-count" id="countWarn" style="color:var(--chart-warning)">0</span>
+                <span>Warnings</span>
+            </div>
+            <div class="val-summary-item" id="summaryTotal" style="color:var(--text-secondary)"></div>
+        </div>
+
+        <section class="panel val-section">
+            <h2>Page availability</h2>
+            <div id="checksPages"></div>
+        </section>
+
+        <section class="panel val-section">
+            <h2>Data files</h2>
+            <div id="checksData"></div>
+        </section>
+
+        <section class="panel val-section">
+            <h2>JSON schema</h2>
+            <div id="checksSchema"></div>
+        </section>
+
+        <section class="panel val-section">
+            <h2>Theme files</h2>
+            <div id="checksThemes"></div>
+        </section>
+
+        <section class="panel val-section">
+            <h2>Collector configuration</h2>
+            <div id="checksConfig"></div>
+        </section>
+    </main>
+
+    <script>
+    "use strict";
+
+    const PAGES = [
+        { name: "Dashboard (index.html)",   url: "index.html" },
+        { name: "Mailbox (mailbox.html)",    url: "mailbox.html" },
+        { name: "History (history.html)",    url: "history.html" },
+        { name: "Permissions (permissions.html)", url: "permissions.html" },
+        { name: "Thresholds (thresholds.html)",   url: "thresholds.html" },
+        { name: "Styles (styles.css)",       url: "styles.css" },
+        { name: "Dashboard JS (dashboard.js)", url: "dashboard.js" },
+    ];
+
+    const DATA_FILES = [
+        { name: "data.json",    url: "data.json" },
+        { name: "history.json", url: "history.json" },
+    ];
+
+    const THEME_FILES = [
+        "theme/dark.jsonc",
+        "theme/neon-punk.jsonc",
+        "theme/undershaddows.jsonc",
+        "theme/splendid.jsonc",
+        "theme/eyes-wide-open.jsonc",
+    ];
+
+    const CONFIG_URLS = [
+        { name: "dashboardConfig.json", url: "../Collector/Config/dashboardConfig.json" },
+    ];
+
+    let results = [];
+
+    function addResult(sectionId, name, status, detail) {
+        results.push({ status });
+        const container = document.getElementById(sectionId);
+        if (!container) return;
+
+        const icons = { pass: "✅", fail: "❌", warn: "⚠️", running: "⏳" };
+        const div = document.createElement("div");
+        div.className = `val-check ${status}`;
+        div.innerHTML = `
+            <span class="val-icon">${icons[status] || "?"}</span>
+            <div class="val-check-body">
+                <div class="val-name">${escHtml(name)}</div>
+                <div class="val-detail">${escHtml(String(detail || ""))}</div>
+            </div>`;
+        container.appendChild(div);
+    }
+
+    function escHtml(t) {
+        return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    async function fetchCheck(sectionId, name, url) {
+        try {
+            const r = await fetch(url + "?v=" + Date.now(), { cache: "no-store" });
+            if (r.ok) {
+                const bytes = (r.headers.get("content-length") || "?");
+                addResult(sectionId, name, "pass", `HTTP ${r.status} — ${bytes !== "?" ? (Number(bytes)/1024).toFixed(1)+" KB" : "loaded"}`);
+                return r;
+            } else {
+                addResult(sectionId, name, "fail", `HTTP ${r.status} ${r.statusText}`);
+                return null;
+            }
+        } catch (e) {
+            addResult(sectionId, name, "fail", e.message);
+            return null;
+        }
+    }
+
+    async function checkDataJson(url) {
+        const r = await fetchCheck("checksData", "data.json — HTTP", url);
+        if (!r) return;
+        try {
+            const json = await r.json();
+            const count = (json.Mailboxes || json.mailboxes || []).length;
+            if (!Array.isArray(json.Mailboxes || json.mailboxes)) {
+                addResult("checksSchema", "data.json — Mailboxes array", "fail", "Missing Mailboxes array");
+            } else {
+                addResult("checksSchema", "data.json — Mailboxes array", "pass", `${count.toLocaleString()} mailbox records`);
+            }
+            const hasGuid = (json.Mailboxes || json.mailboxes || []).slice(0, 3).every(m =>
+                (m.ExchangeGuid || m.exchangeGuid) && (m.PrimarySmtpAddress || m.primarySmtpAddress)
+            );
+            addResult("checksSchema", "data.json — Mailbox fields", hasGuid ? "pass" : "warn",
+                hasGuid ? "ExchangeGuid + PrimarySmtpAddress present on sampled records" : "Missing ExchangeGuid or PrimarySmtpAddress in first 3 records");
+
+            const hasCurrent = (json.Mailboxes || json.mailboxes || []).slice(0, 3).every(m =>
+                m.current && (m.current.totalGB !== undefined || m.current.SizeGB !== undefined)
+            );
+            addResult("checksSchema", "data.json — current metrics", hasCurrent ? "pass" : "warn",
+                hasCurrent ? "current.totalGB present" : "current.totalGB missing in sampled records");
+
+            const genUtc = json.GeneratedUtc || json.generatedUtc;
+            addResult("checksSchema", "data.json — GeneratedUtc", genUtc ? "pass" : "warn",
+                genUtc ? `Generated: ${new Date(genUtc).toLocaleString()}` : "GeneratedUtc field missing");
+        } catch (e) {
+            addResult("checksSchema", "data.json — parse", "fail", e.message);
+        }
+    }
+
+    async function checkHistoryJson(url) {
+        const r = await fetchCheck("checksData", "history.json — HTTP", url);
+        if (!r) return;
+        try {
+            const json = await r.json();
+            const hist = json.MailboxHistory || json.mailboxHistory;
+            if (!Array.isArray(hist)) {
+                addResult("checksSchema", "history.json — MailboxHistory array", "fail", "Missing MailboxHistory array");
+            } else {
+                addResult("checksSchema", "history.json — MailboxHistory array", "pass", `${hist.length.toLocaleString()} history entries`);
+                const samplesOk = hist.slice(0, 3).every(e => Array.isArray(e.Samples || e.samples) && (e.Samples || e.samples).length > 0);
+                addResult("checksSchema", "history.json — Samples arrays", samplesOk ? "pass" : "warn",
+                    samplesOk ? "Samples arrays present in sampled entries" : "Samples arrays missing or empty in first 3 entries");
+            }
+        } catch (e) {
+            addResult("checksSchema", "history.json — parse", "fail", e.message);
+        }
+    }
+
+    async function checkThemeFile(url) {
+        const name = url.split("/").pop();
+        const r = await fetchCheck("checksThemes", name, url);
+        if (!r) return;
+        try {
+            let text = await r.text();
+            // Strip JSONC comments and parse
+            let result = ""; let inStr = false; let i = 0;
+            while (i < text.length) {
+                if (inStr) {
+                    if (text[i] === "\\" && i+1<text.length){ result+=text[i]+text[i+1]; i+=2; continue; }
+                    if (text[i] === "\"") inStr = false;
+                    result += text[i++];
+                } else {
+                    if (text[i] === "\"") { inStr=true; result+=text[i++]; continue; }
+                    if (text[i]==="/"&&text[i+1]==="/"){while(i<text.length&&text[i]!=="\n")i++;continue;}
+                    if (text[i]==="/"&&text[i+1]==="*"){while(i<text.length&&!(text[i]==="*"&&text[i+1]==="/"))i++;i+=2;continue;}
+                    result+=text[i++];
+                }
+            }
+            result = result.replace(/,(\s*[}\]])/g,"$1");
+            const parsed = JSON.parse(result);
+            const colorCount = Object.keys(parsed.colors || {}).length;
+            addResult("checksThemes", `${name} — parse`, "pass",
+                `type="${parsed.type || "?"}", ${colorCount} color tokens`);
+        } catch (e) {
+            addResult("checksThemes", `${name} — parse`, "fail", e.message);
+        }
+    }
+
+    async function checkConfig(name, url) {
+        try {
+            const r = await fetch(url + "?v=" + Date.now(), { cache: "no-store" });
+            if (r.ok) {
+                try {
+                    const json = await r.json();
+                    const keys = Object.keys(json);
+                    addResult("checksConfig", name, "pass", `${keys.length} config keys: ${keys.slice(0, 6).join(", ")}${keys.length > 6 ? "…" : ""}`);
+                } catch(e) {
+                    addResult("checksConfig", name, "warn", "File exists but is not valid JSON: " + e.message);
+                }
+            } else {
+                addResult("checksConfig", name, "warn",
+                    `HTTP ${r.status} — file is outside the web root and cannot be served directly. ` +
+                    "This is expected for Collector/ config files.");
+            }
+        } catch (e) {
+            addResult("checksConfig", name, "warn",
+                "Not reachable from web server (expected for Collector/ files): " + e.message);
+        }
+    }
+
+    function updateSummary() {
+        const p = results.filter(r => r.status === "pass").length;
+        const f = results.filter(r => r.status === "fail").length;
+        const w = results.filter(r => r.status === "warn").length;
+        document.getElementById("countPass").textContent = p;
+        document.getElementById("countFail").textContent = f;
+        document.getElementById("countWarn").textContent = w;
+        document.getElementById("summaryTotal").textContent = `${p+f+w} checks total`;
+        document.getElementById("valSummary").hidden = false;
+
+        const statusEl = document.getElementById("runStatus");
+        if (f > 0) {
+            statusEl.textContent = `${f} check${f>1?"s":""} failed — review below`;
+            statusEl.style.color = "var(--chart-danger)";
+        } else if (w > 0) {
+            statusEl.textContent = `All ${p} checks passed with ${w} warning${w>1?"s":""}`;
+            statusEl.style.color = "var(--chart-warning)";
+        } else {
+            statusEl.textContent = `All ${p} checks passed ✓`;
+            statusEl.style.color = "var(--chart-success)";
+        }
+    }
+
+    function checkJsDashboard() {
+        // validate.html deliberately does NOT load dashboard.js — check syntax via fetch instead
+        fetch("dashboard.js?v=" + Date.now(), { cache: "no-store" })
+            .then(r => r.text())
+            .then(src => {
+                try {
+                    new Function(src);
+                    const fnCount = (src.match(/^function /gm) || []).length;
+                    addResult("checksData", "dashboard.js — syntax check", "pass",
+                        `No syntax errors detected. ${fnCount} top-level functions found.`);
+                } catch(e) {
+                    addResult("checksData", "dashboard.js — syntax check", "fail", e.message);
+                }
+            })
+            .catch(e => addResult("checksData", "dashboard.js — syntax check", "fail", e.message));
+    }
+
+    async function runAllChecks() {
+        results = [];
+        document.getElementById("runBtn").disabled = true;
+        document.getElementById("runStatus").textContent = "Running…";
+        document.getElementById("runStatus").style.color = "";
+        ["checksPages","checksData","checksSchema","checksThemes","checksConfig"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = "";
+        });
+        document.getElementById("valSummary").hidden = true;
+
+        // Page availability
+        await Promise.all(PAGES.map(p => fetchCheck("checksPages", p.name, p.url)));
+
+        // Data files (schema checks happen inside)
+        await checkDataJson("data.json");
+        await checkHistoryJson("history.json");
+
+        // JS runtime check
+        checkJsDashboard();
+
+        // Theme files
+        await Promise.all(THEME_FILES.map(f => checkThemeFile(f)));
+
+        // Config
+        await Promise.all(CONFIG_URLS.map(c => checkConfig(c.name, c.url)));
+
+        updateSummary();
+        document.getElementById("runBtn").disabled = false;
+    }
+
+    // Auto-run on load
+    window.addEventListener("DOMContentLoaded", runAllChecks);
+    </script>
+</body>
+</html>

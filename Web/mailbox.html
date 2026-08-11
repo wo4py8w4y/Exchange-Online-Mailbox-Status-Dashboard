@@ -17,7 +17,7 @@
             <p id="lastUpdated">Loading...</p>
         </div>
         <div class="header-actions">
-            <button id="themeToggle" class="btn-secondary">Switch to Dark Mode</button>
+            <select id="themeSelect" class="theme-select" title="Change theme"></select>
             <button id="refreshButton" class="btn-primary">Refresh now</button>
         </div>
     </header>
@@ -73,9 +73,28 @@
         <section class="chart-grid chart-grid-mailbox">
             <article class="panel">
                 <div class="table-header">
-                    <h2>Recent snapshots</h2>
-                    <p id="mailboxSnapshotsMeta" class="panel-subtitle"></p>
+                    <div>
+                        <h2>Recent snapshots</h2>
+                        <p id="mailboxSnapshotsMeta" class="panel-subtitle"></p>
+                    </div>
+                    <div class="table-controls">
+                        <label class="page-size-label">Show
+                            <select class="page-size-select" data-pagination-key="mailboxSnapshotsTable">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                            </select> per page
+                        </label>
+                        <div class="export-group">
+                            <span>Export:</span>
+                            <button class="btn-export" data-export="mailboxSnapshotsTable" data-format="json">JSON</button>
+                            <button class="btn-export" data-export="mailboxSnapshotsTable" data-format="csv">CSV</button>
+                            <button class="btn-export" data-export="mailboxSnapshotsTable" data-format="pdf">PDF</button>
+                        </div>
+                    </div>
                 </div>
+                <div id="mailboxSnapshotsTablePagination" class="pagination-bar"></div>
                 <div class="table-wrap">
                     <table id="mailboxSnapshotsTable">
                         <thead>
@@ -93,9 +112,28 @@
             </article>
             <article class="panel">
                 <div class="table-header">
-                    <h2>Explicit permissions</h2>
-                    <p id="mailboxPermissionsMeta" class="panel-subtitle"></p>
+                    <div>
+                        <h2>Explicit permissions</h2>
+                        <p id="mailboxPermissionsMeta" class="panel-subtitle"></p>
+                    </div>
+                    <div class="table-controls">
+                        <label class="page-size-label">Show
+                            <select class="page-size-select" data-pagination-key="mailboxPermissionsTable">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50" selected>50</option>
+                                <option value="100">100</option>
+                            </select> per page
+                        </label>
+                        <div class="export-group">
+                            <span>Export:</span>
+                            <button class="btn-export" data-export="mailboxPermissionsTable" data-format="json">JSON</button>
+                            <button class="btn-export" data-export="mailboxPermissionsTable" data-format="csv">CSV</button>
+                            <button class="btn-export" data-export="mailboxPermissionsTable" data-format="pdf">PDF</button>
+                        </div>
+                    </div>
                 </div>
+                <div id="mailboxPermissionsTablePagination" class="pagination-bar"></div>
                 <div class="table-wrap">
                     <table id="mailboxPermissionsTable">
                         <thead>

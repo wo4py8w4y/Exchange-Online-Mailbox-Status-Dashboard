@@ -17,7 +17,7 @@
             <p id="lastUpdated">Loading...</p>
         </div>
         <div class="header-actions">
-            <button id="themeToggle" class="btn-secondary">Switch to Dark Mode</button>
+            <select id="themeSelect" class="theme-select" title="Change theme"></select>
             <button id="refreshButton" class="btn-primary">Refresh now</button>
         </div>
     </header>
@@ -59,8 +59,26 @@
 
         <section class="panel">
             <div class="table-header">
-                <h2 id="tableTitle">Historical storage and utilisation</h2>
-                <p id="tableMeta" class="panel-subtitle"></p>
+                <div>
+                    <h2 id="tableTitle">Historical storage and utilisation</h2>
+                    <p id="tableMeta" class="panel-subtitle"></p>
+                </div>
+                <div class="table-controls">
+                    <label class="page-size-label">Show
+                        <select class="page-size-select" data-pagination-key="historyTable">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                        </select> per page
+                    </label>
+                    <div class="export-group">
+                        <span>Export:</span>
+                        <button class="btn-export" data-export="historyTable" data-format="json">JSON</button>
+                        <button class="btn-export" data-export="historyTable" data-format="csv">CSV</button>
+                        <button class="btn-export" data-export="historyTable" data-format="pdf">PDF</button>
+                    </div>
+                </div>
             </div>
             <div class="chart-grid">
                 <div>
@@ -72,6 +90,7 @@
                     <canvas id="historyUsageChart" width="1000" height="320"></canvas>
                 </div>
             </div>
+            <div id="historyTablePagination" class="pagination-bar"></div>
             <div class="table-wrap">
                 <table id="historyTable">
                     <thead>

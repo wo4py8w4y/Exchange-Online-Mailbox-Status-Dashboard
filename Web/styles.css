@@ -520,3 +520,230 @@ tbody tr:hover {
         font-size: 24px;
     }
 }
+
+/* ── Theme selector ──────────────────────────────────────────── */
+.theme-select {
+    padding: 9px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--header-text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 160px;
+}
+
+.theme-select:focus {
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.theme-select option {
+    background: var(--panel-bg);
+    color: var(--text-primary);
+}
+
+/* ── Table toolbar (page-size + export) ─────────────────────── */
+.table-controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.page-size-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.page-size-select {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--panel-alt-bg);
+    color: var(--text-primary);
+    font-size: 13px;
+    cursor: pointer;
+    margin: 0 4px;
+}
+
+.export-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.btn-export {
+    padding: 6px 11px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--panel-alt-bg);
+    color: var(--nav-link);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.1s;
+    letter-spacing: 0.02em;
+}
+
+.btn-export:hover {
+    background: var(--border-color);
+    transform: translateY(-1px);
+}
+
+/* ── Pagination bar ──────────────────────────────────────────── */
+.pagination-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4px;
+    min-height: 38px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 2px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pagination-bar:empty {
+    display: none;
+}
+
+.pg-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.pg-current {
+    padding: 0 10px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.btn-pg {
+    padding: 5px 9px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--panel-alt-bg);
+    color: var(--nav-link);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.12s;
+    line-height: 1;
+}
+
+.btn-pg:hover:not([disabled]) {
+    background: var(--border-color);
+}
+
+.btn-pg[disabled] {
+    opacity: 0.35;
+    cursor: default;
+}
+
+/* ── Validation page ─────────────────────────────────────────── */
+.val-section {
+    margin-bottom: 28px;
+}
+
+.val-section h2 {
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.val-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    background: var(--panel-alt-bg);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.val-icon {
+    font-size: 18px;
+    line-height: 1.2;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+}
+
+.val-check-body {
+    min-width: 0;
+}
+
+.val-name {
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.val-detail {
+    color: var(--text-secondary);
+    font-size: 12px;
+    word-break: break-all;
+}
+
+.val-check.pass { border-color: rgba(26, 155, 111, 0.4); background: rgba(26, 155, 111, 0.06); }
+.val-check.fail { border-color: rgba(255, 107, 107, 0.4); background: rgba(255, 107, 107, 0.06); }
+.val-check.warn { border-color: rgba(255, 179, 71, 0.4); background: rgba(255, 179, 71, 0.06); }
+.val-check.running { opacity: 0.65; }
+
+.val-summary {
+    display: flex;
+    gap: 20px;
+    padding: 18px;
+    border-radius: 14px;
+    background: var(--panel-alt-bg);
+    border: 1px solid var(--border-color);
+    margin-bottom: 24px;
+    font-size: 15px;
+    font-weight: 600;
+    flex-wrap: wrap;
+}
+
+.val-summary-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.val-count {
+    font-size: 22px;
+}
+
+/* ── @media for table toolbar ────────────────────────────────── */
+@media (max-width: 820px) {
+    .table-controls {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .theme-select {
+        min-width: 130px;
+    }
+}
+
+@media print {
+    .app-header, nav, .search-panel, .cards,
+    .chart-grid, .table-controls, .pagination-bar,
+    .selected-mailbox-panel, .header-actions {
+        display: none !important;
+    }
+    body { padding: 0; background: white; color: black; }
+    .panel { box-shadow: none; border: 1px solid #ccc; }
+}
