@@ -54093,6 +54093,5136 @@
           "ArchiveItemCount": 0
         }
       ]
+    },
+    {
+      "ExchangeGuid": "358de411-38fa-4715-ad25-a3eb2c5405e4",
+      "PrimarySmtpAddress": "DRPAccountsPayable@hpw.qld.gov.au",
+      "DisplayName": "DRP Accounts Payable",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 3.67,
+          "ItemCount": 11050,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 7.34,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b9cdd8b5-dfb2-49d8-a28a-8da8966b51ee",
+      "PrimarySmtpAddress": "SAHGConflictsofInterest@hpw.qld.gov.au",
+      "DisplayName": "SAHG Conflicts of Interest",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.17,
+          "ItemCount": 326,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.34,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "752a3cb4-0ca4-4753-b895-64699219f5b4",
+      "PrimarySmtpAddress": "PPFNOEDPolicyandLegislation@hpw.qld.gov.au",
+      "DisplayName": "PPFN OED Policy & Legislation",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 14.49,
+          "ItemCount": 27316,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 28.98,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6ad90a0c-c78e-4983-9ed3-a845cf731552",
+      "PrimarySmtpAddress": "ICTSS.2601@chde.qld.gov.au",
+      "DisplayName": "ICTSS.2601",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.0,
+          "ItemCount": 1851,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.00,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d5355fe1-759b-4025-8b66-e555b64769e0",
+      "PrimarySmtpAddress": "hhsgympieMgtteam@hpw.qld.gov.au",
+      "DisplayName": "Gympie Management Team",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.27,
+          "ItemCount": 3168,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 4.54,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d3187455-aad1-4a42-8e29-3850277e89a4",
+      "PrimarySmtpAddress": "ssqccmsmailbox-test@smartservice.qld.gov.au",
+      "DisplayName": "SSQ CCMS TEST",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 199,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "723dce99-45c7-46a7-85a3-5a79c2e0d46a",
+      "PrimarySmtpAddress": "HEEASApplication@smartservice.qld.gov.au",
+      "DisplayName": "SSQ CCMS HEEAS Application",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 30.04,
+          "ItemCount": 24539,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 60.08,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "8a77bc1c-b202-45a2-aa77-c183426d0bc3",
+      "PrimarySmtpAddress": "BDApplication@smartservice.qld.gov.au",
+      "DisplayName": "SSQ CCMS Business Scheme Participant",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.02,
+          "ItemCount": 510,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "ea6b1702-5469-44d7-896e-448158a3741e",
+      "PrimarySmtpAddress": "dyntest123@smartservice.qld.gov.au",
+      "DisplayName": "DYN TEST",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 4,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d36840fa-1272-4f4d-b3d3-5bf36c88dbf6",
+      "PrimarySmtpAddress": "ssqccmsmailbox-dev@smartservice.qld.gov.au",
+      "DisplayName": "SSQ CCMS DEV",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 396,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "2e0df8d0-46ab-4b61-9754-f9cadb95224a",
+      "PrimarySmtpAddress": "CRBSDE@chde.qld.gov.au",
+      "DisplayName": "CRB SDE",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 7.93,
+          "ItemCount": 9431,
+          "PermissionCount": 21,
+          "QuotaGB": 50.0,
+          "UsagePercent": 15.86,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "94707a7a-cbc7-40ba-bd1b-b97331b07223",
+      "PrimarySmtpAddress": "QCSCriticalPrograms@hpw.qld.gov.au",
+      "DisplayName": "QCS Critical Programs",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.02,
+          "ItemCount": 142,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "780258df-5db2-4d7e-bccf-1ad1bdd3a735",
+      "PrimarySmtpAddress": "QBuildCQDisasterManagement@hpw.qld.gov.au",
+      "DisplayName": "QBuild CQ Disaster Management",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.19,
+          "ItemCount": 1036,
+          "PermissionCount": 14,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.38,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "090a206b-59bb-42a8-88f8-77fbdfede7be",
+      "PrimarySmtpAddress": "FNHHOperations@hpw.qld.gov.au",
+      "DisplayName": "FNHH Operations",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 6.53,
+          "ItemCount": 11050,
+          "PermissionCount": 9,
+          "QuotaGB": 50.0,
+          "UsagePercent": 13.06,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4fe1ac03-4777-4445-b785-972cfecdc506",
+      "PrimarySmtpAddress": "QBuildSEQProcurementManagement@hpw.qld.gov.au",
+      "DisplayName": "QBuild SEQ Procurement Management",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.52,
+          "ItemCount": 541,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4777f380-a3d4-4e88-8f19-3757ae64c1fa",
+      "PrimarySmtpAddress": "HHSLoganAllocationsMailbox@hpw.qld.gov.au",
+      "DisplayName": "HHS Logan Allocations Mailbox",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 19.04,
+          "ItemCount": 7162,
+          "PermissionCount": 33,
+          "QuotaGB": 50.0,
+          "UsagePercent": 38.08,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "75e3325f-bc79-4c64-aa68-d44f3e058714",
+      "PrimarySmtpAddress": "FinanceandResourceSub-CommitteeMailbox@hpw.qld.gov.au",
+      "DisplayName": "Finance and Resource Sub-Committee Mailbox",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.36,
+          "ItemCount": 674,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.72,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "197a788a-a6b5-435d-8395-5d0662bfa5c1",
+      "PrimarySmtpAddress": "QBuildSQCP@hpw.qld.gov.au",
+      "DisplayName": "QBuild Southern QLD Correctional Precinct",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.57,
+          "ItemCount": 811,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.14,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "aee16124-ae42-4a99-b71e-0b2955d05f7e",
+      "PrimarySmtpAddress": "HHS-BRRPIT@hpw.qld.gov.au",
+      "DisplayName": "HHS BR RPIT",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 17.93,
+          "ItemCount": 19793,
+          "PermissionCount": 25,
+          "QuotaGB": 50.0,
+          "UsagePercent": 35.86,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "e2104b7f-bf45-49cf-a4b5-da9951096fc1",
+      "PrimarySmtpAddress": "Capricorniahrt_housing@hpw.qld.gov.au",
+      "DisplayName": "Capricornia Hrt Housing",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.08,
+          "ItemCount": 2804,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.16,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "9e59e0a1-e0d9-47c2-85de-f910d0b40c61",
+      "PrimarySmtpAddress": "CQWHS@hpw.qld.gov.au",
+      "DisplayName": "CQ WHS",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 6.55,
+          "ItemCount": 7612,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 13.10,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "3a7867f8-7f35-46fa-805d-d3881f8f308c",
+      "PrimarySmtpAddress": "QBuildCapitalProcurement@hpw.qld.gov.au",
+      "DisplayName": "QBuild Capital Procurement",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 11.86,
+          "ItemCount": 12809,
+          "PermissionCount": 13,
+          "QuotaGB": 50.0,
+          "UsagePercent": 23.72,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 8.59,
+          "ArchiveItemCount": 8025
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "96100e63-c38c-48b3-9e6d-03451fcc608c",
+      "PrimarySmtpAddress": "HAFFSteeringCommittee@hpw.qld.gov.au",
+      "DisplayName": "HAFF Steering Committee",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.02,
+          "ItemCount": 319,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "befa086f-5b70-46fe-b880-ed720c3d7957",
+      "PrimarySmtpAddress": "QBuildB2ETesting@hpw.qld.gov.au",
+      "DisplayName": "QBuild B2E Testing",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 147,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "a4a1164a-5ed5-4d39-8fb8-83224835f37d",
+      "PrimarySmtpAddress": "OEDQBuildCMPS@hpw.qld.gov.au",
+      "DisplayName": "OED QBuild CMPS",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 151,
+          "PermissionCount": 1,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "ae59caf5-af2e-4f4f-8bc3-0cfd9eddf76f",
+      "PrimarySmtpAddress": "engage@smartservice.qld.gov.au",
+      "DisplayName": "SSQ Engage",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 16.45,
+          "ItemCount": 42015,
+          "PermissionCount": 24,
+          "QuotaGB": 50.0,
+          "UsagePercent": 32.90,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "a2b79dfc-59b6-4d5f-ba7a-39323248bc7b",
+      "PrimarySmtpAddress": "business@cdsb.qld.gov.au",
+      "DisplayName": "Small and Family Business Queensland",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.06,
+          "ItemCount": 379,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.12,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 0.05,
+          "ArchiveItemCount": 232
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6acef157-202c-4b50-8571-f7c8cd272885",
+      "PrimarySmtpAddress": "CHPGrowthPlans@hpw.qld.gov.au",
+      "DisplayName": "CHP Growth Plans",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 137,
+          "PermissionCount": 1,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "109891b1-5cec-4840-bf03-f1332b284515",
+      "PrimarySmtpAddress": "HousingOfficerReview@hpw.qld.gov.au",
+      "DisplayName": "Housing Officer Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.04,
+          "ItemCount": 206,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.08,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6aac7dff-3487-4c51-9922-b45c45840e59",
+      "PrimarySmtpAddress": "QTimeSupport@hpw.qld.gov.au",
+      "DisplayName": "QTime Support",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 22.93,
+          "ItemCount": 86607,
+          "PermissionCount": 16,
+          "QuotaGB": 100.0,
+          "UsagePercent": 22.93,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c88a71f3-9349-4983-a7a3-0a39c7818ddf",
+      "PrimarySmtpAddress": "QBuildSUCustomerRelations@hpw.qld.gov.au",
+      "DisplayName": "QBuild SU Customer Relations",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.87,
+          "ItemCount": 5608,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 5.74,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "3b9165f3-24a7-4842-8459-86db12d50395",
+      "PrimarySmtpAddress": "QBuildBMCustomerRelations@hpw.qld.gov.au",
+      "DisplayName": "QBuild BM Customer Relations",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 9.85,
+          "ItemCount": 8697,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 19.70,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "29b699e5-8767-4f89-94d3-58f2ee985f0f",
+      "PrimarySmtpAddress": "QBuildFNQHousing@hpw.qld.gov.au",
+      "DisplayName": "QBuild FNQ Housing",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 37.44,
+          "ItemCount": 20938,
+          "PermissionCount": 11,
+          "QuotaGB": 100.0,
+          "UsagePercent": 37.44,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 79.03,
+          "ArchiveItemCount": 48348
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "2b8cfefa-d233-4e7d-83cf-2b1972261324",
+      "PrimarySmtpAddress": "hhs-hppi@hpw.qld.gov.au",
+      "DisplayName": "HHS Housing Partnerships Programs and Initiatives",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 6.19,
+          "ItemCount": 7591,
+          "PermissionCount": 30,
+          "QuotaGB": 50.0,
+          "UsagePercent": 12.38,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b2a8333d-530b-4e7b-bb36-62a41ee84f75",
+      "PrimarySmtpAddress": "B2ESupport@hpw.qld.gov.au",
+      "DisplayName": "B2E Support Mailbox",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 144,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "50b6ba39-b258-432b-b843-55ab1afb1510",
+      "PrimarySmtpAddress": "QBUILDPSSCHEDULER@hpw.qld.gov.au",
+      "DisplayName": "Qbuild PS Scheduler",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.87,
+          "ItemCount": 888,
+          "PermissionCount": 1,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.74,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d88409bb-572b-4555-aee4-76e40f524bd1",
+      "PrimarySmtpAddress": "SHDOPMPSmokeAlarm@hpw.qld.gov.au",
+      "DisplayName": "SHDO PMP Smoke Alarm",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.96,
+          "ItemCount": 1158,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.92,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "791d8d44-bd75-4d0e-bb6a-b6aaa04bfaac",
+      "PrimarySmtpAddress": "Incident.Ellipse@hpw.qld.gov.au",
+      "DisplayName": "Incident.Ellipse",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 6,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "92884b27-4f9d-4991-a3cc-6ff25b0c1cd3",
+      "PrimarySmtpAddress": "Incident.Ellipse.UAT@hpw.qld.gov.au",
+      "DisplayName": "Incident.Ellipse.UAT",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 7,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "1a78a977-2641-4f1e-8a4a-530a29f4a702",
+      "PrimarySmtpAddress": "Request.Ellipse.UAT@hpw.qld.gov.au",
+      "DisplayName": "Request.Ellipse.UAT",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 49,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d2ea5e78-0d66-4e65-9202-29f38919c66e",
+      "PrimarySmtpAddress": "QbuildWBAZone@hpw.qld.gov.au",
+      "DisplayName": "Qbuild WBA Zone",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.34,
+          "ItemCount": 1585,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.68,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "59ed8ec7-b3f2-4e9d-b9c4-d2b8b6ebe189",
+      "PrimarySmtpAddress": "QbuildWBBZone@hpw.qld.gov.au",
+      "DisplayName": "QBuild WBB Zone",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.37,
+          "ItemCount": 527,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.74,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c488e5f9-7117-4953-9275-c98f19f72777",
+      "PrimarySmtpAddress": "QbuildWBCZone@hpw.qld.gov.au",
+      "DisplayName": "Qbuild WBC Zone",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.54,
+          "ItemCount": 1370,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 3.08,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "59430984-afd5-4cfc-963b-9ca8fcaee30e",
+      "PrimarySmtpAddress": "NO-REPLY.QBuildProcurementBroadcast@hpw.qld.gov.au",
+      "DisplayName": "QBuild Procurement Broadcast",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.14,
+          "ItemCount": 477,
+          "PermissionCount": 13,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.28,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "9ee1d95b-92d9-43ea-8724-54c6eb547308",
+      "PrimarySmtpAddress": "cardapplication@smartservice.qld.gov.au",
+      "DisplayName": "cardapplication",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 25.19,
+          "ItemCount": 10712,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 50.38,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "59f30de5-6214-404c-a649-08cb549000e8",
+      "PrimarySmtpAddress": "concessionapplication@smartservice.qld.gov.au",
+      "DisplayName": "concessionapplication",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 3.75,
+          "ItemCount": 886,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 7.50,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "91cda4eb-938e-44f4-890b-7740181e4958",
+      "PrimarySmtpAddress": "bts@cdsb.qld.gov.au",
+      "DisplayName": "Finance Business and Travel Solutions",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 4.01,
+          "ItemCount": 9325,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 8.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "7e9de871-31b1-457f-8a12-1c0ebad49c4e",
+      "PrimarySmtpAddress": "FinanceSRP@cdsb.qld.gov.au",
+      "DisplayName": "Finance Statutory Reporting and Policy",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.25,
+          "ItemCount": 1658,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.50,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "a36d2253-e74d-4252-959a-9708bfc31350",
+      "PrimarySmtpAddress": "SHDOSHEFProject@hpw.qld.gov.au",
+      "DisplayName": "SHDO SHEF Project",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.51,
+          "ItemCount": 2771,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 5.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b122d302-e62a-499c-b0f0-b0316a3fe621",
+      "PrimarySmtpAddress": "DATAandDIGITAL@cdsb.qld.gov.au",
+      "DisplayName": "DATA and DIGITAL",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 18.73,
+          "ItemCount": 44189,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 37.46,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c197a0bc-e3af-4c26-932a-c8cf33222351",
+      "PrimarySmtpAddress": "QBuildSEQPlantandEquip@hpw.qld.gov.au",
+      "DisplayName": "QBuild SEQ Plant and Equip",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 7.52,
+          "ItemCount": 15174,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 15.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "45972c1b-cd33-4e2d-bb80-36feba26cca5",
+      "PrimarySmtpAddress": "c4e.support@chde.qld.gov.au",
+      "DisplayName": "c4e.support",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.07,
+          "ItemCount": 433,
+          "PermissionCount": 1,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.14,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "5804dd44-d256-418f-9dac-d719fa07aa35",
+      "PrimarySmtpAddress": "QTimeSupportDev@hpw.qld.gov.au",
+      "DisplayName": "QTime Support Dev",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.13,
+          "ItemCount": 1106,
+          "PermissionCount": 12,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.26,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6bd5d990-b730-4351-a3ec-760c073029bc",
+      "PrimarySmtpAddress": "QTimeSupportTest@hpw.qld.gov.au",
+      "DisplayName": "QTime Support Test",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.63,
+          "ItemCount": 11750,
+          "PermissionCount": 9,
+          "QuotaGB": 50.0,
+          "UsagePercent": 3.26,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "7de71f5f-eee6-49ab-ba3a-73f6594b340f",
+      "PrimarySmtpAddress": "itreview@hpw.qld.gov.au",
+      "DisplayName": "People and Culture IT Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 210,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "2e07e772-d7f6-4349-9121-a94ac1aa7604",
+      "PrimarySmtpAddress": "hhs.ss.cbr@hpw.qld.gov.au",
+      "DisplayName": "HHS SS Contracting Brisbane Region",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 3.33,
+          "ItemCount": 3155,
+          "PermissionCount": 11,
+          "QuotaGB": 50.0,
+          "UsagePercent": 6.66,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "84a0434f-9c31-4723-bfbd-ce4d42a32153",
+      "PrimarySmtpAddress": "hhs.ss.contracting@hpw.qld.gov.au",
+      "DisplayName": "HHS SS Contracting",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 29.86,
+          "ItemCount": 29443,
+          "PermissionCount": 11,
+          "QuotaGB": 50.0,
+          "UsagePercent": 59.72,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "f81fcddc-0fdf-4df2-8939-47f0e369187e",
+      "PrimarySmtpAddress": "QBuildNQMRCCoordinator@hpw.qld.gov.au",
+      "DisplayName": "QBuild NQ MRC Coordinator",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 8.59,
+          "ItemCount": 7853,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 17.18,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b359f8be-a8e0-49ea-a8ab-bda68b94fcbf",
+      "PrimarySmtpAddress": "QGDigitalFund@cdsb.qld.gov.au",
+      "DisplayName": "QG Digital Fund",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.8,
+          "ItemCount": 3545,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 3.60,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "22e376d1-1e92-4736-84d8-6a1ad4590f7f",
+      "PrimarySmtpAddress": "HHHBundaberg@hpw.qld.gov.au",
+      "DisplayName": "HHH Bundaberg",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 7.17,
+          "ItemCount": 7014,
+          "PermissionCount": 12,
+          "QuotaGB": 50.0,
+          "UsagePercent": 14.34,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "e8b203fc-d613-4560-9c2f-859d3644455b",
+      "PrimarySmtpAddress": "QTimeSupportUAT@hpw.qld.gov.au",
+      "DisplayName": "QTimeSupportUAT",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.34,
+          "ItemCount": 2601,
+          "PermissionCount": 15,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.68,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "5cefde2a-954f-4a4b-a5f3-b519fc3d0280",
+      "PrimarySmtpAddress": "QTimeSupportTRAIN@hpw.qld.gov.au",
+      "DisplayName": "QTimeSupportTRAIN",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.31,
+          "ItemCount": 1973,
+          "PermissionCount": 14,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.62,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d2a8d52c-8d51-4c6b-8108-f63f4f625cdf",
+      "PrimarySmtpAddress": "FNQ-ACRRP@hpw.qld.gov.au",
+      "DisplayName": "FNQ ACRRP",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.64,
+          "ItemCount": 498,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.28,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "bc2fe69f-3a20-488a-8e48-d77ee7057b52",
+      "PrimarySmtpAddress": "QBuildSEQCA@hpw.qld.gov.au",
+      "DisplayName": "QBuild SEQ CA",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.99,
+          "ItemCount": 2283,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 3.98,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "14337099-e14b-4049-adb7-bcdd8f4006ed",
+      "PrimarySmtpAddress": "PayrollQCS@chde.qld.gov.au",
+      "DisplayName": "QSS Payroll QCS",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.24,
+          "ItemCount": 9199,
+          "PermissionCount": 6,
+          "QuotaGB": 100.0,
+          "UsagePercent": 2.24,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 0.03,
+          "ArchiveItemCount": 74
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "f3108a8d-1a31-4d06-91b9-b052433c081f",
+      "PrimarySmtpAddress": "QBuildFireSafetyAudit2025@hpw.qld.gov.au",
+      "DisplayName": "QBuild Fire Safety Audit 2025",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 32,
+          "PermissionCount": 1,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "37b65bbf-fcf3-4134-8643-c7a70fe9837f",
+      "PrimarySmtpAddress": "hhs.ss.oedscc@hpw.qld.gov.au",
+      "DisplayName": "HHS SS OED Sector Commissioning and Contracting",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 17.04,
+          "ItemCount": 21176,
+          "PermissionCount": 11,
+          "QuotaGB": 50.0,
+          "UsagePercent": 34.08,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "51117867-9347-4748-b815-d140ea67b6a8",
+      "PrimarySmtpAddress": "QStop@hpw.qld.gov.au",
+      "DisplayName": "QGP QStop",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.05,
+          "ItemCount": 275,
+          "PermissionCount": 18,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.10,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "f8153b76-09bb-40ba-8bad-0687af01494b",
+      "PrimarySmtpAddress": "SSQCCMS-UAT@smartservice.qld.gov.au",
+      "DisplayName": "SSQ CCMS UAT",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.05,
+          "ItemCount": 585,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.10,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "7213d2bd-1453-4189-8156-3c850307d11f",
+      "PrimarySmtpAddress": "QBuildSEQFleet@hpw.qld.gov.au",
+      "DisplayName": "QBuild SEQ Fleet",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 145,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "3b716f52-c66c-4869-86f5-9e78f76c0064",
+      "PrimarySmtpAddress": "HHSBIFINANCEEOMUAT@hpw.qld.gov.au",
+      "DisplayName": "HHS BI FINANCE EOM UAT",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 187,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "24e93180-56eb-4ef1-ad7f-a2c89cc678da",
+      "PrimarySmtpAddress": "HHSBIFINANCEEOMPRD@hpw.qld.gov.au",
+      "DisplayName": "HHS BI FINANCE EOM PRD",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 152,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "9238b9af-d908-4bde-b2e0-e24504ee89ac",
+      "PrimarySmtpAddress": "QBuildFieldStaffAgreementnegotiations2025@hpw.qld.gov.au",
+      "DisplayName": "QBuild Field Staff Agreement negotiations 2025",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.04,
+          "ItemCount": 160,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.08,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "3ef25147-36a7-4347-bb8b-c1f435aea171",
+      "PrimarySmtpAddress": "AccesstoChermsideBondLoangroup@hpw.qld.gov.au",
+      "DisplayName": "Access to Chermside Bond Loan group",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 152,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "e2d8fc2f-5874-4245-b020-97458d544876",
+      "PrimarySmtpAddress": "ssqccmsmailbox-UAT-Cards@smartservice.qld.gov.au",
+      "DisplayName": "ssqccmsmailbox-UAT-cards",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 22,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4486916f-e869-4a53-89cc-5df426e30a79",
+      "PrimarySmtpAddress": "ssqccmsmailbox-UAT-Concession@smartservice.qld.gov.au",
+      "DisplayName": "ssqccmsmailbox-UAT-Concession",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 16,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d7cd2499-ae64-4d69-9e6d-5832c11cde7c",
+      "PrimarySmtpAddress": "ssqccmsmailbox-UAT-Offer@smartservice.qld.gov.au",
+      "DisplayName": "ssqccmsmailbox-UAT-Offer",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 7,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "db526f4e-414e-4d9e-87d7-3c1915a46950",
+      "PrimarySmtpAddress": "DDGStrategicPolicy@chde.qld.gov.au",
+      "DisplayName": "DDG Strategic Policy",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.24,
+          "ItemCount": 424,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.48,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "1d473485-e0b4-47c5-a661-a1479c946910",
+      "PrimarySmtpAddress": "NRAS-Archive@hpw.qld.gov.au",
+      "DisplayName": "NRAS-Archive",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 77,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 1.3,
+          "ArchiveItemCount": 13287
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "a6db7801-cc6a-4247-8800-d34b390a7a58",
+      "PrimarySmtpAddress": "Cairns.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Cairns Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.01,
+          "ItemCount": 1061,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "2bf7a029-de1a-4f49-a6d7-46fb77a7954d",
+      "PrimarySmtpAddress": "HHSBIFINANCEEOMDEV@hpw.qld.gov.au",
+      "DisplayName": "HHS BI FINANCE EOM DEV",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 238,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4b12c09d-e54a-4b62-b57e-b5beae345e7c",
+      "PrimarySmtpAddress": "connectmentoring@hpw.qld.gov.au",
+      "DisplayName": "Connect Mentoring",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.27,
+          "ItemCount": 1686,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.54,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4ae1f63d-c66b-4432-8685-c763b7b8e8e2",
+      "PrimarySmtpAddress": "QBuildSWQFinance@hpw.qld.gov.au",
+      "DisplayName": "QBuild SWQ Finance",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.31,
+          "ItemCount": 4742,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 4.62,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "2ee08957-d5e1-4ebc-8986-0d78ea6a11d4",
+      "PrimarySmtpAddress": "HHSCEIntegratedServices@hpw.qld.gov.au",
+      "DisplayName": "HHS CE Integrated Services",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.1,
+          "ItemCount": 1085,
+          "PermissionCount": 9,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.20,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "041fffd1-820d-4349-9d35-0cfd5110dab7",
+      "PrimarySmtpAddress": "QBuildCQMackayHousing@hpw.qld.gov.au",
+      "DisplayName": "QBuild CQ Mackay Housing",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.1,
+          "ItemCount": 197,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.20,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "ac271bdc-b3f5-475a-9450-1ac3428c7ce4",
+      "PrimarySmtpAddress": "HHSBundabergTenancy@hpw.qld.gov.au",
+      "DisplayName": "HHS Bundaberg Tenancy",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 6.3,
+          "ItemCount": 3701,
+          "PermissionCount": 19,
+          "QuotaGB": 50.0,
+          "UsagePercent": 12.60,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "517dd1e1-c1a1-4b9d-aa0e-ac2c32c642e1",
+      "PrimarySmtpAddress": "HR-DDG@cdsb.qld.gov.au",
+      "DisplayName": "CDSB HR-DDG",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 4.22,
+          "ItemCount": 5773,
+          "PermissionCount": 15,
+          "QuotaGB": 50.0,
+          "UsagePercent": 8.44,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "9a7e083a-0f7f-42a6-a259-0d7ab07a8871",
+      "PrimarySmtpAddress": "HR-CSFB@cdsb.qld.gov.au",
+      "DisplayName": "CDSB HR-CSFB",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 3.19,
+          "ItemCount": 6226,
+          "PermissionCount": 14,
+          "QuotaGB": 50.0,
+          "UsagePercent": 6.38,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6d64974b-288e-4007-9f57-aa21f2918cde",
+      "PrimarySmtpAddress": "HR-CORP@cdsb.qld.gov.au",
+      "DisplayName": "CDSB HR-CORP",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.79,
+          "ItemCount": 4086,
+          "PermissionCount": 11,
+          "QuotaGB": 50.0,
+          "UsagePercent": 3.58,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "1349047a-fd73-46f5-a3bb-899f30df9993",
+      "PrimarySmtpAddress": "qgscmanagers@smartservice.qld.gov.au",
+      "DisplayName": "SSQ QGSC Managers",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.1,
+          "ItemCount": 696,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.20,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c254cb65-1383-4a37-a89e-6a6efda88fc6",
+      "PrimarySmtpAddress": "Incident.Ellipse.Prod@hpw.qld.gov.au",
+      "DisplayName": "Incident.Ellipse.Prod",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 8,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "accd8459-9ffa-4ff7-bc6e-0fe560b1f537",
+      "PrimarySmtpAddress": "Request.Ellipse.Prod@hpw.qld.gov.au",
+      "DisplayName": "Request.Ellipse.Prod",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 63,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "9415a472-c3ea-4fab-8d77-2ba0e20a3270",
+      "PrimarySmtpAddress": "Incident.ServiceNow.Prod@hpw.qld.gov.au",
+      "DisplayName": "Incident.ServiceNow.Prod",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 7,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "52b2c81e-65f7-483c-b275-0b7ae7cf18aa",
+      "PrimarySmtpAddress": "Request.ServiceNow.Prod@hpw.qld.gov.au",
+      "DisplayName": "Request.ServiceNow.Prod",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 143,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "f2c42bf4-c0a4-4151-8802-651439930dcb",
+      "PrimarySmtpAddress": "Incident.ServiceNow.Uat@hpw.qld.gov.au",
+      "DisplayName": "Incident.ServiceNow.Uat",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 7,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "76278df8-2bef-4c69-9c79-b41ae3fcb634",
+      "PrimarySmtpAddress": "Request.ServiceNow.Uat@hpw.qld.gov.au",
+      "DisplayName": "Request.ServiceNow.Uat",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 23,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "635ab725-ae19-434a-8526-d72f31a78462",
+      "PrimarySmtpAddress": "qfleetfleetmanager@hpw.qld.gov.au",
+      "DisplayName": "QFleet Fleet Manager",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.19,
+          "ItemCount": 3641,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 4.38,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c0714484-9f2b-4ca8-a451-81a5933e7427",
+      "PrimarySmtpAddress": "QBuildCareersOffice@hpw.qld.gov.au",
+      "DisplayName": "QBuild Careers Office",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 25.2,
+          "ItemCount": 30917,
+          "PermissionCount": 1,
+          "QuotaGB": 50.0,
+          "UsagePercent": 50.40,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "3cba2d73-2ea3-4af5-88d8-4b7cbe28d7a7",
+      "PrimarySmtpAddress": "QBuildCriticalPrograms@hpw.qld.gov.au",
+      "DisplayName": "QBuild Critical Programs",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 9.98,
+          "ItemCount": 11261,
+          "PermissionCount": 13,
+          "QuotaGB": 50.0,
+          "UsagePercent": 19.96,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "718456b8-76f7-45db-bbe1-1727a9aa32e1",
+      "PrimarySmtpAddress": "hhstoowoombatrt@hpw.qld.gov.au",
+      "DisplayName": "HHS Toowoomba Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.2,
+          "ItemCount": 314,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.40,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "93aadeba-c91d-4a10-a470-a319330b02fe",
+      "PrimarySmtpAddress": "Microsoft.WoG.Contract@chde.qld.gov.au",
+      "DisplayName": "Microsoft WoG Contract",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.22,
+          "ItemCount": 4225,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.44,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "afd969a9-3d4d-409f-a32c-8a8ed5e94676",
+      "PrimarySmtpAddress": "QBuildCQBusinessManager@hpw.qld.gov.au",
+      "DisplayName": "QBuild CQ Business Manager",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 4.64,
+          "ItemCount": 6513,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 9.28,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b7995595-052c-4324-ae91-087ba91deb71",
+      "PrimarySmtpAddress": "QBuildFNQTraining@hpw.qld.gov.au",
+      "DisplayName": "QBuild FNQ Training",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 4.15,
+          "ItemCount": 11797,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 8.30,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "44b1149c-b4bc-47ba-8989-ba0da1c7bb6f",
+      "PrimarySmtpAddress": "qlddigitalstrategy@chde.qld.gov.au",
+      "DisplayName": "qlddigitalstrategy",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.47,
+          "ItemCount": 1764,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.94,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "ed517332-ab31-49ef-a5ae-ad04f8331aa6",
+      "PrimarySmtpAddress": "CDSBMincor@hpw.qld.gov.au",
+      "DisplayName": "CDSB Mincor",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.03,
+          "ItemCount": 854,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.06,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 4
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "0814b29d-f708-491f-92cd-70cd4a4553c9",
+      "PrimarySmtpAddress": "QCHIP@hpw.qld.gov.au",
+      "DisplayName": "QCHIP",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 6.46,
+          "ItemCount": 15571,
+          "PermissionCount": 11,
+          "QuotaGB": 50.0,
+          "UsagePercent": 12.92,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "97c012e9-b9d4-44e4-bb02-011a7085b1ef",
+      "PrimarySmtpAddress": "qbuildwbbmrccoordinator@hpw.qld.gov.au",
+      "DisplayName": "QBuild WBB MRC Coordinator",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 3.14,
+          "ItemCount": 3636,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 6.28,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "656971f5-fed6-41fd-8b4b-3dbc92ad5452",
+      "PrimarySmtpAddress": "QBuildGovernance@hpw.qld.gov.au",
+      "DisplayName": "QBuild Governance",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 8.39,
+          "ItemCount": 7032,
+          "PermissionCount": 8,
+          "QuotaGB": 100.0,
+          "UsagePercent": 8.39,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "a5dd3ec1-c54a-419c-a8dc-1977dfae97aa",
+      "PrimarySmtpAddress": "QTimeSupportProductionSupportTEST@hpw.qld.gov.au",
+      "DisplayName": "QTimeSupportProductionSupportTEST",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.22,
+          "ItemCount": 1840,
+          "PermissionCount": 1,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.44,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "2e459c06-b804-4368-a7ec-37ff678d2d64",
+      "PrimarySmtpAddress": "QTimeSupportProductionSupportDEV@hpw.qld.gov.au",
+      "DisplayName": "QTimeSupportProductionSupportDEV",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 15,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "05396b0f-f06e-44fb-ae63-26f49dc72ab0",
+      "PrimarySmtpAddress": "mog.coordination@cdsb.qld.gov.au",
+      "DisplayName": "CDSB MoG Coordination",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.77,
+          "ItemCount": 2918,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.54,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "91a6720f-41ce-48b4-addc-4d9f80a9c38e",
+      "PrimarySmtpAddress": "QBuildseqmrchousingreports@hpw.qld.gov.au",
+      "DisplayName": "QBuild SEQ MRC Housing Reports2",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 94.92,
+          "ItemCount": 38549,
+          "PermissionCount": 69,
+          "QuotaGB": 100.0,
+          "UsagePercent": 94.92,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 114.37,
+          "ArchiveItemCount": 43108
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "44a6a170-c61c-4474-bb6d-470e52d512e9",
+      "PrimarySmtpAddress": "QBuildSEQMRCHousing@hpw.qld.gov.au",
+      "DisplayName": "QBuild SEQ MRC Housing3",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 84.98,
+          "ItemCount": 86767,
+          "PermissionCount": 46,
+          "QuotaGB": 100.0,
+          "UsagePercent": 84.98,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 0.16,
+          "ArchiveItemCount": 97
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "dce90951-0aac-46cf-8a98-56a548278234",
+      "PrimarySmtpAddress": "HPWTechnicalEngagement@hpw.qld.gov.au",
+      "DisplayName": "HPW Technical Engagement",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.4,
+          "ItemCount": 3741,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.80,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "7b9bea0b-117c-4bdc-b5d6-d36e41f69b8f",
+      "PrimarySmtpAddress": "qbuildseqmrctraditional2@hpw.qld.gov.au",
+      "DisplayName": "QBuild SEQ MRC2",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 97.28,
+          "ItemCount": 88171,
+          "PermissionCount": 72,
+          "QuotaGB": 100.0,
+          "UsagePercent": 97.28,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 73.26,
+          "ArchiveItemCount": 68422
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "0b8cf380-f4ee-41c2-965a-f019a01dc436",
+      "PrimarySmtpAddress": "QCHIPBoard@hpw.qld.gov.au",
+      "DisplayName": "QCHIP Board",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.33,
+          "ItemCount": 674,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.66,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "7d921332-03d4-4fe0-aacb-d16991518a3e",
+      "PrimarySmtpAddress": "ComplaintsClearingHouse@smartservice.qld.gov.au",
+      "DisplayName": "SSQ Complaints Clearing House",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.8,
+          "ItemCount": 5069,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.60,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "24fe9738-69b5-47ee-8a30-2616dc184d95",
+      "PrimarySmtpAddress": "PAMsupport@hpw.qld.gov.au",
+      "DisplayName": "PAM Support",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.26,
+          "ItemCount": 1459,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.52,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4bdc2345-99ab-44e2-ad27-f0f90e7372f8",
+      "PrimarySmtpAddress": "ResidentialServicesConsultation@hpw.qld.gov.au",
+      "DisplayName": "Residential Services Consultation",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.05,
+          "ItemCount": 299,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.10,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "7d32ca73-1880-4ccd-bea9-f77dc2a3ae0c",
+      "PrimarySmtpAddress": "qbuild-cco@hpw.qld.gov.au",
+      "DisplayName": "QBuild Chief Construction Office",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.05,
+          "ItemCount": 2403,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.10,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "888a1a43-1f6a-4c5d-9562-b7c2a0377757",
+      "PrimarySmtpAddress": "MajorProjectsOEDD@hpw.qld.gov.au",
+      "DisplayName": "Major Projects OEDD",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.16,
+          "ItemCount": 685,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.32,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "be54f4f3-824f-4a20-a1fe-21387af85fa0",
+      "PrimarySmtpAddress": "SHDOHGspotpurchase@hpw.qld.gov.au",
+      "DisplayName": "SHDO HG Spot Purchase",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 10.98,
+          "ItemCount": 5734,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 21.96,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "f5bd5a7f-9755-4934-90df-b2b8e8f4a92d",
+      "PrimarySmtpAddress": "Inala.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Inala Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.39,
+          "ItemCount": 1268,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.78,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "5b099bb1-7906-448f-b83f-02038d98c3b6",
+      "PrimarySmtpAddress": "QBuildBMFMACAT2and5Requests@hpw.qld.gov.au",
+      "DisplayName": "QBuild BM FMA CAT2&5 Requests",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.36,
+          "ItemCount": 1938,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.72,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "77ba3631-030d-45b7-a077-2176c89997f2",
+      "PrimarySmtpAddress": "DisasterComms@hpw.qld.gov.au",
+      "DisplayName": "HPW Disaster Communications",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.2,
+          "ItemCount": 750,
+          "PermissionCount": 18,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.40,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "87afed3e-8eb0-4a7a-9b52-0ea7e4965338",
+      "PrimarySmtpAddress": "QBuildNQCommercialManager@hpw.qld.gov.au",
+      "DisplayName": "QBuild NQ Commercial Manager",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 3.85,
+          "ItemCount": 3664,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 7.70,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "5f71adc8-8f67-4e73-9664-b3958033c248",
+      "PrimarySmtpAddress": "QBuildSWQConstructionManagement@hpw.qld.gov.au",
+      "DisplayName": "QBuild SWQ Construction Management",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 156,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d28675b9-d5cb-4c80-8d16-b79d26620959",
+      "PrimarySmtpAddress": "QBuild.BIS@hpw.qld.gov.au",
+      "DisplayName": "QBuild Business Improvements and Systems",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.54,
+          "ItemCount": 5700,
+          "PermissionCount": 12,
+          "QuotaGB": 50.0,
+          "UsagePercent": 3.08,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "81001f31-ae3d-482b-83ea-bd9872f6977f",
+      "PrimarySmtpAddress": "GEHPilot@hpw.qld.gov.au",
+      "DisplayName": "GEH Pilot",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.14,
+          "ItemCount": 823,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.28,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "cc9bbb4e-c475-4570-8ef9-b4bfe3023505",
+      "PrimarySmtpAddress": "QBuildCapitalPrograms-ContractAdministration@hpw.qld.gov.au",
+      "DisplayName": "QBuild Capital Programs - Contract Administration",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 20.85,
+          "ItemCount": 14208,
+          "PermissionCount": 31,
+          "QuotaGB": 100.0,
+          "UsagePercent": 20.85,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 20.1,
+          "ArchiveItemCount": 13077
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "cfe023c3-2c63-4da9-80fc-bc234afe208b",
+      "PrimarySmtpAddress": "spd@cdsb.qld.gov.au",
+      "DisplayName": "CDSB Strategy, Performance and Digital",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.71,
+          "ItemCount": 3708,
+          "PermissionCount": 9,
+          "QuotaGB": 50.0,
+          "UsagePercent": 3.42,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "bfc6f334-035a-418a-a4f2-1ae290f3040e",
+      "PrimarySmtpAddress": "QBuildNQPPM@hpw.qld.gov.au",
+      "DisplayName": "QBuild NQ PPM",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.14,
+          "ItemCount": 2750,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 4.28,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "1d29e9ab-cab5-4161-b8d1-33908dc5d637",
+      "PrimarySmtpAddress": "qbuild.capitalsupport@hpw.qld.gov.au",
+      "DisplayName": "qbuild.capitalsupport",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.59,
+          "ItemCount": 1697,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.18,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "ad6ef0c2-db6d-41fc-abeb-04c557dbe684",
+      "PrimarySmtpAddress": "QBuildCapitalProgramsHousingPCAO@hpw.qld.gov.au",
+      "DisplayName": "QBuild Capital Programs Housing PCAO",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.74,
+          "ItemCount": 956,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.48,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "28281c1c-eb8b-4133-9860-3308a73777fc",
+      "PrimarySmtpAddress": "GEHAssetManager@hpw.qld.gov.au",
+      "DisplayName": "GEH Asset Manager - Maintenance",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 12.45,
+          "ItemCount": 4712,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 24.90,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "458dca43-41e3-4d50-b15d-43a635009ac9",
+      "PrimarySmtpAddress": "QBuildCapitalProgramsProjectAdministration@hpw.qld.gov.au",
+      "DisplayName": "QBuild Capital Programs - Project Administration",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 12.81,
+          "ItemCount": 14123,
+          "PermissionCount": 30,
+          "QuotaGB": 100.0,
+          "UsagePercent": 12.81,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 41.79,
+          "ArchiveItemCount": 73645
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "8f999136-8a6c-4b9b-9c32-def87ebaf13f",
+      "PrimarySmtpAddress": "QSSPayments@chde.qld.gov.au",
+      "DisplayName": "QSS Payments",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.2,
+          "ItemCount": 4160,
+          "PermissionCount": 14,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.40,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d55c1f02-1e40-4b50-9c81-e1cd69f1ae99",
+      "PrimarySmtpAddress": "Townsville.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Townsville Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.72,
+          "ItemCount": 943,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.44,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "e4ac758c-c41d-405e-8386-95077a63dd4b",
+      "PrimarySmtpAddress": "Mackay.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Mackay Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.36,
+          "ItemCount": 524,
+          "PermissionCount": 13,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.72,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "63937c64-7234-4f44-a70e-a19dafd290c4",
+      "PrimarySmtpAddress": "MtIsa.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Mt Isa Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.33,
+          "ItemCount": 462,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.66,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "07b53cc3-220a-40ae-95bd-6edd6f2cfe86",
+      "PrimarySmtpAddress": "CQNCR.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS CQNCR Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 4.21,
+          "ItemCount": 3630,
+          "PermissionCount": 20,
+          "QuotaGB": 50.0,
+          "UsagePercent": 8.42,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "64ba05f4-6310-422c-b1f3-0dc913ce41fc",
+      "PrimarySmtpAddress": "Buranda.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Buranda Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.58,
+          "ItemCount": 836,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.16,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "94149d2a-e64a-4aae-9c65-024e81034767",
+      "PrimarySmtpAddress": "Bayside.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Bayside Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.21,
+          "ItemCount": 330,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.42,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6f029bb5-7551-4afb-87e3-52de6c6267d2",
+      "PrimarySmtpAddress": "Logan.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Logan Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.61,
+          "ItemCount": 1068,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.22,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "1df5e3fc-f141-4a63-8300-e60b22224bda",
+      "PrimarySmtpAddress": "Chermside.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Chermside Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.97,
+          "ItemCount": 693,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.94,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c40e0a94-c489-42bf-8357-77e4def8363b",
+      "PrimarySmtpAddress": "Ipswich.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Ipswich Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.11,
+          "ItemCount": 1230,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.22,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6c909bbd-7465-4535-b759-848afa876465",
+      "PrimarySmtpAddress": "GoldCoast.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Gold Coast Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.49,
+          "ItemCount": 681,
+          "PermissionCount": 11,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.98,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "815c43e2-dc8d-4aa0-8019-1f88f63c9220",
+      "PrimarySmtpAddress": "engagement@archives.qld.gov.au",
+      "DisplayName": "QSA Engagement",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 161,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "14ea8c2b-3e9a-4e45-bff7-28b06737fecd",
+      "PrimarySmtpAddress": "qssesmnonprod@chde.qld.gov.au",
+      "DisplayName": "QSS ESM Non Prod",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 310,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "64909afe-0a32-4c28-a84d-c4b42a1382c9",
+      "PrimarySmtpAddress": "SSQComplaintsClearingHousing@hpw.qld.gov.au",
+      "DisplayName": "SSQ Complaints Clearing Housing",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 44,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "a0b89f38-f591-4d67-8300-3b4103c9cdaa",
+      "PrimarySmtpAddress": "FortitudeValley.Tenancy.Review@hpw.qld.gov.au",
+      "DisplayName": "HHS Fortitude Valley Tenancy Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.56,
+          "ItemCount": 570,
+          "PermissionCount": 9,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.12,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6bca9c21-b621-4031-89db-453809a391cf",
+      "PrimarySmtpAddress": "DAContract@archives.qld.gov.au",
+      "DisplayName": "QSA DA Contract",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.26,
+          "ItemCount": 1609,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.52,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b9cf973f-cdbc-45b8-8d53-940c9326513d",
+      "PrimarySmtpAddress": "HHS-Cairns-NSH@hpw.qld.gov.au",
+      "DisplayName": "HHS Cairns NSH",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.41,
+          "ItemCount": 1265,
+          "PermissionCount": 1,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.82,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c1290163-8524-44e1-b299-ccd9e47672ce",
+      "PrimarySmtpAddress": "SSQDiversityInclusionandRespectGroup@smartservice.qld.gov.au",
+      "DisplayName": "SSQ Diversity, Inclusion and Respect Group",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.02,
+          "ItemCount": 200,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "dfc4d372-330e-42cb-a665-188b7b22147e",
+      "PrimarySmtpAddress": "QBuildCWHSGDelivery@hpw.qld.gov.au",
+      "DisplayName": "QBuild CW HSG Delivery",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.61,
+          "ItemCount": 288,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.22,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "f95a0947-fca0-4bac-8721-7fc279a16dcd",
+      "PrimarySmtpAddress": "CDSBInformationManagement@cdsb.qld.gov.au",
+      "DisplayName": "CDSB Information Management",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.78,
+          "ItemCount": 1780,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.56,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "84bd8be3-0dfe-4bc3-9e44-4cd5f968b770",
+      "PrimarySmtpAddress": "PAMAssurance@hpw.qld.gov.au",
+      "DisplayName": "PAM Assurance",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.69,
+          "ItemCount": 2963,
+          "PermissionCount": 17,
+          "QuotaGB": 50.0,
+          "UsagePercent": 3.38,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "05eae80c-2cbc-4910-981e-4a7d67671dc7",
+      "PrimarySmtpAddress": "PAMComplaint@hpw.qld.gov.au",
+      "DisplayName": "PAM Complaint",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.65,
+          "ItemCount": 1097,
+          "PermissionCount": 17,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.30,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "8569b630-33cb-469d-a458-9895c501ada1",
+      "PrimarySmtpAddress": "SSQDigitalEngineeringOnCall@smartservice.qld.gov.au",
+      "DisplayName": "SSQ Digital Engineering On Call",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 672,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6a74d27e-dfcf-4919-95d5-f630b255382b",
+      "PrimarySmtpAddress": "QBuildAcquisition@hpw.qld.gov.au",
+      "DisplayName": "QBuild Acquisition",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 8.12,
+          "ItemCount": 3097,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 16.24,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "814dc396-8aa7-40eb-ba49-2fc31bc44fa2",
+      "PrimarySmtpAddress": "1WSContractRenewal@chde.qld.gov.au",
+      "DisplayName": "1WS Contract Renewal",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 75,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "33707826-fbbe-406a-bc09-fd56fceb9ca8",
+      "PrimarySmtpAddress": "SSQEnhanceWebsiteFeedback@smartservice.qld.gov.au",
+      "DisplayName": "SSQ Enhance Website Feedback",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.02,
+          "ItemCount": 547,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "797459d7-bef9-4c21-ae37-860ae49ad6f3",
+      "PrimarySmtpAddress": "PCHF@hpw.qld.gov.au",
+      "DisplayName": "Place to Call Home for Families",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 135,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "0e35c18a-ace4-45a6-93a1-f8ae1e391014",
+      "PrimarySmtpAddress": "hhi@hpw.qld.gov.au",
+      "DisplayName": "Housing and Homelessness Initiatives",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 3.81,
+          "ItemCount": 6914,
+          "PermissionCount": 24,
+          "QuotaGB": 50.0,
+          "UsagePercent": 7.62,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "a951aa39-a223-4f70-873c-12d9c3e106a9",
+      "PrimarySmtpAddress": "QBuildFNQBM@hpw.qld.gov.au",
+      "DisplayName": "QBuild FNQ Business Manager",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 10.04,
+          "ItemCount": 10178,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 20.08,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4c48903a-2c74-46d9-ab7f-2f281071fee6",
+      "PrimarySmtpAddress": "hhs.ss.chl@hpw.qld.gov.au",
+      "DisplayName": "HHS SS Community Housing and Leasing",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 4.87,
+          "ItemCount": 5088,
+          "PermissionCount": 16,
+          "QuotaGB": 50.0,
+          "UsagePercent": 9.74,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "f4022b59-4a51-4c90-a2f3-f0fd3dabb7d9",
+      "PrimarySmtpAddress": "QFleet-Projects@hpw.qld.gov.au",
+      "DisplayName": "QFleet-Projects",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 141,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "bf98a56a-4d66-49ac-bb84-951d22b407bc",
+      "PrimarySmtpAddress": "HHSSSPartneringandevaluation@hpw.qld.gov.au",
+      "DisplayName": "HHSSS Partnering and Evaluation",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.27,
+          "ItemCount": 599,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.54,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "761b736c-7c0b-4a92-8fe4-8e5bcd3faa40",
+      "PrimarySmtpAddress": "QBuildSEQSuperintendent@hpw.qld.gov.au",
+      "DisplayName": "QBuild SEQ Superintendent",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.04,
+          "ItemCount": 159,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.08,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "74ce215e-be9b-4e2f-9040-883b91caf740",
+      "PrimarySmtpAddress": "QBuildSWQSuperintendent@hpw.qld.gov.au",
+      "DisplayName": "QBuild SWQ Superintendent",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 140,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4ed6f3ee-e86b-44fa-bf9a-e6e8f7410dd7",
+      "PrimarySmtpAddress": "QGAO.Leasing.Legal.Work@hpw.qld.gov.au",
+      "DisplayName": "QGAO Leasing Legal Work",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 10.48,
+          "ItemCount": 5855,
+          "PermissionCount": 9,
+          "QuotaGB": 50.0,
+          "UsagePercent": 20.96,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "76b737ef-43d3-47c5-8fd4-06c4f2116b3c",
+      "PrimarySmtpAddress": "internalcomms@cdsb.qld.gov.au",
+      "DisplayName": "Internal Comms",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 3.67,
+          "ItemCount": 5003,
+          "PermissionCount": 9,
+          "QuotaGB": 50.0,
+          "UsagePercent": 7.34,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "83e7d87b-d4c6-4d94-8473-3d61135d0550",
+      "PrimarySmtpAddress": "SAHGOEDStrategicPrecinctsandProjects@hpw.qld.gov.au",
+      "DisplayName": "SAHG OED Strategic Precincts & Projects",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 5.63,
+          "ItemCount": 6964,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 11.26,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4f0cd56a-b092-4df1-9286-1a5f0ca50413",
+      "PrimarySmtpAddress": "QBuildBIG@hpw.qld.gov.au",
+      "DisplayName": "QBuild BIG",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.74,
+          "ItemCount": 1240,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.48,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "cf7bd572-d7cc-4c3e-bb5b-6e8fcf567ffb",
+      "PrimarySmtpAddress": "Superintendent@hpw.qld.gov.au",
+      "DisplayName": "Superintendent",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 149,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "13f1b16b-6d43-47f7-82a9-c0490e4d03f7",
+      "PrimarySmtpAddress": "HHS-ConflictofInterest@hpw.qld.gov.au",
+      "DisplayName": "HHS - Conflict of Interest",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.61,
+          "ItemCount": 350,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.22,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "623f1fc5-6fb9-4b93-af6e-4fa9812c975e",
+      "PrimarySmtpAddress": "QCHEU@hpw.qld.gov.au",
+      "DisplayName": "Queensland Community Housing Energy Upgrades",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.06,
+          "ItemCount": 343,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.12,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "f6962b4e-f83b-40fd-8890-2645c3e3bce5",
+      "PrimarySmtpAddress": "SandpitFabricDSM@hpw.qld.gov.au",
+      "DisplayName": "Sandpit Fabric DSM Mailbox",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 152,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "59c76017-c6a0-4e6b-96ce-9beeb04ae472",
+      "PrimarySmtpAddress": "QSSModTesting@chde.qld.gov.au",
+      "DisplayName": "QSS Mod Testing",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.49,
+          "ItemCount": 2600,
+          "PermissionCount": 15,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.98,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b19f3fea-3518-4451-8c23-0006ac53d359",
+      "PrimarySmtpAddress": "problemmanagement@chde.qld.gov.au",
+      "DisplayName": "QSS Problem Management",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.17,
+          "ItemCount": 1106,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.34,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d146df78-a0be-460c-a211-c845f334dc46",
+      "PrimarySmtpAddress": "FPTR@hpw.qld.gov.au",
+      "DisplayName": "HHS FPTR",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 24.9,
+          "ItemCount": 21605,
+          "PermissionCount": 75,
+          "QuotaGB": 100.0,
+          "UsagePercent": 24.90,
+          "LastLogonTime": null,
+          "ArchiveEnabled": true,
+          "ArchiveSizeGB": 33.42,
+          "ArchiveItemCount": 19561
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "907f756d-3896-44d4-baad-8aa8d547bb89",
+      "PrimarySmtpAddress": "HHSFSHousingRegisterInformation@hpw.qld.gov.au",
+      "DisplayName": "HHS FS Housing Register Information",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.48,
+          "ItemCount": 1063,
+          "PermissionCount": 12,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.96,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "94f8d201-0d3e-4a2a-8ec1-905f374df583",
+      "PrimarySmtpAddress": "QBuildFNQSuperintendent@hpw.qld.gov.au",
+      "DisplayName": "QBuild FNQ Superintendent",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 151,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "61b778b7-d627-45ab-844f-b215928fe3e7",
+      "PrimarySmtpAddress": "QBuildNQSuperintendent@hpw.qld.gov.au",
+      "DisplayName": "QBuild NQ Superintendent",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.09,
+          "ItemCount": 659,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.18,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c70a2e6b-6247-4a37-9d15-2a04b115015d",
+      "PrimarySmtpAddress": "QBuildWBBSuperintendent@hpw.qld.gov.au",
+      "DisplayName": "QBuild WBB Superintendent",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 133,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "05eff845-2dfa-4b0f-913f-5af6189faab6",
+      "PrimarySmtpAddress": "Hhs.fs.fpmt@hpw.qld.gov.au",
+      "DisplayName": "HHS FS Frontline Processing Management Team",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.34,
+          "ItemCount": 967,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.68,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d701fbb8-3bbe-4e4b-b9e2-05f36b4b4703",
+      "PrimarySmtpAddress": "HREnquiries@hpw.qld.gov.au",
+      "DisplayName": "HR Enquiries",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 9.46,
+          "ItemCount": 18232,
+          "PermissionCount": 17,
+          "QuotaGB": 50.0,
+          "UsagePercent": 18.92,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "32923818-bca8-4713-ab92-c2c5ffb24374",
+      "PrimarySmtpAddress": "HPWMPCUPProjects@hpw.qld.gov.au",
+      "DisplayName": "HPW MP CUP Projects",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.11,
+          "ItemCount": 1587,
+          "PermissionCount": 12,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.22,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "37b8026f-c5f3-4a22-8a0b-f21c4c6906f7",
+      "PrimarySmtpAddress": "cycloneresiliencepmo@hpw.qld.gov.au",
+      "DisplayName": "Cyclone Resilience Programs",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.0,
+          "ItemCount": 2185,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 4.00,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "ca32c8aa-eb2d-476b-b6d2-604d8a41f24c",
+      "PrimarySmtpAddress": "SHDGReview@hpw.qld.gov.au",
+      "DisplayName": "SHDO HG SHDG Review",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.04,
+          "ItemCount": 2294,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.08,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "638fd13d-eb63-40e0-b1c9-06ce91e0174b",
+      "PrimarySmtpAddress": "IAA@cdsb.qld.gov.au",
+      "DisplayName": "Investment, Assurance and Architecture",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.77,
+          "ItemCount": 2011,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.54,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c41fe378-bbca-4c47-a6b5-e4873d8e9c68",
+      "PrimarySmtpAddress": "SMPtraining@hpw.qld.gov.au",
+      "DisplayName": "SMPtraining",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.21,
+          "ItemCount": 1665,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.42,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "be439daa-6e0a-47d5-8d97-e41eb6c3d794",
+      "PrimarySmtpAddress": "LDPP@chde.qld.gov.au",
+      "DisplayName": "Local Digital Priority Projects",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.17,
+          "ItemCount": 676,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.34,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "8c73a55e-cf75-4226-937e-d7df9af1f692",
+      "PrimarySmtpAddress": "HHSChermsideTenancyManagement@hpw.qld.gov.au",
+      "DisplayName": "HHS Chermside Tenancy Management",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 3.63,
+          "ItemCount": 2512,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 7.26,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "d9435c2e-4098-461b-b54f-e09a36896127",
+      "PrimarySmtpAddress": "Q-CHIPHAFF3@hpw.qld.gov.au",
+      "DisplayName": "Q-CHIP HAFF 3",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.15,
+          "ItemCount": 450,
+          "PermissionCount": 9,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.30,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "ec590b91-d6c2-4add-b0f2-d1e612bfb372",
+      "PrimarySmtpAddress": "CST@cdsb.qld.gov.au",
+      "DisplayName": "CDSB Customer Service Transformation",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.59,
+          "ItemCount": 2512,
+          "PermissionCount": 9,
+          "QuotaGB": 100.0,
+          "UsagePercent": 0.59,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "aada6f50-6d3f-463b-9335-e401a06a6a2e",
+      "PrimarySmtpAddress": "QBuild-TCPTeam@hpw.qld.gov.au",
+      "DisplayName": "QBuild TCP Team",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 18.31,
+          "ItemCount": 4405,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 36.62,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "a418e3eb-a617-4573-9fb9-273e47c99ed1",
+      "PrimarySmtpAddress": "HHSLoganRentTeam@hpw.qld.gov.au",
+      "DisplayName": "HHS Logan Rent Team",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 7.28,
+          "ItemCount": 9504,
+          "PermissionCount": 17,
+          "QuotaGB": 50.0,
+          "UsagePercent": 14.56,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "760f0dfc-df53-40a7-a94e-2f099148212d",
+      "PrimarySmtpAddress": "FFP_Assist@cdsb.qld.gov.au",
+      "DisplayName": "FFP_Assist",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.86,
+          "ItemCount": 2167,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.72,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b812fb52-1b1a-4b50-820c-5a20c3b6a840",
+      "PrimarySmtpAddress": "DHPWLGBTQIAENG@hpw.qld.gov.au",
+      "DisplayName": "DHPW LGBTQIA ENG",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.03,
+          "ItemCount": 380,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.06,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "0e21d31a-cf2a-45d3-bc2a-9f5d20cca515",
+      "PrimarySmtpAddress": "AIPlaybook@hpw.qld.gov.au",
+      "DisplayName": "AIPlaybook",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.47,
+          "ItemCount": 3252,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.94,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "ad6bc22f-5228-4deb-96c9-d11deea643e9",
+      "PrimarySmtpAddress": "QBuildCriticalProgramsOffice@hpw.qld.gov.au",
+      "DisplayName": "QBuild Critical Programs Office",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.25,
+          "ItemCount": 2568,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 4.50,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "22883fe2-de32-487e-9dcf-8f7150ab9fc0",
+      "PrimarySmtpAddress": "QBUILDSWQDDCON@hpw.qld.gov.au",
+      "DisplayName": "QBUILD SWQ DDCON",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.35,
+          "ItemCount": 426,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.70,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "2b40c0e7-484d-44a1-9606-16183ad0149e",
+      "PrimarySmtpAddress": "QSSFMPMO@chde.qld.gov.au",
+      "DisplayName": "QSS FM PMO",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.33,
+          "ItemCount": 793,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.66,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "e397c9a8-0c98-4e94-a5c1-7bd9a82bba90",
+      "PrimarySmtpAddress": "StrategicPrecinctsProjects@hpw.qld.gov.au",
+      "DisplayName": "Strategic Precincts & Projects",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.03,
+          "ItemCount": 252,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.06,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "511f0e1a-40c8-4212-9589-2cdec5de4d7c",
+      "PrimarySmtpAddress": "PayrollIntegrity@chde.qld.gov.au",
+      "DisplayName": "Payroll Supporting Services Team, HR Services",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 274,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6a8e0e27-08bf-424e-83ea-718643c2424d",
+      "PrimarySmtpAddress": "QBuildBMScheduler@hpw.qld.gov.au",
+      "DisplayName": "QBuild BM Scheduler",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.2,
+          "ItemCount": 345,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.40,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "17af7db8-259c-4802-809c-e8a046062b5a",
+      "PrimarySmtpAddress": "QSSDMOInitiatives@chde.qld.gov.au",
+      "DisplayName": "QSS DMO Initiatives",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.47,
+          "ItemCount": 1328,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.94,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "fdd9ed91-8ed1-4880-bd13-cc00ec0cef5d",
+      "PrimarySmtpAddress": "ChangeManagementCoP@hpw.qld.gov.au",
+      "DisplayName": "Change Management CoP",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.06,
+          "ItemCount": 135,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.12,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "116c0592-556e-45f7-b09b-744dbca64c34",
+      "PrimarySmtpAddress": "CS.FMP.info@hpw.qld.gov.au",
+      "DisplayName": "CS Finance Modernisation Project",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.07,
+          "ItemCount": 651,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.14,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "05753623-1d86-4d34-906c-0a246676881c",
+      "PrimarySmtpAddress": "QBuildSUProcurementRequests@hpw.qld.gov.au",
+      "DisplayName": "QBuild SU Procurement Requests",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.21,
+          "ItemCount": 2419,
+          "PermissionCount": 18,
+          "QuotaGB": 50.0,
+          "UsagePercent": 4.42,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "9ff2c796-d584-49d9-b2f4-0a21fe1dd418",
+      "PrimarySmtpAddress": "QBuildCQEstablishment@hpw.qld.gov.au",
+      "DisplayName": "QBuild CQ Establishment",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.38,
+          "ItemCount": 784,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.76,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6e02ad35-4826-45a5-9f68-15462aa3edba",
+      "PrimarySmtpAddress": "HPCBusinessPartnering@hpw.qld.gov.au",
+      "DisplayName": "HPC Business Partnering",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.08,
+          "ItemCount": 319,
+          "PermissionCount": 14,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.16,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "3f820af8-999f-4f5b-8a85-72b7dd6f68e5",
+      "PrimarySmtpAddress": "DTSDeviceReplacement@hpw.qld.gov.au",
+      "DisplayName": "DTS Device Replacement",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.03,
+          "ItemCount": 249,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.06,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "a3477f36-ba4b-40e6-b024-c749cb28e408",
+      "PrimarySmtpAddress": "cso@hpw.qld.gov.au",
+      "DisplayName": "CSO Implementation Team",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.43,
+          "ItemCount": 2302,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.86,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "f5ce8fef-03e4-4091-8654-31611f9e28c0",
+      "PrimarySmtpAddress": "PPFN.Governance@hpw.qld.gov.au",
+      "DisplayName": "PPFN.Governance",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.52,
+          "ItemCount": 928,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b8a4213a-0c71-49fb-9d50-4e376858b453",
+      "PrimarySmtpAddress": "FNHHPathways@hpw.qld.gov.au",
+      "DisplayName": "FNHH Pathways",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.65,
+          "ItemCount": 1279,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.30,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "1d0423e0-79f2-4de7-ac1e-9d879ec7154b",
+      "PrimarySmtpAddress": "QSSModernisationReleaseMgt@chde.qld.gov.au",
+      "DisplayName": "QSS Modernisation Release Mgt",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.3,
+          "ItemCount": 1322,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.60,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "9a2826f9-98b8-4455-bef4-40af07f93683",
+      "PrimarySmtpAddress": "CorporateEstimates@hpw.qld.gov.au",
+      "DisplayName": "Corporate Estimates",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.38,
+          "ItemCount": 1394,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.76,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "10390246-4344-47a2-b274-3aeda645b45b",
+      "PrimarySmtpAddress": "EmploymentScreening@cdsb.qld.gov.au",
+      "DisplayName": "CDSB Employment Screening",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.39,
+          "ItemCount": 2461,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 2.78,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "19a99d2b-2bc7-4133-bb28-192fe8dfba09",
+      "PrimarySmtpAddress": "noreply.qsstelecommunications@chde.qld.gov.au",
+      "DisplayName": "QSS Customer Support Telecommunications",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 143,
+          "PermissionCount": 12,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "8097e1f7-c5c6-43ee-bed5-addbc42b07b4",
+      "PrimarySmtpAddress": "QGPfreshdeskUAT@online.hpw.qld.gov.au",
+      "DisplayName": "QGP freshdesk UAT",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.12,
+          "ItemCount": 268,
+          "PermissionCount": 5,
+          "QuotaGB": 100.0,
+          "UsagePercent": 0.12,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "587d855b-e6ec-4534-8c2d-4409796f42d1",
+      "PrimarySmtpAddress": "CSDO@cdsb.qld.gov.au",
+      "DisplayName": "Corporate Services Delivery Office (CSDO), CDSB",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.74,
+          "ItemCount": 1093,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.48,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "e3bfbc2f-f0f2-4af8-840c-371efe6bd7e9",
+      "PrimarySmtpAddress": "QBuildT5Team@hpw.qld.gov.au",
+      "DisplayName": "QBuild T5 Team",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.53,
+          "ItemCount": 1028,
+          "PermissionCount": 8,
+          "QuotaGB": 50.0,
+          "UsagePercent": 3.06,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b60c5715-be7f-46ce-8e43-1d5f9800ceea",
+      "PrimarySmtpAddress": "QBuildEUPTeam@hpw.qld.gov.au",
+      "DisplayName": "QBuild EUP Team",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.69,
+          "ItemCount": 532,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.38,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "3ca8645d-e430-4956-8542-d3ff9e11fc48",
+      "PrimarySmtpAddress": "AdminMaroochydore@hpw.qld.gov.au",
+      "DisplayName": "Admin Maroochydore",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.05,
+          "ItemCount": 361,
+          "PermissionCount": 1,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.10,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "45aedb22-6c07-4e49-a335-de072f2b6f1c",
+      "PrimarySmtpAddress": "formio.admin@smartservice.qld.gov.au",
+      "DisplayName": "formio.admin",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 135,
+          "PermissionCount": 3,
+          "QuotaGB": 100.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "84501e28-fdab-4e77-91f1-3577da34f8a2",
+      "PrimarySmtpAddress": "intranet-project@hpw.qld.gov.au",
+      "DisplayName": "Intranet Project",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.09,
+          "ItemCount": 936,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.18,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "caf2d719-bf29-478c-9292-d1df8ae4dae9",
+      "PrimarySmtpAddress": "QBuildEstimatingSystemSupport@hpw.qld.gov.au",
+      "DisplayName": "QBuild Estimating System Support",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 101,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "28e47ef8-486e-458f-9a85-37e1ee88bc22",
+      "PrimarySmtpAddress": "businesscontent@smartservice.qld.gov.au",
+      "DisplayName": "Business Content",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 22.23,
+          "ItemCount": 119227,
+          "PermissionCount": 12,
+          "QuotaGB": 50.0,
+          "UsagePercent": 44.46,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "14008f1b-63f4-458a-ba34-821d3c313f60",
+      "PrimarySmtpAddress": "businessfeedback@smartservice.qld.gov.au",
+      "DisplayName": "Business Feedback",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.61,
+          "ItemCount": 54999,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 5.22,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "74503701-6ec2-4e81-ad84-fff9bdba968e",
+      "PrimarySmtpAddress": "businesslaunchpad@smartservice.qld.gov.au",
+      "DisplayName": "Business Launchpad",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.94,
+          "ItemCount": 3190,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.88,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4a185836-48f8-4217-99d9-bac2bdcbfa5f",
+      "PrimarySmtpAddress": "Business.Chat@smartservice.qld.gov.au",
+      "DisplayName": "Business Chat",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 386,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "673ba8e7-665c-4ffa-9d7f-e33d13436260",
+      "PrimarySmtpAddress": "InjuryManagement@cdsb.qld.gov.au",
+      "DisplayName": "CDSB Injury Management",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 4.16,
+          "ItemCount": 5697,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 8.32,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "6fa84b26-441c-4130-81ff-2397fc0e898d",
+      "PrimarySmtpAddress": "QBuildSEQMRCTraditionalReports@hpw.qld.gov.au",
+      "DisplayName": "QBuild SEQ MRC Traditional Reports",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 109,
+          "PermissionCount": 35,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "e07f979c-af05-4be3-84e5-79c19bf06264",
+      "PrimarySmtpAddress": "QBuildSEQMRCAfterHours@hpw.qld.gov.au",
+      "DisplayName": "QBuild SEQ MRC After Hours",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.78,
+          "ItemCount": 392,
+          "PermissionCount": 38,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.56,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "973263fc-c187-4f6f-8542-26e7512ba2ac",
+      "PrimarySmtpAddress": "QBuildFNQHeavyPlantMachinery@hpw.qld.gov.au",
+      "DisplayName": "QBuild FNQ Heavy Plant Machinery",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 114,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "0c8a4c08-9b0b-45ce-be4a-38543ef6b8c3",
+      "PrimarySmtpAddress": "QSAAccessServicesRoster@archives.qld.gov.au",
+      "DisplayName": "QSA Access Services Roster",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.02,
+          "ItemCount": 1141,
+          "PermissionCount": 13,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "3f42470c-5614-4e99-b2e0-07ca3057a224",
+      "PrimarySmtpAddress": "QSSFMCALMTesting@chde.qld.gov.au",
+      "DisplayName": "QSS FM CALM Testing",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 1.62,
+          "ItemCount": 18341,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 3.24,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "850f0f18-02ac-4c97-b77f-e110f5c4f385",
+      "PrimarySmtpAddress": "HGASupport@hpw.qld.gov.au",
+      "DisplayName": "HGA Support",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 97,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "306be319-57c2-45b9-8186-3df9fb1cd158",
+      "PrimarySmtpAddress": "HHSFSCentralAllocationsTeam@hpw.qld.gov.au",
+      "DisplayName": "HHS FS Central Allocations Team",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.29,
+          "ItemCount": 477,
+          "PermissionCount": 11,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.58,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "5a80e47d-c80f-4959-9443-5097ef55eac1",
+      "PrimarySmtpAddress": "ODTS@hpw.qld.gov.au",
+      "DisplayName": "Office of DTS",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.11,
+          "ItemCount": 5885,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 4.22,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b46bd487-0e7d-4d59-8627-0318fe011c65",
+      "PrimarySmtpAddress": "DTSProjectDelivery@hpw.qld.gov.au",
+      "DisplayName": "DTS Project Delivery",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 80,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "790ffb08-b2c6-4e63-a866-2aa378808d56",
+      "PrimarySmtpAddress": "QBuildSCIPFireSafetyTeam@hpw.qld.gov.au",
+      "DisplayName": "QBuild SCIP Fire Safety Team",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.31,
+          "ItemCount": 352,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.62,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "7ece67e3-bf5a-4e2a-9ad6-15d9ab7090d2",
+      "PrimarySmtpAddress": "NHIF-CTProjects@hpw.qld.gov.au",
+      "DisplayName": "NHIF-CT Projects",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.03,
+          "ItemCount": 103,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.06,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "701ada9b-8aec-4f63-b282-9b82da585c33",
+      "PrimarySmtpAddress": "RTI-Privacy-Test@hpw.qld.gov.au",
+      "DisplayName": "RTI Privacy Test",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 71,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "2f956560-d11a-40b9-b731-10e85123d0ba",
+      "PrimarySmtpAddress": "DTS-TechnologyArchitectureReviewBoard@hpw.qld.gov.au",
+      "DisplayName": "DTS Technology Architecture Review Board",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 134,
+          "PermissionCount": 3,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "cb024b21-cf6e-42d4-ba98-2a2f9fc05ce3",
+      "PrimarySmtpAddress": "CDSBVSSRequest@cdsb.qld.gov.au",
+      "DisplayName": "CDSB VSS Request",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.1,
+          "ItemCount": 285,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.20,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "1cdc349d-323f-441d-802e-3b874ef53cb2",
+      "PrimarySmtpAddress": "OpenData@cdsb.qld.gov.au",
+      "DisplayName": "CDSB Open Data",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 62,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "ef43a065-915f-48bd-9a60-ceed49a0a118",
+      "PrimarySmtpAddress": "QBuildIpswichUpgradeHousing@hpw.qld.gov.au",
+      "DisplayName": "QBuild Ipswich Upgrade Housing",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.4,
+          "ItemCount": 1114,
+          "PermissionCount": 12,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.80,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c45ddc7a-9788-48b4-b396-4bc55b63614c",
+      "PrimarySmtpAddress": "SHDOPMPHalfCostFencing@hpw.qld.gov.au",
+      "DisplayName": "SHDO PMP Half Cost Fencing",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 2.81,
+          "ItemCount": 1150,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 5.62,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "4c5cb861-af4a-4760-92d3-2159167b04ba",
+      "PrimarySmtpAddress": "helpdesk.baytech.mincor.prod@hpw.qld.gov.au",
+      "DisplayName": "helpdesk.baytech.mincor.prod",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 41,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "17e3e90d-1c7c-4cf6-be55-a1d36592e13d",
+      "PrimarySmtpAddress": "helpdesk.baytech.mincor.uat@hpw.qld.gov.au",
+      "DisplayName": "helpdesk.baytech.mincor.uat",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 34,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "b6b94465-1619-4dfe-a8be-657fbac7ba6d",
+      "PrimarySmtpAddress": "QPSStations2025@hpw.qld.gov.au",
+      "DisplayName": "QPS Stations 2025",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.02,
+          "ItemCount": 202,
+          "PermissionCount": 7,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "db8b2bf8-9145-406c-9d3b-6e623de1b823",
+      "PrimarySmtpAddress": "FNHHConflictsofInterest@hpw.qld.gov.au",
+      "DisplayName": "FNHH Conflicts of Interest",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 73,
+          "PermissionCount": 1,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "2e055aa8-d752-4cf2-9004-e171b423cda0",
+      "PrimarySmtpAddress": "QBUILDSUCarpentry@hpw.qld.gov.au",
+      "DisplayName": "QBUILD SU Carpentry",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 53,
+          "PermissionCount": 17,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "11b54aa6-6f01-4aaf-ba49-e1174cc59c61",
+      "PrimarySmtpAddress": "FNHHFinance@hpw.qld.gov.au",
+      "DisplayName": "FNHH Finance",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.63,
+          "ItemCount": 815,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 1.26,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "876f4e85-79b7-4915-94e1-22aea8617e07",
+      "PrimarySmtpAddress": "QSSModOCM@chde.qld.gov.au",
+      "DisplayName": "QSS Mod OCM",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 88,
+          "PermissionCount": 4,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "0a40be17-4574-4aa0-970d-eff13ba0e026",
+      "PrimarySmtpAddress": "compliance@archives.qld.gov.au",
+      "DisplayName": "QSA Compliance and Monitoring",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 54,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "5f45a357-5b96-45d7-845c-ab0c9e226b3d",
+      "PrimarySmtpAddress": "QBuildBusinessCapabilityMailbox@hpw.qld.gov.au",
+      "DisplayName": "QBuild Business Capability",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 76,
+          "PermissionCount": 10,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c5709d55-04bc-46bf-9dd2-18bd3ae289aa",
+      "PrimarySmtpAddress": "YouthHousingResources@hpw.qld.gov.au",
+      "DisplayName": "Youth Housing Resources",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.02,
+          "ItemCount": 98,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.04,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "0170db28-9655-45e1-a569-e661886ad52c",
+      "PrimarySmtpAddress": "HDevContractManagement@hpw.qld.gov.au",
+      "DisplayName": "H Dev Contract Management",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 37,
+          "PermissionCount": 9,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "fef1983e-a9e9-497f-8547-e8fced1eb679",
+      "PrimarySmtpAddress": "QBuildWBDZone@hpw.qld.gov.au",
+      "DisplayName": "QBuild WBD Zone",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.03,
+          "ItemCount": 116,
+          "PermissionCount": 11,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.06,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "dc2c0c86-3a70-4b29-810e-8279e592b5d7",
+      "PrimarySmtpAddress": "EnterpriseDeliveryOffice@hpw.qld.gov.au",
+      "DisplayName": "Enterprise Delivery Office",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 38,
+          "PermissionCount": 5,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "dc2ac2e4-1a30-4c5b-bb14-d2c24612d7ef",
+      "PrimarySmtpAddress": "DPA@cdsb.qld.gov.au",
+      "DisplayName": "Digital Portfolio & Assurance",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 59,
+          "PermissionCount": 9,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "8f0b0abe-794c-45a8-8999-04db4f6c2259",
+      "PrimarySmtpAddress": "QBuildSUCarpenters@hpw.qld.gov.au",
+      "DisplayName": "QBuild SU Carpenters",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 21,
+          "PermissionCount": 17,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c7df0d7c-77bc-4d5e-9c74-9e7484b7e286",
+      "PrimarySmtpAddress": "qfleetbdm@hpw.qld.gov.au",
+      "DisplayName": "QFleet Business Development Manager",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 42,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "c0cedf1d-8ef7-492d-a439-48f712aafcd4",
+      "PrimarySmtpAddress": "QFleetFMT@hpw.qld.gov.au",
+      "DisplayName": "QFleet Fleet Management Training",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.01,
+          "ItemCount": 140,
+          "PermissionCount": 2,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.02,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "55d1be96-a38d-4cab-9b3e-a2229eecca94",
+      "PrimarySmtpAddress": "QBuildCriticalIncidentsWBB@hpw.qld.gov.au",
+      "DisplayName": "QBuild Critical Incidents – WBB",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.0,
+          "ItemCount": 16,
+          "PermissionCount": 0,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.0,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
+    },
+    {
+      "ExchangeGuid": "08823433-3098-41c3-91a5-e5fc1fc2d2c2",
+      "PrimarySmtpAddress": "AccountsPayable@smartservice.qld.gov.au",
+      "DisplayName": "SSQ Accounts Payable",
+      "Samples": [
+        {
+          "TimestampUtc": "2026-08-11T08:48:26.7053971Z",
+          "SizeGB": 0.33,
+          "ItemCount": 669,
+          "PermissionCount": 6,
+          "QuotaGB": 50.0,
+          "UsagePercent": 0.66,
+          "LastLogonTime": null,
+          "ArchiveEnabled": false,
+          "ArchiveSizeGB": 0.0,
+          "ArchiveItemCount": 0
+        }
+      ]
     }
   ]
 }
