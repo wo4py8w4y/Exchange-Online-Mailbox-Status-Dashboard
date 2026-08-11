@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Exchange Online Mailbox Dashboard</title>
+    <title>Mailbox Details</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="styles.css" />
     <script>
@@ -10,10 +10,10 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 </head>
-<body data-page="overview">
+<body data-page="mailbox">
     <header class="app-header">
         <div>
-            <h1>Exchange Online Mailbox Dashboard</h1>
+            <h1>Mailbox Details</h1>
             <p id="lastUpdated">Loading...</p>
         </div>
         <div class="header-actions">
@@ -35,14 +35,14 @@
         <section class="panel search-panel">
             <div class="search-panel-head">
                 <div>
-                    <h2>Mailbox finder</h2>
-                    <p id="searchStatus" class="panel-subtitle">Loading mailbox index...</p>
+                    <h2>Single-mailbox workspace</h2>
+                    <p id="searchStatus" class="panel-subtitle">Search and open one mailbox to inspect usage, history, and delegated access.</p>
                 </div>
                 <button id="clearSearchBtn" class="btn-secondary">Clear</button>
             </div>
             <div class="search-shell">
                 <label class="sr-only" for="mailboxSearch">Find Mailbox</label>
-                <input id="mailboxSearch" autocomplete="off" placeholder="Search 3,000+ mailboxes by name or SMTP address">
+                <input id="mailboxSearch" autocomplete="off" placeholder="Search by mailbox name or SMTP address">
                 <button id="openMailboxBtn" class="btn-primary" type="button">Open mailbox view</button>
             </div>
             <div id="selectedMailboxSummary" class="selected-mailbox-summary" hidden></div>
@@ -55,57 +55,60 @@
             </section>
         </section>
 
-        <section class="cards">
-            <article><span class="label">Mailboxes</span><strong id="mailboxCount">0</strong></article>
-            <article><span class="label">Primary storage</span><strong id="totalStorage">0 GB</strong></article>
-            <article><span class="label">Archive storage</span><strong id="totalArchiveStorage">0 GB</strong></article>
-            <article><span class="label">Threshold alerts</span><strong id="thresholdCount">0</strong></article>
-            <article><span class="label">Largest mailbox</span><strong id="largestMailbox">N/A</strong></article>
-        </section>
-
         <section id="selectedMailboxPanel" class="panel selected-mailbox-panel" hidden></section>
 
-        <section class="chart-grid chart-grid-overview">
+        <section id="mailboxMetricCards" class="cards detail-cards"></section>
+
+        <section class="chart-grid chart-grid-mailbox">
             <article class="panel">
-                <h2>Mailbox health</h2>
-                <canvas id="usageDonutChart" width="520" height="360"></canvas>
+                <h2>Storage breakdown</h2>
+                <canvas id="mailboxStorageChart" width="520" height="360"></canvas>
             </article>
             <article class="panel">
-                <h2>Top storage consumers</h2>
-                <canvas id="topStorageChart" width="760" height="420"></canvas>
-            </article>
-            <article class="panel">
-                <h2>Usage distribution</h2>
-                <canvas id="usageHistogramChart" width="520" height="360"></canvas>
-            </article>
-            <article class="panel">
-                <h2>Quota pressure</h2>
-                <canvas id="alertStatusChart" width="520" height="360"></canvas>
+                <h2>Historical storage</h2>
+                <canvas id="mailboxHistoryChart" width="860" height="360"></canvas>
             </article>
         </section>
 
-        <section class="panel">
-            <div class="table-header">
-                <h2 id="tableTitle">Current usage</h2>
-                <p id="tableMeta" class="panel-subtitle"></p>
-            </div>
-            <div class="table-wrap">
-                <table id="usageTable">
-                    <thead>
-                        <tr>
-                            <th>Mailbox</th>
-                            <th>SMTP Address</th>
-                            <th>Storage GB</th>
-                            <th>Items</th>
-                            <th>Quota GB</th>
-                            <th>Usage %</th>
-                            <th>Permissions</th>
-                            <th>Last logon</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+        <section class="chart-grid chart-grid-mailbox">
+            <article class="panel">
+                <div class="table-header">
+                    <h2>Recent snapshots</h2>
+                    <p id="mailboxSnapshotsMeta" class="panel-subtitle"></p>
+                </div>
+                <div class="table-wrap">
+                    <table id="mailboxSnapshotsTable">
+                        <thead>
+                            <tr>
+                                <th>Snapshot Date</th>
+                                <th>Primary GB</th>
+                                <th>Archive GB</th>
+                                <th>Items</th>
+                                <th>Usage %</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </article>
+            <article class="panel">
+                <div class="table-header">
+                    <h2>Explicit permissions</h2>
+                    <p id="mailboxPermissionsMeta" class="panel-subtitle"></p>
+                </div>
+                <div class="table-wrap">
+                    <table id="mailboxPermissionsTable">
+                        <thead>
+                            <tr>
+                                <th>Delegate User</th>
+                                <th>Rights</th>
+                                <th>Inherited</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </article>
         </section>
     </main>
     <script defer src="dashboard.js"></script>

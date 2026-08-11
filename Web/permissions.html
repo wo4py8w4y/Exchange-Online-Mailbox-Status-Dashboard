@@ -11,12 +11,12 @@
     </script>
 </head>
 <body data-page="permissions">
-    <header style="display: flex; justify-content: space-between; align-items: center;">
+    <header class="app-header">
         <div>
             <h1>Current Mailbox Permissions</h1>
             <p id="lastUpdated">Loading...</p>
         </div>
-        <div style="display: flex; gap: 10px;">
+        <div class="header-actions">
             <button id="themeToggle" class="btn-secondary">Switch to Dark Mode</button>
             <button id="refreshButton" class="btn-primary">Refresh now</button>
         </div>
@@ -25,21 +25,43 @@
     <nav class="panel view-nav" aria-label="Views">
         <strong>Views:</strong>
         <a href="index.html">Dashboard</a> |
+        <a href="mailbox.html">Mailbox</a> |
         <a href="history.html">History</a> |
         <a href="permissions.html">Permissions</a> |
         <a href="thresholds.html">Thresholds</a>
     </nav>
 
     <main>
-        <section class="panel search-container">
-            <label for="mailboxSearch"><strong>Find Mailbox:</strong></label>
-            <input list="mailboxList" id="mailboxSearch" placeholder="Search a specific mailbox for permissions...">
-            <datalist id="mailboxList"></datalist>
-            <button id="clearSearchBtn" class="btn-secondary">Clear Filter</button>
+        <section class="panel search-panel">
+            <div class="search-panel-head">
+                <div>
+                    <h2>Permission explorer</h2>
+                    <p id="searchStatus" class="panel-subtitle">Search and select a mailbox to review delegated access.</p>
+                </div>
+                <button id="clearSearchBtn" class="btn-secondary">Clear</button>
+            </div>
+            <div class="search-shell">
+                <label class="sr-only" for="mailboxSearch">Find Mailbox</label>
+                <input id="mailboxSearch" autocomplete="off" placeholder="Search mailbox or delegate user">
+                <button id="openMailboxBtn" class="btn-primary" type="button">Open mailbox view</button>
+            </div>
+            <div id="selectedMailboxSummary" class="selected-mailbox-summary" hidden></div>
+            <section id="searchResultsPanel" class="search-results-panel" hidden>
+                <div class="search-results-head">
+                    <strong id="searchResultsTitle">Matches</strong>
+                    <span id="searchResultsMeta"></span>
+                </div>
+                <div id="searchResults" class="search-results"></div>
+            </section>
         </section>
 
+        <section id="selectedMailboxPanel" class="panel selected-mailbox-panel" hidden></section>
+
         <section class="panel">
-            <h2>Explicit permissions</h2>
+            <div class="table-header">
+                <h2>Explicit permissions</h2>
+                <p id="tableMeta" class="panel-subtitle"></p>
+            </div>
             <div class="table-wrap">
                 <table id="permsTable">
                     <thead>

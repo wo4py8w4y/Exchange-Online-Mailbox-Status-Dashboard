@@ -1,136 +1,142 @@
-# You Should be able to Copy and Paste this into a powershell terminal and it should just work.
-# To cleanly exit the server:
-#   1. Visit http://localhost:8080/quit in your browser, OR
-#   2. Press Ctrl+C in the terminal
+[CmdletBinding()]
+param(
+    [string]$RootPath = $PSScriptRoot,
+    [string]$Prefix = "http://localhost:8080/"
+)
 
-# Http Server
-$http = New-Object System.Net.HttpListener
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
 
-# Hostname and port to listen on
-$http.Prefixes.Add("http://localhost:8080/")
+function Get-ContentType {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Extension
+    )
 
-# Start the Http Server 
-$http.Start()
-
-# Log ready message to terminal 
-if ($http.IsListening) {
-    Write-Host " HTTP Server Ready!  " -f 'black' -b 'gre'
-    Write-Host "try testing the different route examples: " -f 'y'
-    Write-Host "$($http.Prefixes)" -f 'y'
-    Write-Host "$($http.Prefixes)some/form" -f 'y'
-    Write-Host "$($http.Prefixes)quit (to stop server)" -f 'y'
-    Write-Host "`nPress Ctrl+C to stop the server" -f 'cyan'
+    switch ($Extension.ToLowerInvariant()) {
+        ".html" { "text/html; charset=utf-8" }
+        ".css"  { "text/css; charset=utf-8" }
+        ".js"   { "application/javascript; charset=utf-8" }
+        ".json" { "application/json; charset=utf-8" }
+        ".svg"  { "image/svg+xml" }
+        ".png"  { "image/png" }
+        ".jpg"  { "image/jpeg" }
+        ".jpeg" { "image/jpeg" }
+        ".gif"  { "image/gif" }
+        ".ico"  { "image/x-icon" }
+        default { "application/octet-stream" }
+    }
 }
 
-# Used to cleanly stop the server
+function Write-Response {
+    param(
+        [Parameter(Mandatory)]
+        [System.Net.HttpListenerResponse]$Response,
+
+        [Parameter(Mandatory)]
+        [byte[]]$Body,
+
+        [Parameter(Mandatory)]
+        [string]$ContentType,
+
+        [int]$StatusCode = 200
+    )
+
+    $Response.StatusCode = $StatusCode
+    $Response.ContentType = $ContentType
+    $Response.ContentLength64 = $Body.Length
+    $Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+    $Response.OutputStream.Write($Body, 0, $Body.Length)
+    $Response.OutputStream.Close()
+}
+
+function Write-TextResponse {
+    param(
+        [Parameter(Mandatory)]
+        [System.Net.HttpListenerResponse]$Response,
+
+        [Parameter(Mandatory)]
+        [string]$Text,
+
+        [int]$StatusCode = 200
+    )
+
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($Text)
+    Write-Response -Response $Response -Body $bytes -ContentType "text/plain; charset=utf-8" -StatusCode $StatusCode
+}
+
+$resolvedRootPath = [System.IO.Path]::GetFullPath($RootPath)
+if (-not (Test-Path -LiteralPath $resolvedRootPath)) {
+    throw "Web root '$resolvedRootPath' does not exist."
+}
+
+$listener = [System.Net.HttpListener]::new()
+$listener.Prefixes.Add($Prefix)
+$listener.Start()
+
+Write-Host "Serving '$resolvedRootPath' at $Prefix" -ForegroundColor Green
+Write-Host "Press Ctrl+C to stop the server." -ForegroundColor Cyan
+
 try {
+    while ($listener.IsListening) {
+        $context = $listener.GetContext()
+        $request = $context.Request
+        $response = $context.Response
 
-# INFINTE LOOP
-# Used to listen for requests
-while ($http.IsListening) {
+        try {
+            if ($request.HttpMethod -ne "GET") {
+                Write-TextResponse -Response $response -Text "Only GET is supported." -StatusCode 405
+                continue
+            }
 
-    # Get Request Url
-    # When a request is made in a web browser the GetContext() method will return a request object
-    # Our route examples below will use the request object properties to decide how to respond
-    $context = $http.GetContext()
+            $relativePath = [System.Uri]::UnescapeDataString($request.Url.AbsolutePath.TrimStart("/"))
+            if ([string]::IsNullOrWhiteSpace($relativePath)) {
+                $relativePath = "index.html"
+            }
 
+            if ($relativePath -eq "quit") {
+                Write-TextResponse -Response $response -Text "Server shutting down."
+                break
+            }
 
-    # ROUTE EXAMPLE 1
-    # http://127.0.0.1/
-    if ($context.Request.HttpMethod -eq 'GET' -and $context.Request.RawUrl -eq '/') {
+            $requestedPath = Join-Path -Path $resolvedRootPath -ChildPath $relativePath
+            $fullPath = [System.IO.Path]::GetFullPath($requestedPath)
 
-        # We can log the request to the terminal
-        Write-Host "$($context.Request.UserHostAddress)  =>  $($context.Request.Url)" -f 'mag'
+            if (-not $fullPath.StartsWith($resolvedRootPath, [System.StringComparison]::OrdinalIgnoreCase)) {
+                Write-TextResponse -Response $response -Text "Forbidden." -StatusCode 403
+                continue
+            }
 
-        # the html/data you want to send to the browser
-        [string]$html = "<h1>A Powershell Webserver</h1><p>home page</p>" 
+            if (-not (Test-Path -LiteralPath $fullPath)) {
+                Write-TextResponse -Response $response -Text "Not found." -StatusCode 404
+                continue
+            }
 
-        #resposed to the request
-        $buffer = [System.Text.Encoding]::UTF8.GetBytes($html) # convert htmtl to bytes
-        $context.Response.ContentLength64 = $buffer.Length
-        $context.Response.OutputStream.Write($buffer, 0, $buffer.Length) #stream to broswer
-        $context.Response.OutputStream.Close() # close the response
-    
+            if ((Get-Item -LiteralPath $fullPath).PSIsContainer) {
+                $fullPath = Join-Path -Path $fullPath -ChildPath "index.html"
+            }
+
+            if (-not (Test-Path -LiteralPath $fullPath)) {
+                Write-TextResponse -Response $response -Text "Not found." -StatusCode 404
+                continue
+            }
+
+            $bytes = [System.IO.File]::ReadAllBytes($fullPath)
+            $contentType = Get-ContentType -Extension ([System.IO.Path]::GetExtension($fullPath))
+            Write-Response -Response $response -Body $bytes -ContentType $contentType
+        }
+        catch {
+            if ($response.OutputStream.CanWrite) {
+                Write-TextResponse -Response $response -Text "Server error: $($_.Exception.Message)" -StatusCode 500
+            }
+        }
     }
-
-
-
-    # ROUTE EXAMPLE 2
-    # http://localhost:8080/some/form'
-    if ($context.Request.HttpMethod -eq 'GET' -and $context.Request.RawUrl -eq '/some/form') {
-
-        # We can log the request to the terminal
-        Write-Host "$($context.Request.UserHostAddress)  =>  $($context.Request.Url)" -f 'mag'
-
-        [string]$html = "
-        <h1>A Powershell Webserver</h1>
-        <form action='/some/post' method='post'>
-            <p>A Basic Form</p>
-            <p>fullname</p>
-            <input type='text' name='fullname'>
-            <p>message</p>
-            <textarea rows='4' cols='50' name='message'></textarea>
-            <br>
-            <input type='submit' value='Submit'>
-        </form>
-        "
-
-        #resposed to the request
-        $buffer = [System.Text.Encoding]::UTF8.GetBytes($html) 
-        $context.Response.ContentLength64 = $buffer.Length
-        $context.Response.OutputStream.Write($buffer, 0, $buffer.Length) 
-        $context.Response.OutputStream.Close()
-    }
-
-    # ROUTE EXAMPLE 3
-    # http://localhost:8080/some/post'
-    if ($context.Request.HttpMethod -eq 'POST' -and $context.Request.RawUrl -eq '/some/post') {
-
-        # decode the form post
-        # html form members need 'name' attributes as in the example!
-        $FormContent = [System.IO.StreamReader]::new($context.Request.InputStream).ReadToEnd()
-
-        # We can log the request to the terminal
-        Write-Host "$($context.Request.UserHostAddress)  =>  $($context.Request.Url)" -f 'mag'
-        Write-Host $FormContent -f 'Green'
-
-        # the html/data
-        [string]$html = "<h1>A Powershell Webserver</h1><p>Post Successful!</p>" 
-
-        #resposed to the request
-        $buffer = [System.Text.Encoding]::UTF8.GetBytes($html)
-        $context.Response.ContentLength64 = $buffer.Length
-        $context.Response.OutputStream.Write($buffer, 0, $buffer.Length)
-        $context.Response.OutputStream.Close() 
-    }
-
-    # ROUTE EXAMPLE 4
-    # http://localhost:8080/quit'
-    if ($context.Request.HttpMethod -eq 'GET' -and $context.Request.RawUrl -eq '/quit') {
-        # Send response before closing
-        [string]$html = "<h1>Server Shutting Down...</h1><p>The server has been stopped.</p>"
-        $buffer = [System.Text.Encoding]::UTF8.GetBytes($html)
-        $context.Response.ContentLength64 = $buffer.Length
-        $context.Response.OutputStream.Write($buffer, 0, $buffer.Length)
-        $context.Response.OutputStream.Close()
-
-        Write-Host "`nShutting down server..." -f 'yellow'
-        $http.Stop()
-        $http.Close()
-        break
-    }
-
-    # powershell will continue looping and listen for new requests...
-
-}
-
 }
 finally {
-    # Cleanup - ensure the HTTP listener is properly closed
-    if ($http.IsListening) {
-        Write-Host "`nCleaning up HTTP listener..." -f 'yellow'
-        $http.Stop()
+    if ($listener.IsListening) {
+        $listener.Stop()
     }
-    $http.Close()
-    Write-Host "HTTP Server stopped." -f 'green'
+
+    $listener.Close()
+    Write-Host "HTTP server stopped." -ForegroundColor Yellow
 }

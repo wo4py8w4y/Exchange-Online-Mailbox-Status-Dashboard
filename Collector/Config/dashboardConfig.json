@@ -9,5 +9,6 @@
   "UserPrincipalName": "aaron.francis.admin@hpwqld.onmicrosoft.com",
   "CsvPath": "..\\Mailboxes\\mailboxes.csv",
   "MailboxesCsvPath": "..\\Mailboxes\\mailboxes.csv",
-  "HistoryJsonPath": "..\\Web\\history.json"
+  "HistoryJsonPath": "..\\Web\\history.json",
+  "HotDataJsonPath": "..\\Web\\data.json"
 }

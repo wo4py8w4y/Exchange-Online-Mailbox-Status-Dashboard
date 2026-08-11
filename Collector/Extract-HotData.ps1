@@ -1,56 +1,126 @@
-<#
-.SYNOPSIS
-    Generates a lightweight 'Hot Data' cache for the web dashboard.
-.DESCRIPTION
-    Reads the history.json database, extracts the most recent snapshot for every 
-    mailbox, and formats it into a flat array schema expected by dashboard.js.
-#>
 [CmdletBinding()]
 param (
     [string]$HistoryPath = "..\Web\history.json",
     [string]$HotDataPath = "..\Web\data.json"
 )
 
-Write-Host "Extracting Hot Data from History..." -ForegroundColor Cyan
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
 
-if (-not (Test-Path $HistoryPath)) {
-    Write-Error "History file not found at $HistoryPath"
-    return
-}
+function Resolve-AbsolutePath {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path,
 
-# 1. Load the Historical Database
-$HistoryDB = Get-Content $HistoryPath -Raw | ConvertFrom-Json -AsHashtable
+        [Parameter()]
+        [string]$BaseDirectory = $PSScriptRoot
+    )
 
-$HotDataList = [System.Collections.Generic.List[object]]::new()
-
-# 2. Iterate and extract the latest snapshot for each Mailbox
-foreach ($Guid in $HistoryDB.Keys) {
-    $Records = $HistoryDB[$Guid]
-    
-    # Grab the very last sample in the array (the newest one)
-    $LatestSample = $Records[-1] 
-
-    # Map the nested data to the schema expected by the frontend
-    $FlatRecord = [ordered]@{
-        ExchangeGuid       = $Guid
-        PrimarySmtpAddress = $LatestSample.PrimarySmtpAddress
-        DisplayName        = $LatestSample.DisplayName
-        MailboxSizeGB      = $LatestSample.SizeGB
-        ItemCount          = $LatestSample.ItemCount
-        PermissionCount    = $LatestSample.PermissionCount
-        QuotaGB            = $LatestSample.QuotaGB
-        UsagePercent       = $LatestSample.UsagePercent
-        LastLogonTime      = $LatestSample.LastLogonTime
-        ArchiveEnabled     = $LatestSample.ArchiveEnabled
-        ArchiveSizeGB      = $LatestSample.ArchiveSizeGB
-        ArchiveItemCount   = $LatestSample.ArchiveItemCount
-        Permissions        = $LatestSample.Permissions
+    if ([System.IO.Path]::IsPathRooted($Path)) {
+        return [System.IO.Path]::GetFullPath($Path)
     }
-    
-    $HotDataList.Add($FlatRecord)
+
+    return [System.IO.Path]::GetFullPath((Join-Path -Path $BaseDirectory -ChildPath $Path))
 }
 
-# 3. Save the neatly formatted Hot Data payload
-$HotDataList | ConvertTo-Json -Depth 10 | Set-Content $HotDataPath -Encoding utf8
+function New-EmptyHotData {
+    param(
+        [string]$GeneratedUtc
+    )
 
-Write-Host "Successfully extracted and flattened $($HotDataList.Count) active records to $HotDataPath" -ForegroundColor Green
+    return [pscustomobject]@{
+        GeneratedUtc = $GeneratedUtc
+        Mailboxes    = @()
+    }
+}
+
+function Convert-PermissionSet {
+    param(
+        [Parameter()]
+        $Permissions
+    )
+
+    if ($null -eq $Permissions) {
+        return @()
+    }
+
+    return @(
+        foreach ($permission in @($Permissions)) {
+            if ($null -eq $permission) {
+                continue
+            }
+
+            [pscustomobject]@{
+                User         = [string]$permission.User
+                AccessRights = @($permission.AccessRights)
+                IsInherited  = [bool]$permission.IsInherited
+                Deny         = [bool]$permission.Deny
+            }
+        }
+    )
+}
+
+Write-Host "Extracting hot data from mailbox history..." -ForegroundColor Cyan
+
+$resolvedHistoryPath = Resolve-AbsolutePath -Path $HistoryPath
+$resolvedHotDataPath = Resolve-AbsolutePath -Path $HotDataPath
+
+if (-not (Test-Path -LiteralPath $resolvedHistoryPath)) {
+    throw "History file not found at '$resolvedHistoryPath'."
+}
+
+$historyPayload = Get-Content -LiteralPath $resolvedHistoryPath -Raw | ConvertFrom-Json
+$mailboxHistory = @($historyPayload.MailboxHistory)
+
+$hotDataPayload = New-EmptyHotData -GeneratedUtc ([string]$historyPayload.GeneratedUtc)
+$mailboxes = [System.Collections.Generic.List[object]]::new()
+
+foreach ($entry in $mailboxHistory) {
+    if ($null -eq $entry) {
+        continue
+    }
+
+    $samples = @($entry.Samples)
+    if ($samples.Count -eq 0) {
+        continue
+    }
+
+    $latestSample = $samples[-1]
+    $permissions = if ($entry.PSObject.Properties.Name -contains "Permissions") {
+        Convert-PermissionSet -Permissions $entry.Permissions
+    }
+    elseif ($latestSample.PSObject.Properties.Name -contains "Permissions") {
+        Convert-PermissionSet -Permissions $latestSample.Permissions
+    }
+    else {
+        @()
+    }
+
+    $mailboxes.Add([pscustomobject]@{
+        ExchangeGuid       = [string]$entry.ExchangeGuid
+        PrimarySmtpAddress = [string]$entry.PrimarySmtpAddress
+        DisplayName        = [string]$entry.DisplayName
+        current            = [pscustomobject]@{
+            totalGB         = if ($null -ne $latestSample.SizeGB) { [double]$latestSample.SizeGB } else { 0.0 }
+            itemCount       = if ($null -ne $latestSample.ItemCount) { [int64]$latestSample.ItemCount } else { 0 }
+            quotaGB         = if ($null -ne $latestSample.QuotaGB) { [double]$latestSample.QuotaGB } else { $null }
+            usagePercent    = if ($null -ne $latestSample.UsagePercent) { [double]$latestSample.UsagePercent } else { $null }
+            lastLogonTime   = if ($latestSample.PSObject.Properties.Name -contains "LastLogonTime") { $latestSample.LastLogonTime } else { $null }
+            archiveEnabled  = [bool]$latestSample.ArchiveEnabled
+            archiveSizeGB   = if ($null -ne $latestSample.ArchiveSizeGB) { [double]$latestSample.ArchiveSizeGB } else { 0.0 }
+            archiveItemCount = if ($null -ne $latestSample.ArchiveItemCount) { [int64]$latestSample.ArchiveItemCount } else { 0 }
+        }
+        permissions        = $permissions
+    })
+}
+
+$hotDataPayload.Mailboxes = @($mailboxes | Sort-Object -Property @{ Expression = { $_.displayName } }, @{ Expression = { $_.primarySmtpAddress } })
+
+$outputDirectory = Split-Path -Path $resolvedHotDataPath -Parent
+if (-not (Test-Path -LiteralPath $outputDirectory)) {
+    New-Item -ItemType Directory -Path $outputDirectory -Force | Out-Null
+}
+
+$hotDataPayload | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $resolvedHotDataPath -Encoding utf8
+
+Write-Host "Wrote $($hotDataPayload.Mailboxes.Count) current mailbox records to '$resolvedHotDataPath'." -ForegroundColor Green

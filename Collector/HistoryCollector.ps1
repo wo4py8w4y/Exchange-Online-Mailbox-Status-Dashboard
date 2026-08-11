@@ -22,6 +22,9 @@ param(
     [string]$HistoryJsonPath,
 
     [Parameter()]
+    [string]$HotDataJsonPath,
+
+    [Parameter()]
     [string]$TimestampUtc
 )
 
@@ -81,6 +84,76 @@ function New-EmptyHistoryData {
     return [pscustomobject]@{
         GeneratedUtc   = ""
         MailboxHistory = @()
+    }
+}
+
+function Convert-PermissionSet {
+    param(
+        [Parameter()]
+        $Permissions
+    )
+
+    if ($null -eq $Permissions) {
+        return @()
+    }
+
+    return @(
+        foreach ($permission in @($Permissions)) {
+            if ($null -eq $permission) {
+                continue
+            }
+
+            [pscustomobject]@{
+                User         = [string]$permission.User
+                AccessRights = @($permission.AccessRights)
+                IsInherited  = [bool]$permission.IsInherited
+                Deny         = [bool]$permission.Deny
+            }
+        }
+    )
+}
+
+function Convert-HistoryToHotData {
+    param(
+        [Parameter(Mandatory)]
+        [psobject[]]$MailboxHistory,
+
+        [Parameter()]
+        [string]$GeneratedUtc
+    )
+
+    $hotMailboxes = foreach ($entry in $MailboxHistory) {
+        if ($null -eq $entry) {
+            continue
+        }
+
+        $samples = @($entry.Samples)
+        if ($samples.Count -eq 0) {
+            continue
+        }
+
+        $latestSample = $samples[-1]
+        [pscustomobject]@{
+            ExchangeGuid       = [string]$entry.ExchangeGuid
+            PrimarySmtpAddress = [string]$entry.PrimarySmtpAddress
+            DisplayName        = [string]$entry.DisplayName
+            current            = [pscustomobject]@{
+                totalGB          = [double]$latestSample.SizeGB
+                itemCount        = [int64]$latestSample.ItemCount
+                quotaGB          = if ($null -ne $latestSample.QuotaGB) { [double]$latestSample.QuotaGB } else { $null }
+                usagePercent     = if ($null -ne $latestSample.UsagePercent) { [double]$latestSample.UsagePercent } else { $null }
+                lastLogonTime    = $latestSample.LastLogonTime
+                archiveEnabled   = [bool]$latestSample.ArchiveEnabled
+                archiveSizeGB    = [double]$latestSample.ArchiveSizeGB
+                archiveItemCount = [int64]$latestSample.ArchiveItemCount
+            }
+            permissions        = if ($entry.PSObject.Properties.Name -contains "Permissions") { @($entry.Permissions) } else { @() }
+        }
+    }
+
+    return [pscustomobject]@{
+        GeneratedUtc = $GeneratedUtc
+        Mailboxes    = @($hotMailboxes)
     }
 }
 
@@ -171,9 +244,19 @@ else {
     [string]$config.CsvPath
 }
 $configuredHistoryJsonPath = if ($PSBoundParameters.ContainsKey("HistoryJsonPath")) { $HistoryJsonPath } else { [string]$config.HistoryJsonPath }
+$configuredHotDataJsonPath = if ($PSBoundParameters.ContainsKey("HotDataJsonPath")) {
+    $HotDataJsonPath
+}
+elseif ($config.PSObject.Properties.Name -contains "HotDataJsonPath" -and -not [string]::IsNullOrWhiteSpace([string]$config.HotDataJsonPath)) {
+    [string]$config.HotDataJsonPath
+}
+else {
+    Join-Path -Path (Split-Path -Path $configuredHistoryJsonPath -Parent) -ChildPath "data.json"
+}
 
 $resolvedCsvPath = Resolve-AbsolutePath -Path $configuredCsvPath -BaseDirectory $configBaseDirectory
 $resolvedHistoryJsonPath = Resolve-AbsolutePath -Path $configuredHistoryJsonPath -BaseDirectory $configBaseDirectory
+$resolvedHotDataJsonPath = Resolve-AbsolutePath -Path $configuredHotDataJsonPath -BaseDirectory $configBaseDirectory
 
 if (-not (Test-Path -LiteralPath $resolvedCsvPath)) {
     $defaultCsvPath = Join-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -ChildPath "Mailboxes\mailboxes.csv"
@@ -270,8 +353,11 @@ foreach ($mailbox in $mailboxes) {
             }
         }
 
-        $permissions = @(Get-EXOMailboxPermission -Identity $identity -ErrorAction SilentlyContinue |
-            Where-Object { $_.IsInherited -eq $false -and $_.User -notmatch "NT AUTHORITY\\SELF|S-1-5-" })
+        $permissions = @(
+            Get-EXOMailboxPermission -Identity $identity -ErrorAction Stop |
+                Where-Object { $_.IsInherited -eq $false -and $_.User -notmatch "NT AUTHORITY\\SELF|S-1-5-" }
+        )
+        $permissions = Convert-PermissionSet -Permissions $permissions
 
         $archiveEnabled = $false
         $archiveSizeGB = 0.0
@@ -329,6 +415,7 @@ foreach ($mailbox in $mailboxes) {
             $sampleList.Add($sample)
             $existingEntry.PrimarySmtpAddress = [string]$mailboxInfo.PrimarySmtpAddress
             $existingEntry.DisplayName = [string]$mailboxInfo.DisplayName
+            $existingEntry.Permissions = @($permissions)
             $existingEntry.Samples = @($sampleList)
         }
         else {
@@ -336,6 +423,7 @@ foreach ($mailbox in $mailboxes) {
                 ExchangeGuid       = $exchangeGuid
                 PrimarySmtpAddress = [string]$mailboxInfo.PrimarySmtpAddress
                 DisplayName        = [string]$mailboxInfo.DisplayName
+                Permissions        = @($permissions)
                 Samples            = @($sample)
             }
 
@@ -354,9 +442,11 @@ foreach ($mailbox in $mailboxes) {
             GeneratedUtc   = $timestampUtcValue
             MailboxHistory = @($updatedMailboxHistory)
         }
+        $hotDataOutput = Convert-HistoryToHotData -MailboxHistory @($updatedMailboxHistory) -GeneratedUtc $timestampUtcValue
 
         Write-Host " [BATCH COMMIT] Committing progress to disk ($counter/$($mailboxes.Count))..." -ForegroundColor Yellow
         Write-JsonSafe -InputObject $batchOutput -Path $resolvedHistoryJsonPath -Depth 100
+        Write-JsonSafe -InputObject $hotDataOutput -Path $resolvedHotDataJsonPath -Depth 100
     }
 }
 
