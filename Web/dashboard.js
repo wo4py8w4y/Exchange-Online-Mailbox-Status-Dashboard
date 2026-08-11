@@ -4,17 +4,16 @@ let refreshTimer = null;
 let refreshMs = 60000;
 let historyData = null;
 
-// The bulletproof global data array
+// Global array holding normalized mailbox records
 window.allMailboxes = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Universal Header Buttons
+    // Universal Header Controls
     const refreshButton = document.getElementById("refreshButton");
     if (refreshButton) {
         refreshButton.addEventListener("click", () => loadDashboard().catch(showError));
     }
 
-    // Universal Theme Toggle
     const themeBtn = document.getElementById('themeToggle');
     if (themeBtn) {
         themeBtn.textContent = document.documentElement.getAttribute('data-theme') === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode';
@@ -27,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Universal Search Bar
+    // Search Controls
     const searchInput = document.getElementById("mailboxSearch");
     if (searchInput) searchInput.addEventListener("input", applyFilter);
 
@@ -60,64 +59,40 @@ async function loadDashboard() {
         historyData = await historyResponse.json();
     }
 
-    // BULLETPROOF DATA PARSING
-    // Automatically figures out if the JSON is an array, an object, or has a timestamp at index 0
-    let rawArray = Array.isArray(rawDashboardData) ? rawDashboardData : (rawDashboardData.mailboxes || []);
-    let startIndex = (rawArray.length > 0 && typeof rawArray[0] === "string") ? 1 : 0;
-    
-    window.allMailboxes = [];
-    
-    for (let i = startIndex; i < rawArray.length; i++) {
-        let m = rawArray[i];
-        if (!m) continue;
+    // 1. Extract array safely (handles top-level arrays or wrapped properties)
+    const rawArray = extractMailboxArray(rawDashboardData);
 
-        let normalized = {
-            exchangeGuid: m.ExchangeGuid || m.exchangeGuid,
-            primarySmtpAddress: m.PrimarySmtpAddress || m.primarySmtpAddress,
-            displayName: m.DisplayName || m.displayName || m.PrimarySmtpAddress,
-            current: m.current || {},
-            permissions: m.permissions || []
-        };
+    // 2. Normalize every record into a consistent schema
+    window.allMailboxes = rawArray.map(normaliseMailbox);
 
-        // Handle nested "Samples" format
-        if (m.Samples && m.Samples.length > 0) {
-            let latest = m.Samples[m.Samples.length - 1];
-            normalized.current = {
-                totalGB: latest.SizeGB || 0,
-                itemCount: latest.ItemCount || 0,
-                quotaGB: latest.QuotaGB || 50,
-                usagePercent: latest.UsagePercent || 0,
-                lastLogonTime: latest.LastLogonTime
-            };
-            normalized.permissions = new Array(latest.PermissionCount || 0);
-        } 
-        // Handle Flat format
-        else if (m.MailboxSizeGB !== undefined) {
-            normalized.current = {
-                totalGB: m.MailboxSizeGB || 0,
-                itemCount: m.ItemCount || 0,
-                quotaGB: m.QuotaGB || 50,
-                usagePercent: m.UsagePercent || 0,
-                lastLogonTime: m.LastLogonTime
-            };
-            normalized.permissions = new Array(m.PermissionCount || 0);
-        }
+    // 3. Targeted Diagnostic Logging for QFleet
+    const targetSmtp = "QFleet.AccountsReceivable@hpw.qld.gov.au".toLowerCase();
+    const targetMailbox = window.allMailboxes.find(m => m.primarySmtpAddress.toLowerCase() === targetSmtp);
 
-        window.allMailboxes.push(normalized);
+    if (!targetMailbox) {
+        console.error("Target mailbox missing from payload:", targetSmtp);
+        console.table(window.allMailboxes.map(m => ({
+            DisplayName: m.displayName,
+            PrimarySmtpAddress: m.primarySmtpAddress,
+            StorageGB: m.current.totalGB,
+            ItemCount: m.current.itemCount
+        })));
+    } else {
+        console.info("Target mailbox successfully bound:", targetMailbox);
     }
 
     populateSearchDropdown(window.allMailboxes);
     highlightNav();
-    updateLastUpdated(rawArray[0]); // Pushes timestamp if it exists
 
-    applyFilter(); // Trigger page rendering
+    // 4. Render active page
+    applyFilter();
 }
 
-// --- Search / Filter Logic ---
+// --- Search & Filter Methods ---
+
 function populateSearchDropdown(mailboxes) {
     const dataList = document.getElementById('mailboxList');
     if (!dataList) return;
-    
     dataList.innerHTML = ''; 
     mailboxes.forEach(m => {
         const option = document.createElement('option');
@@ -129,13 +104,8 @@ function populateSearchDropdown(mailboxes) {
 
 function getMailboxes() {
     const searchInput = document.getElementById("mailboxSearch");
-    if (!searchInput || !searchInput.value) return window.allMailboxes;
-
-    const term = searchInput.value.toLowerCase();
-    return window.allMailboxes.filter(m => 
-        (m.displayName && m.displayName.toLowerCase().includes(term)) ||
-        (m.primarySmtpAddress && m.primarySmtpAddress.toLowerCase().includes(term))
-    );
+    const searchText = searchInput ? searchInput.value : "";
+    return filterMailboxes(window.allMailboxes, searchText);
 }
 
 function applyFilter() {
@@ -144,7 +114,6 @@ function applyFilter() {
     const tableTitle = document.getElementById("tableTitle");
     const searchInput = document.getElementById("mailboxSearch");
 
-    // Route logic based on active HTML page
     if (page === "overview") {
         updateTopCards();
         drawDonutChart();
@@ -155,9 +124,6 @@ function applyFilter() {
         }
     } else if (page === "history") {
         renderHistoryPage();
-        if (tableTitle && searchInput) {
-            tableTitle.textContent = searchInput.value ? `Historical storage (Viewing match 1 of ${count})` : "Historical storage (Viewing first mailbox)";
-        }
     } else if (page === "permissions") {
         renderPermissionsTable();
     } else if (page === "thresholds") {
@@ -165,7 +131,8 @@ function applyFilter() {
     }
 }
 
-// --- Specific Page Renderers ---
+// --- Page Renderers ---
+
 function renderUsageTable() {
     const tbody = document.querySelector("#usageTable tbody");
     if (!tbody) return;
@@ -173,11 +140,11 @@ function renderUsageTable() {
     
     const mailboxes = getMailboxes();
     if (mailboxes.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">No mailboxes found matching that search.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px;">No mailboxes found matching that search.</td></tr>`;
         return;
     }
 
-    mailboxes.sort((a, b) => b.current.totalGB - a.current.totalGB).forEach(m => {
+    mailboxes.sort((a, b) => (b.current.totalGB || 0) - (a.current.totalGB || 0)).forEach(m => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${escapeHtml(m.displayName)}</td>
@@ -193,24 +160,84 @@ function renderUsageTable() {
     });
 }
 
-function renderHistoryPage() {
-    const mailboxes = getMailboxes();
-    const tbody = document.querySelector("#historyTable tbody");
-    
-    if (mailboxes.length === 0) {
-        if(tbody) tbody.innerHTML = `<tr><td colspan="4">No mailbox selected or found.</td></tr>`;
-        drawHistoryChart([]); 
+function renderPermissionsTable() {
+    const tbody = document.querySelector("#permsTable tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    const perms = extractPermissions(window.allMailboxes);
+    const searchInput = document.getElementById("mailboxSearch");
+    const filterTerm = searchInput ? searchInput.value.toLowerCase() : "";
+
+    const filteredPerms = perms.filter(p => 
+        p.mailbox.toLowerCase().includes(filterTerm) || 
+        p.delegate.toLowerCase().includes(filterTerm)
+    );
+
+    if (filteredPerms.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No explicit permissions found matching search criteria.</td></tr>`;
         return;
     }
 
-    // Always chart the FIRST mailbox in the filtered list
+    filteredPerms.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${escapeHtml(p.mailbox)}</td>
+            <td>${escapeHtml(p.delegate)}</td>
+            <td>${escapeHtml(Array.isArray(p.rights) ? p.rights.join(", ") : p.rights)}</td>
+            <td>${p.inherited ? "Yes" : "No"}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function renderThresholdsTable() {
+    const tbody = document.querySelector("#thresholdTable tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    const mailboxes = getMailboxes();
+    let count = 0;
+
+    mailboxes.forEach(m => {
+        const pct = m.current.usagePercent || 0;
+        if (pct >= 85) {
+            count++;
+            const state = pct >= 94 ? "Critical" : "Warning";
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${escapeHtml(m.displayName)}</td>
+                <td>${formatGB(m.current.totalGB)}</td>
+                <td>${formatGB(m.current.quotaGB)}</td>
+                <td>${usageBadge(pct)}</td>
+                <td><span class="badge ${state === 'Critical' ? 'danger' : 'warning'}">${state}</span></td>
+            `;
+            tbody.appendChild(tr);
+        }
+    });
+
+    if (count === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No mailboxes currently over warning/critical thresholds.</td></tr>`;
+    }
+}
+
+function renderHistoryPage() {
+    const mailboxes = getMailboxes();
+    const tbody = document.querySelector("#historyTable tbody");
+
+    if (mailboxes.length === 0) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="4">No mailbox selected or found.</td></tr>`;
+        drawHistoryChart([]);
+        return;
+    }
+
     const guid = mailboxes[0].exchangeGuid;
     const histPoints = historyData?.[guid] || [];
 
     if (tbody) {
         tbody.innerHTML = "";
         if (histPoints.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4">No history data available in history.json for this mailbox.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="4">No history data available for this mailbox.</td></tr>`;
         } else {
             const sortedDesc = [...histPoints].sort((a, b) => new Date(b.TimestampUtc || b.Timestamp) - new Date(a.TimestampUtc || a.Timestamp));
             for (const pt of sortedDesc) {
@@ -229,41 +256,88 @@ function renderHistoryPage() {
     drawHistoryChart(histPoints);
 }
 
-function renderPermissionsTable() {
-    const tbody = document.querySelector("#permsTable tbody");
-    if (!tbody) return;
-    tbody.innerHTML = `<tr><td colspan="4">Permission export disabled or unsupported in current payload schema.</td></tr>`;
+// --- Cards & Canvas Charts ---
+
+function updateTopCards() {
+    const mailboxes = getMailboxes();
+    const countEl = document.getElementById("mailboxCount");
+    const totalStorageEl = document.getElementById("totalStorage");
+    const thresholdEl = document.getElementById("thresholdCount");
+    const largestEl = document.getElementById("largestMailbox");
+
+    if (countEl) countEl.textContent = formatNumber(mailboxes.length);
+    if (totalStorageEl) totalStorageEl.textContent = `${formatGB(mailboxes.reduce((acc, m) => acc + (m.current.totalGB || 0), 0))} GB`;
+    if (thresholdEl) thresholdEl.textContent = formatNumber(mailboxes.filter(m => (m.current.usagePercent || 0) >= 85).length);
+    if (largestEl) {
+        if (mailboxes.length === 0) largestEl.textContent = "N/A";
+        else {
+            const largest = mailboxes.reduce((prev, curr) => ((prev.current.totalGB || 0) > (curr.current.totalGB || 0)) ? prev : curr);
+            largestEl.textContent = `${largest.displayName} (${formatGB(largest.current.totalGB)} GB)`;
+        }
+    }
 }
 
-function renderThresholdsTable() {
-    const tbody = document.querySelector("#thresholdTable tbody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
+function drawDonutChart() {
+    const canvas = document.getElementById("usageDonutChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const mailboxes = getMailboxes();
-    let count = 0;
-    
-    mailboxes.forEach(m => {
-        const pct = m.current.usagePercent || 0;
-        if (pct >= 85) {
-            count++;
-            const state = pct >= 94 ? "Critical" : "Warning";
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${escapeHtml(m.displayName)}</td>
-                <td>${formatGB(m.current.totalGB)}</td>
-                <td>${formatGB(m.current.quotaGB)}</td>
-                <td>${usageBadge(pct)}</td>
-                <td><span class="badge ${state === 'Critical' ? 'danger' : 'warning'}">${state}</span></td>
-            `;
-            tbody.appendChild(tr);
-        }
-    });
+    let totalUsed = mailboxes.reduce((acc, m) => acc + (m.current.totalGB || 0), 0);
+    let totalQuota = mailboxes.reduce((acc, m) => acc + (m.current.quotaGB || 50), 0);
+    if (totalQuota === 0) totalQuota = 1;
 
-    if (count === 0) tbody.innerHTML = `<tr><td colspan="5">No mailboxes currently over warning/critical thresholds.</td></tr>`;
+    const cx = canvas.width / 2, cy = canvas.height / 2, radius = Math.min(cx, cy) * 0.7;
+    ctx.lineWidth = 40;
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = getCssVariable("--border-color") || "#eee";
+    ctx.stroke();
+
+    if (totalUsed > 0) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + (totalUsed / totalQuota) * 2 * Math.PI);
+        ctx.strokeStyle = "#0078d4";
+        ctx.stroke();
+    }
+
+    ctx.fillStyle = getCssVariable("--text-primary") || "#333";
+    ctx.font = "bold 24px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(((totalUsed / totalQuota) * 100).toFixed(1) + "%", cx, cy);
 }
 
-// --- Charting & Helpers ---
+function drawBarChart() {
+    const canvas = document.getElementById("topStorageChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const top = getMailboxes().sort((a, b) => (b.current.totalGB || 0) - (a.current.totalGB || 0)).slice(0, 10);
+    if (top.length === 0) return;
+
+    const maxVal = top[0].current.totalGB || 1, chartHeight = canvas.height - 60;
+    const barSpacing = (canvas.width - 40) / top.length, barWidth = barSpacing * 0.6;
+
+    top.forEach((m, idx) => {
+        const val = m.current.totalGB || 0;
+        const barH = (val / maxVal) * chartHeight;
+        const x = 20 + idx * barSpacing + (barSpacing - barWidth) / 2, y = canvas.height - 30 - barH;
+
+        ctx.fillStyle = "#0078d4";
+        ctx.fillRect(x, y, barWidth, barH);
+
+        ctx.fillStyle = getCssVariable("--text-primary") || "#333";
+        ctx.textAlign = "center";
+        ctx.fillText(val.toFixed(1), x + barWidth / 2, y - 5);
+
+        ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
+        ctx.fillText((m.displayName || m.primarySmtpAddress).substring(0, 8) + "..", x + barWidth / 2, canvas.height - 10);
+    });
+}
+
 function drawHistoryChart(histPoints) {
     const canvas = document.getElementById("historyStorageChart");
     if (!canvas) return;
@@ -295,90 +369,124 @@ function drawHistoryChart(histPoints) {
         i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     });
     ctx.stroke();
-    
+
     ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
     ctx.textAlign = "right";
     ctx.fillText(maxVal.toFixed(1) + " GB", padX - 10, padY);
 }
 
-function updateTopCards() {
-    const mailboxes = getMailboxes();
-    const countEl = document.getElementById("mailboxCount");
-    const totalStorageEl = document.getElementById("totalStorage");
-    const thresholdEl = document.getElementById("thresholdCount");
-    const largestEl = document.getElementById("largestMailbox");
+// --- Extraction & Schema Normalisation Utility Helpers ---
 
-    if (countEl) countEl.textContent = formatNumber(mailboxes.length);
-    if (totalStorageEl) totalStorageEl.textContent = `${formatGB(mailboxes.reduce((acc, m) => acc + m.current.totalGB, 0))} GB`;
-    if (thresholdEl) thresholdEl.textContent = formatNumber(mailboxes.filter(m => m.current.usagePercent >= 85).length);
-    if (largestEl) {
-        if (mailboxes.length === 0) largestEl.textContent = "N/A";
-        else {
-            const largest = mailboxes.reduce((prev, curr) => (prev.current.totalGB > curr.current.totalGB) ? prev : curr);
-            largestEl.textContent = `${largest.displayName} (${formatGB(largest.current.totalGB)} GB)`;
+function getNumber(record, propertyNames) {
+    for (const propertyName of propertyNames) {
+        const value = record?.[propertyName];
+        if (value !== undefined && value !== null && value !== "") {
+            const number = Number(value);
+            if (Number.isFinite(number)) return number;
         }
     }
+    return null;
 }
 
-function drawDonutChart() {
-    const canvas = document.getElementById("usageDonutChart");
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const mailboxes = getMailboxes();
-    let totalUsed = mailboxes.reduce((acc, m) => acc + m.current.totalGB, 0);
-    let totalQuota = mailboxes.reduce((acc, m) => acc + m.current.quotaGB, 0);
-    if(totalQuota === 0) totalQuota = 1;
-    
-    const cx = canvas.width / 2, cy = canvas.height / 2, radius = Math.min(cx, cy) * 0.7;
-    ctx.lineWidth = 40;
-    
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = getCssVariable("--border-color") || "#eee";
-    ctx.stroke();
-
-    if (totalUsed > 0) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + (totalUsed / totalQuota) * 2 * Math.PI);
-        ctx.strokeStyle = "#0078d4";
-        ctx.stroke();
+function extractMailboxArray(payload) {
+    if (Array.isArray(payload)) {
+        // Strip string timestamp at index 0 if present
+        return (payload.length > 0 && typeof payload[0] === "string") ? payload.slice(1) : payload;
     }
-    
-    ctx.fillStyle = getCssVariable("--text-primary") || "#333";
-    ctx.font = "bold 24px sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText(((totalUsed / totalQuota) * 100).toFixed(1) + "%", cx, cy);
+    if (Array.isArray(payload.mailboxes)) return payload.mailboxes;
+    if (Array.isArray(payload.Mailboxes)) return payload.Mailboxes;
+    if (Array.isArray(payload.data)) return payload.data;
+    if (Array.isArray(payload.value)) return payload.value;
+    return [];
 }
 
-function drawBarChart() {
-    const canvas = document.getElementById("topStorageChart");
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+function normaliseMailbox(source) {
+    const smtpAddress =
+        source.PrimarySmtpAddress ??
+        source.primarySmtpAddress ??
+        source.SmtpAddress ??
+        source.UserPrincipalName ??
+        source.Mailbox?.PrimarySmtpAddress ??
+        "";
 
-    const top = getMailboxes().sort((a, b) => b.current.totalGB - a.current.totalGB).slice(0, 10);
-    if (top.length === 0) return;
+    const displayName =
+        source.DisplayName ??
+        source.displayName ??
+        source.MailboxName ??
+        source.Mailbox?.DisplayName ??
+        smtpAddress;
 
-    const maxVal = top[0].current.totalGB || 1, chartHeight = canvas.height - 60;
-    const barSpacing = (canvas.width - 40) / top.length, barWidth = barSpacing * 0.6;
+    // Check nested Samples array
+    let sample = {};
+    if (Array.isArray(source.Samples) && source.Samples.length > 0) {
+        sample = source.Samples[source.Samples.length - 1];
+    } else if (source.current) {
+        sample = source.current;
+    }
 
-    top.forEach((m, idx) => {
-        const barH = (m.current.totalGB / maxVal) * chartHeight;
-        const x = 20 + idx * barSpacing + (barSpacing - barWidth) / 2, y = canvas.height - 30 - barH;
+    const storageGB = getNumber(sample, ["SizeGB", "totalGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) 
+        ?? getNumber(source, ["SizeGB", "totalGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) 
+        ?? 0;
 
-        ctx.fillStyle = "#0078d4";
-        ctx.fillRect(x, y, barWidth, barH);
+    const quotaGB = getNumber(sample, ["QuotaGB", "quotaGB", "ProhibitSendReceiveQuotaGB"]) 
+        ?? getNumber(source, ["QuotaGB", "quotaGB", "ProhibitSendReceiveQuotaGB"]) 
+        ?? 50;
+
+    const itemCount = getNumber(sample, ["ItemCount", "itemCount", "Items"]) 
+        ?? getNumber(source, ["ItemCount", "itemCount", "Items"]) 
+        ?? 0;
+
+    const usagePercent = getNumber(sample, ["UsagePercent", "usagePercent"]) 
+        ?? (quotaGB > 0 ? (storageGB / quotaGB) * 100 : 0);
+
+    const permCount = getNumber(sample, ["PermissionCount"]) 
+        ?? (Array.isArray(source.permissions) ? source.permissions.length : 0);
+
+    return {
+        exchangeGuid: source.ExchangeGuid || source.exchangeGuid || "",
+        displayName: String(displayName),
+        primarySmtpAddress: String(smtpAddress),
+        current: {
+            totalGB: storageGB,
+            itemCount: itemCount,
+            quotaGB: quotaGB,
+            usagePercent: usagePercent,
+            lastLogonTime: sample.LastLogonTime ?? sample.lastLogonTime ?? source.LastLogonTime ?? null
+        },
+        permissions: source.permissions || new Array(permCount)
+    };
+}
+
+function extractPermissions(payload) {
+    if (!Array.isArray(payload)) return [];
+    
+    return payload.flatMap(mailbox => {
+        const smtpAddress = mailbox.primarySmtpAddress || mailbox.displayName || "";
+        const permissions = mailbox.permissions || [];
         
-        ctx.fillStyle = getCssVariable("--text-primary") || "#333";
-        ctx.textAlign = "center";
-        ctx.fillText(m.current.totalGB.toFixed(1), x + barWidth / 2, y - 5);
-        
-        ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
-        ctx.fillText(m.displayName.substring(0, 8) + "..", x + barWidth / 2, canvas.height - 10);
+        if (!Array.isArray(permissions)) return [];
+
+        return permissions.map(permission => ({
+            mailbox: smtpAddress,
+            delegate: permission.Delegate ?? permission.user ?? permission.User ?? "",
+            rights: permission.AccessRights ?? permission.accessRights ?? permission.Rights ?? [],
+            inherited: permission.IsInherited ?? permission.isInherited ?? false
+        }));
     });
 }
 
+function filterMailboxes(mailboxes, searchText) {
+    const search = String(searchText || "").trim().toLowerCase();
+    if (!search) return mailboxes;
+
+    return mailboxes.filter(m => {
+        const displayName = String(m.displayName || "").toLowerCase();
+        const smtpAddress = String(m.primarySmtpAddress || "").toLowerCase();
+        return displayName.includes(search) || smtpAddress.includes(search);
+    });
+}
+
+// --- System Utility Helpers ---
 function resetAutoRefreshTimer() {
     if (refreshTimer) clearInterval(refreshTimer);
     refreshTimer = setInterval(() => loadDashboard().catch(showError), refreshMs);
@@ -386,7 +494,7 @@ function resetAutoRefreshTimer() {
 
 function updateLastUpdated(utcString) {
     const el = document.getElementById("lastUpdated");
-    if (el) el.textContent = utcString ? `Last updated: ${new Date(utcString).toLocaleString()}` : "Data unavailable";
+    if (el) el.textContent = (utcString && typeof utcString === "string") ? `Last updated: ${new Date(utcString).toLocaleString()}` : "Data loaded";
 }
 
 function highlightNav() {
