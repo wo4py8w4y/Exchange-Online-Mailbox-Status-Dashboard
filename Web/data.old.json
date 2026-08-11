@@ -1,0 +1,2158 @@
+[
+  {
+    "exchangeGuid": "9e8858ee-2f02-4e1c-9137-4cbd99ed1523",
+    "primarySmtpAddress": "Damien.Doonan@hpw.qld.gov.au",
+    "displayName": "Damien Doonan",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 3376
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "2652051c-2182-4fdd-aa0e-caa98caea4b2",
+    "primarySmtpAddress": "Meagan.Brown@hpw.qld.gov.au",
+    "displayName": "Meagan Brown",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 4414
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "d0454041-9d10-4948-b7ce-37fe2d057641",
+    "primarySmtpAddress": "Kabi.Pathmanabhan@hpw.qld.gov.au",
+    "displayName": "Kabi Pathmanabhan",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 4.0,
+      "usagePercent": 8.0,
+      "lastLogonTime": null,
+      "itemCount": 4972
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "8232bf0e-f90c-4dbb-beb5-7bdfd03f4f32",
+    "primarySmtpAddress": "Lenore.Hall@epw.qld.gov.au",
+    "displayName": "Lenore Hall",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 876
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "364a992c-967e-4fa9-98bd-bad5b9b0121a",
+    "primarySmtpAddress": "Laura.Wilson2@hpw.qld.gov.au",
+    "displayName": "Laura Wilson2",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 2238
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "82729f42-9d5b-4a13-8be9-73c43d1c9397",
+    "primarySmtpAddress": "Lalit.John@hpw.qld.gov.au",
+    "displayName": "Lalit John",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 15411
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "03f41f48-e8a0-499f-9ff7-b11d4dac6e3e",
+    "primarySmtpAddress": "Sean.Thomas@hpw.qld.gov.au",
+    "displayName": "Sean Thomas",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 22.0,
+      "usagePercent": 44.0,
+      "lastLogonTime": null,
+      "itemCount": 15760
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "6cb10c34-3b95-45e2-8e16-cc72cb23e8d6",
+    "primarySmtpAddress": "Nitika.Singh@hpw.qld.gov.au",
+    "displayName": "Nitika Singh",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3517
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "fe0d80da-6c97-423a-9536-9ed7fba96c5b",
+    "primarySmtpAddress": "Anthony.Roberts@hpw.qld.gov.au",
+    "displayName": "Anthony Roberts",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 13.0,
+      "usagePercent": 26.0,
+      "lastLogonTime": null,
+      "itemCount": 17969
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "807dcfd4-90c9-43cd-8612-2a82c59fe378",
+    "primarySmtpAddress": "Alexis.Yeap@hpw.qld.gov.au",
+    "displayName": "Alexis Yeap",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 3.0,
+      "usagePercent": 6.0,
+      "lastLogonTime": null,
+      "itemCount": 5572
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "dc86e34f-72dd-440d-a45b-0a7cace1f4c7",
+    "primarySmtpAddress": "Nathan.Schumacher@cdsb.qld.gov.au",
+    "displayName": "Nathan Schumacher",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 6506
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "659ae121-8f78-4f47-a811-6791b7220772",
+    "primarySmtpAddress": "Prue.Peart@hpw.qld.gov.au",
+    "displayName": "Prue Peart",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 22.0,
+      "usagePercent": 44.0,
+      "lastLogonTime": null,
+      "itemCount": 45231
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "c6b36ee4-4438-4dfa-a87e-6b55ac63426f",
+    "primarySmtpAddress": "Samuel.Wheeler@hpw.qld.gov.au",
+    "displayName": "Samuel Wheeler",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 277
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "e9286427-c0c4-424f-bcff-4cc9f1b35919",
+    "primarySmtpAddress": "Kelly.MacKrill@cdsb.qld.gov.au",
+    "displayName": "Kelly MacKrill",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 124
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "8d27b18d-f63a-42e3-aec3-118af32d52de",
+    "primarySmtpAddress": "Joel.Wright@hpw.qld.gov.au",
+    "displayName": "Joel Wright",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 3.0,
+      "usagePercent": 6.0,
+      "lastLogonTime": null,
+      "itemCount": 7582
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "5b5b3080-7ae8-4226-a927-5b66ea8d6356",
+    "primarySmtpAddress": "William.Ciereszko@hpw.qld.gov.au",
+    "displayName": "William Ciereszko",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 31.0,
+      "usagePercent": 62.0,
+      "lastLogonTime": null,
+      "itemCount": 24011
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "6dac6f18-1c18-4e26-b7a5-f5d0c313e4fc",
+    "primarySmtpAddress": "Joanna.Farthing@hpw.qld.gov.au",
+    "displayName": "Joanna Farthing",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 4.0,
+      "usagePercent": 8.0,
+      "lastLogonTime": null,
+      "itemCount": 6348
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "4efd4a7d-fbea-4ce0-adfa-7bc0610db9cd",
+    "primarySmtpAddress": "Bernie.Courtney@hpw.qld.gov.au",
+    "displayName": "Bernie Courtney",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 2853
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "8287eb18-601f-42fc-bcd6-6be7fef62d46",
+    "primarySmtpAddress": "Jayden.Grose@hpw.qld.gov.au",
+    "displayName": "Jayden Grose",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 4914
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "12d09fcd-0e70-4a18-99fe-77167d81ec44",
+    "primarySmtpAddress": "Laura.Ahern@chde.qld.gov.au",
+    "displayName": "Laura Ahern",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1072
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "9c128582-d65f-45aa-b870-0cba19e96fa0",
+    "primarySmtpAddress": "Una.Liu@chde.qld.gov.au",
+    "displayName": "Una Liu",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 2066
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "41c6af7f-47e9-4554-8a14-02a53b9af7a2",
+    "primarySmtpAddress": "Nicholas.Bowen@hpw.qld.gov.au",
+    "displayName": "Nicholas Bowen",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 8.0,
+      "usagePercent": 16.0,
+      "lastLogonTime": null,
+      "itemCount": 11502
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "f004899f-b2a5-4dce-b981-9a47b47837db",
+    "primarySmtpAddress": "Freya.LeBoutillier@smartservice.qld.gov.au",
+    "displayName": "Freya LeBoutillier",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 11796
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "9481e9fb-2f97-4934-b69f-5adc0726e786",
+    "primarySmtpAddress": "Kellie.Hay@hpw.qld.gov.au",
+    "displayName": "Kellie Hay",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 6624
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "7b3e7337-c3cc-4765-bda4-c8d202a7521f",
+    "primarySmtpAddress": "Clayton.Bazarnik@hpw.qld.gov.au",
+    "displayName": "Clayton Bazarnik",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 2289
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "c8d2b139-d42d-47ad-aafe-cde60bb0f871",
+    "primarySmtpAddress": "Dmitriy.Kinaev@chde.qld.gov.au",
+    "displayName": "Dmitriy Kinaev",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 5970
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "6a1fe3bf-ef7d-4d82-a214-97fa3c1df9c1",
+    "primarySmtpAddress": "Kelvin.Hohn@hpw.qld.gov.au",
+    "displayName": "Kelvin Hohn",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 3470
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "70b6dd3f-9b73-41e0-9692-d0d0d1b2fcea",
+    "primarySmtpAddress": "Paula.Ferguson@chde.qld.gov.au",
+    "displayName": "Paula Ferguson",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 15.0,
+      "usagePercent": 30.0,
+      "lastLogonTime": null,
+      "itemCount": 29887
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "aaa50d75-e8e2-4007-8e2c-f0c0fedc21de",
+    "primarySmtpAddress": "Cody.Squires@hpw.qld.gov.au",
+    "displayName": "Cody Squires",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3203
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "530d990c-d073-4d60-a1cf-f54f3ee939bf",
+    "primarySmtpAddress": "Maggie.Garbutt@hpw.qld.gov.au",
+    "displayName": "Maggie Garbutt",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 3.0,
+      "usagePercent": 6.0,
+      "lastLogonTime": null,
+      "itemCount": 8084
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "fb77a8cc-28f7-4cc3-a993-ea7ed57ab48c",
+    "primarySmtpAddress": "Daniel.Chang@hpw.qld.gov.au",
+    "displayName": "Daniel Chang",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 1454
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "674b5190-37cf-4bea-8dc5-04666dd70894",
+    "primarySmtpAddress": "Sarah.Wang@chde.qld.gov.au",
+    "displayName": "Sarah Wang",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 10.0,
+      "usagePercent": 20.0,
+      "lastLogonTime": null,
+      "itemCount": 28227
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "e3810f47-1b54-431e-a83d-16dbaebaa66e",
+    "primarySmtpAddress": "James.Pullen@chde.qld.gov.au",
+    "displayName": "James Pullen",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 6686
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "828fc4d2-c357-467f-9a4f-fa86d7553c71",
+    "primarySmtpAddress": "Brock.Sodenkamp@chde.qld.gov.au",
+    "displayName": "Brock Sodenkamp",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1564
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "6a3e4c15-34b6-488c-9ccb-dc614687d018",
+    "primarySmtpAddress": "Brendan.Gair@chde.qld.gov.au",
+    "displayName": "Brendan Gair",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1437
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "03285354-7876-4561-922c-3425bc376fd3",
+    "primarySmtpAddress": "Joshua.Hancock@hpw.qld.gov.au",
+    "displayName": "Joshua Hancock",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 2446
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "449f3c46-ae0f-4246-98b4-49cba72e65da",
+    "primarySmtpAddress": "Angela.Jonassen2@hpw.qld.gov.au",
+    "displayName": "Angela Jonassen2",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 423
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "a4b08021-90d3-4b78-af38-6abcb4c0a47d",
+    "primarySmtpAddress": "RicohPrint@epw.qld.gov.au",
+    "displayName": "EPW Ricoh Print Service",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 60
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "0773626e-6440-4069-a69a-bcdffa410d13",
+    "primarySmtpAddress": "Daniela.James@hpw.qld.gov.au",
+    "displayName": "Daniela James",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 62
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "a2391fa4-d8e9-4eff-adf1-344ea4177440",
+    "primarySmtpAddress": "Elyse.Featherston@hpw.qld.gov.au",
+    "displayName": "Elyse Featherston",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1480
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "c035da7c-5f3b-4315-bb3d-bde7987b471f",
+    "primarySmtpAddress": "Jade.Innes@hpw.qld.gov.au",
+    "displayName": "Jade Innes",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 13.0,
+      "usagePercent": 26.0,
+      "lastLogonTime": null,
+      "itemCount": 19798
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "f5b8f48a-84f5-402c-8cd0-c07a4b3a092d",
+    "primarySmtpAddress": "Carolyn.Zarafa@hpw.qld.gov.au",
+    "displayName": "Carolyn Zarafa",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 9.0,
+      "usagePercent": 18.0,
+      "lastLogonTime": null,
+      "itemCount": 12238
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "034d3323-2dcf-4791-86d3-535d2a67b065",
+    "primarySmtpAddress": "Marta.Garcia@hpw.qld.gov.au",
+    "displayName": "Marta Garcia",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 416
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "ca4d870b-b736-4d32-b856-55366b4e8348",
+    "primarySmtpAddress": "Diane.Conti@hpw.qld.gov.au",
+    "displayName": "Diane Conti",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1554
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "a5ea1e52-932c-4018-b027-4fbce87554d2",
+    "primarySmtpAddress": "Rachael.Georgieff@cdsb.qld.gov.au",
+    "displayName": "Rachael Georgieff",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 5.0,
+      "usagePercent": 10.0,
+      "lastLogonTime": null,
+      "itemCount": 11781
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "39c00986-9884-453d-b15d-a39ffdbc06cd",
+    "primarySmtpAddress": "Amy.Griffiths@hpw.qld.gov.au",
+    "displayName": "Amy Griffiths",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 60.0,
+      "usagePercent": 120.0,
+      "lastLogonTime": null,
+      "itemCount": 39924
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "9328ba77-b5ad-4b18-8ee4-b51643e1bd7a",
+    "primarySmtpAddress": "Nicole.Stratigos@hpw.qld.gov.au",
+    "displayName": "Nicole Stratigos",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 8.0,
+      "usagePercent": 16.0,
+      "lastLogonTime": null,
+      "itemCount": 8323
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "325fb726-3b21-423f-9719-7425884882b1",
+    "primarySmtpAddress": "Sebastian.Richards@hpw.qld.gov.au",
+    "displayName": "Sebastian Richards",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 4463
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "7bd34e7b-47dc-4a4d-aeb1-94028e3c242d",
+    "primarySmtpAddress": "Oliver.Sadler@chde.qld.gov.au",
+    "displayName": "Oliver Sadler",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 3.0,
+      "usagePercent": 6.0,
+      "lastLogonTime": null,
+      "itemCount": 12045
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "843d182b-be76-47ee-b42c-d3e362b4cd46",
+    "primarySmtpAddress": "Levi.Ford@hpw.qld.gov.au",
+    "displayName": "Levi Ford",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 2169
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "59b90885-12c3-4835-804a-0f942705bf83",
+    "primarySmtpAddress": "Benson.Graham@hpw.qld.gov.au",
+    "displayName": "Benson Graham",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 2621
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "7d0e4671-4a58-497a-ac2f-d4dda83507c9",
+    "primarySmtpAddress": "Vicki.Mcjarrow@chde.qld.gov.au",
+    "displayName": "Vicki McJarrow",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 5173
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "d6b2881a-57bf-4a8d-8bea-b9935bb43313",
+    "primarySmtpAddress": "Ashton.Osborne@hpw.qld.gov.au",
+    "displayName": "Ashton Osborne",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1340
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "75149aee-7983-4d53-8b9f-ce773bf90bf3",
+    "primarySmtpAddress": "Jill.Connolly@hpw.qld.gov.au",
+    "displayName": "Jill Connolly",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 3.0,
+      "usagePercent": 6.0,
+      "lastLogonTime": null,
+      "itemCount": 4801
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "7ff9ede8-2b6d-4902-9a0d-8002fc3a8382",
+    "primarySmtpAddress": "carol.raymond@smartservice.qld.gov.au",
+    "displayName": "Carol Raymond",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 12322
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "2cab13ee-41c6-4867-b8a9-53ebd4877005",
+    "primarySmtpAddress": "Gina.Paterson@hpw.qld.gov.au",
+    "displayName": "Gina Paterson",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 5.0,
+      "usagePercent": 10.0,
+      "lastLogonTime": null,
+      "itemCount": 18577
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "2244694f-b025-492e-8e50-c742e4d12d02",
+    "primarySmtpAddress": "Sonya.Trevor@hpw.qld.gov.au",
+    "displayName": "Sonya Trevor",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3363
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "ba90bd80-703a-4617-8b1f-a052c529302e",
+    "primarySmtpAddress": "Jean.Kassman@hpw.qld.gov.au",
+    "displayName": "Jean Kassman",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 6.0,
+      "usagePercent": 12.0,
+      "lastLogonTime": null,
+      "itemCount": 20812
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "2d8a82cb-12c4-4c48-9fe0-14f459717452",
+    "primarySmtpAddress": "george.veneris.admin@hpwqld.onmicrosoft.com",
+    "displayName": "George Veneris (Admin)",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 29
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "0d8e02a8-0c50-46cc-9335-9cce09872d63",
+    "primarySmtpAddress": "Luke.Maranik@hpw.qld.gov.au",
+    "displayName": "Luke Maranik",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1333
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "06a8cc08-9caa-4a18-aaf0-55c56d41991d",
+    "primarySmtpAddress": "Leanne.Rogan@hpw.qld.gov.au",
+    "displayName": "Leanne Rogan",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 7.0,
+      "usagePercent": 14.0,
+      "lastLogonTime": null,
+      "itemCount": 12539
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "1fd8eade-90a7-44c5-9d37-4fd3a7678efc",
+    "primarySmtpAddress": "Hamish.Campbell@hpw.qld.gov.au",
+    "displayName": "Hamish Campbell",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 3379
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "ef6e025b-910e-43ea-9d3c-bdaf31fc4448",
+    "primarySmtpAddress": "Andrew.Jones@hpw.qld.gov.au",
+    "displayName": "Andrew Jones",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 2655
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "c7f97507-e526-43bb-8c32-76b3d6f6c394",
+    "primarySmtpAddress": "Amber.Leamy@hpw.qld.gov.au",
+    "displayName": "Amber Leamy",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 4.0,
+      "usagePercent": 8.0,
+      "lastLogonTime": null,
+      "itemCount": 7825
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "be4ee800-4be8-4b8d-b6ec-da02dbf005a4",
+    "primarySmtpAddress": "Amilia.Cunningham@hpw.qld.gov.au",
+    "displayName": "Amilia Cunningham",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 4.0,
+      "usagePercent": 8.0,
+      "lastLogonTime": null,
+      "itemCount": 12070
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "efe24e98-2d23-44ef-88e1-3623ef6d3bf1",
+    "primarySmtpAddress": "Dakota.Cook@hpw.qld.gov.au",
+    "displayName": "Dakota Cook",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 4.0,
+      "usagePercent": 8.0,
+      "lastLogonTime": null,
+      "itemCount": 20524
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "ea8f02a8-3060-481c-ada2-6c6203a141e7",
+    "primarySmtpAddress": "Austin.Wheeler@hpw.qld.gov.au",
+    "displayName": "Austin Wheeler",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3834
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "c2d5e771-6788-4589-8b11-8fd0365a4b7e",
+    "primarySmtpAddress": "Dion.Scott@smartservice.qld.gov.au",
+    "displayName": "Dion Scott",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3952
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "e4cd9aa5-558c-4b63-a516-c1371fd534f5",
+    "primarySmtpAddress": "Elizabeth.Butler@chde.qld.gov.au",
+    "displayName": "Elizabeth Butler",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 6514
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "40c89a34-642c-4cc8-984b-3812e9a32078",
+    "primarySmtpAddress": "Ernie.White@hpw.qld.gov.au",
+    "displayName": "Ernie White",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 12.0,
+      "usagePercent": 24.0,
+      "lastLogonTime": null,
+      "itemCount": 15360
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "4ef760e4-4c6b-4404-8f59-31c9d209044d",
+    "primarySmtpAddress": "Wallboard.basch@epw.qld.gov.au",
+    "displayName": "BAS CH WallBoard",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 433
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "711583ca-cd77-442f-9e93-8eb44d7cdaad",
+    "primarySmtpAddress": "Jessica.Reynolds@smartservice.qld.gov.au",
+    "displayName": "Jessica Reynolds",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 5126
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "7f8c1166-5dc8-4200-8baf-01f6e858a86a",
+    "primarySmtpAddress": "Ashley.Clark@hpw.qld.gov.au",
+    "displayName": "Ashley Clark",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 4.0,
+      "usagePercent": 8.0,
+      "lastLogonTime": null,
+      "itemCount": 8473
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "5b4b8983-651c-41c5-a560-e49140d957ba",
+    "primarySmtpAddress": "Michelle.Woodhouse@hpw.qld.gov.au",
+    "displayName": "Michelle Woodhouse",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 4788
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "6f196216-12b0-4ee0-9013-10a158682887",
+    "primarySmtpAddress": "Brodie.Jennings@hpw.qld.gov.au",
+    "displayName": "Brodie Jennings",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 6.0,
+      "usagePercent": 12.0,
+      "lastLogonTime": null,
+      "itemCount": 9613
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "2cce0234-b1e8-4610-86fc-004beb4c894c",
+    "primarySmtpAddress": "Hayley.Crowe@hpw.qld.gov.au",
+    "displayName": "Hayley Crowe",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 2624
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "c87dcac5-c48c-4ade-97ca-1e0bd9225ae3",
+    "primarySmtpAddress": "Danielle.Sturton@hpw.qld.gov.au",
+    "displayName": "Danielle Sturton",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 22.0,
+      "usagePercent": 44.0,
+      "lastLogonTime": null,
+      "itemCount": 21483
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "79c4d97a-2f5a-4e11-ab96-b2ef10968342",
+    "primarySmtpAddress": "Maggie.Harrington@hpw.qld.gov.au",
+    "displayName": "Maggie Harrington",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 2235
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "813e63fe-a94a-48bf-980e-dff1c8630bc5",
+    "primarySmtpAddress": "Peter.Haggan.admin@hpwqld.onmicrosoft.com",
+    "displayName": "Peter Haggan (Admin)",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 150
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "a0beab8d-780f-4851-9315-348af9e4068a",
+    "primarySmtpAddress": "daniel.higgins.admin@hpwqld.onmicrosoft.com",
+    "displayName": "Daniel Higgins (Admin)",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 136
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "7a33a9d4-7a99-4a2c-a15f-368e476b966d",
+    "primarySmtpAddress": "Brooke.Jeffs@hpw.qld.gov.au",
+    "displayName": "Brooke Jeffs",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 10.0,
+      "usagePercent": 20.0,
+      "lastLogonTime": null,
+      "itemCount": 22653
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "7ca027c0-cd65-41ed-a2ad-1fd9fb7993a3",
+    "primarySmtpAddress": "Michael.FORSYTHE@chde.qld.gov.au",
+    "displayName": "Michael Forsythe",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 5.0,
+      "usagePercent": 10.0,
+      "lastLogonTime": null,
+      "itemCount": 13627
+    },
+    "permissions": {
+      "Identity": "ForsytMZ",
+      "User": "svc_migrationwiz@hpwqld.onmicrosoft.com",
+      "AccessRights": [
+        "FullAccess"
+      ],
+      "IsInherited": false,
+      "Deny": {
+        "IsPresent": false
+      },
+      "InheritanceType": "All"
+    }
+  },
+  {
+    "exchangeGuid": "3b280e48-d879-4404-a0f1-17302997f0f6",
+    "primarySmtpAddress": "Stephanie.Perry@chde.qld.gov.au",
+    "displayName": "Stephanie Perry",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 3.0,
+      "usagePercent": 6.0,
+      "lastLogonTime": null,
+      "itemCount": 6922
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "fc953256-353a-4819-968b-aceebfdc33a2",
+    "primarySmtpAddress": "Joel.Heilbronn@hpw.qld.gov.au",
+    "displayName": "Joel Heilbronn",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3492
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "f8abbcfc-2eae-43d8-9ae0-68ceac4ad9aa",
+    "primarySmtpAddress": "Divakar.Naidu@hpw.qld.gov.au",
+    "displayName": "Divakar Naidu",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 4.0,
+      "usagePercent": 8.0,
+      "lastLogonTime": null,
+      "itemCount": 6098
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "2bf9ae80-90f5-4bb3-972c-67231f28ef5d",
+    "primarySmtpAddress": "Nikol.Visnjic@hpw.qld.gov.au",
+    "displayName": "Nikol Visnjic",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 3.0,
+      "usagePercent": 6.0,
+      "lastLogonTime": null,
+      "itemCount": 9632
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "d2dccc17-b51a-425d-b6f8-1a2d3aab5545",
+    "primarySmtpAddress": "Alex.Giamblanco@hpw.qld.gov.au",
+    "displayName": "Alex Giamblanco",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 9.0,
+      "usagePercent": 18.0,
+      "lastLogonTime": null,
+      "itemCount": 9878
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "afcd266a-e7df-4f6d-aa3d-3f93348c276e",
+    "primarySmtpAddress": "Nikki.Fotinis@hpw.qld.gov.au",
+    "displayName": "Nikki Fotinis",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 12.0,
+      "usagePercent": 24.0,
+      "lastLogonTime": null,
+      "itemCount": 15799
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "5784cad8-40cd-4da5-aaad-5364a06a1e80",
+    "primarySmtpAddress": "Anthony.Mills@hpw.qld.gov.au",
+    "displayName": "Anthony Mills",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 12.0,
+      "usagePercent": 24.0,
+      "lastLogonTime": null,
+      "itemCount": 17091
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "63f99b15-0e1f-4a37-b5dd-337d187618c1",
+    "primarySmtpAddress": "Kelvin.Moll@hpw.qld.gov.au",
+    "displayName": "Kelvin Moll",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 2493
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "e7fa6ac4-f3a1-4a46-bdaf-743a84ec3d17",
+    "primarySmtpAddress": "Thomas.Glover@hpw.qld.gov.au",
+    "displayName": "Thomas Glover",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 34.0,
+      "usagePercent": 68.0,
+      "lastLogonTime": null,
+      "itemCount": 42544
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "1f6f8c32-b545-44a0-a08e-059f1abf37bd",
+    "primarySmtpAddress": "Wayne.Galvin@hpw.qld.gov.au",
+    "displayName": "Wayne Galvin",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 18.0,
+      "usagePercent": 36.0,
+      "lastLogonTime": null,
+      "itemCount": 10803
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "801b27ce-0d4d-4f77-a040-ecec3d19cdc5",
+    "primarySmtpAddress": "Cody.Hodges@hpw.qld.gov.au",
+    "displayName": "Cody Hodges",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 8176
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "5d78b8ef-51a7-494a-8aea-a7719f4ae6d2",
+    "primarySmtpAddress": "Jacob.Neilsen@hpw.qld.gov.au",
+    "displayName": "Jacob Neilsen",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 3.0,
+      "usagePercent": 6.0,
+      "lastLogonTime": null,
+      "itemCount": 5107
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "9fa60a91-4f1c-4624-8a22-436305814b42",
+    "primarySmtpAddress": "James.O'Donnell@hpw.qld.gov.au",
+    "displayName": "James O'Donnell",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 1308
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "ae0abe4d-4a51-413d-be1f-6dab0ddbfd0e",
+    "primarySmtpAddress": "Thomas.Toomey@hpw.qld.gov.au",
+    "displayName": "Thomas Toomey",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 22.0,
+      "usagePercent": 44.0,
+      "lastLogonTime": null,
+      "itemCount": 8180
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "24a493cb-8ddf-450c-a91d-992b1ec70151",
+    "primarySmtpAddress": "Travis.Auton@hpw.qld.gov.au",
+    "displayName": "Travis Auton",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 719
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "c38e1e30-dbc8-4789-869c-26a770411387",
+    "primarySmtpAddress": "Kaushal.Patel@hpw.qld.gov.au",
+    "displayName": "Kaushal Patel",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 25
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "afb21454-9d3a-4cfc-89f1-cf31d086c8c1",
+    "primarySmtpAddress": "Courtney.McMahon@chde.qld.gov.au",
+    "displayName": "Courtney McMahon",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 13245
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "626bebba-8c82-41a0-aa58-5c6d3015753a",
+    "primarySmtpAddress": "Peter.Divljak@hpw.qld.gov.au",
+    "displayName": "Peter Divljak",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 411
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "4b537b61-59fe-4245-a8c7-1979ea0ccd5e",
+    "primarySmtpAddress": "Aaliyah.Faiumu@hpw.qld.gov.au",
+    "displayName": "Aaliyah Faiumu",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3221
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "31418827-ccd4-4042-8eaa-0d1b61fdd39c",
+    "primarySmtpAddress": "Laura.Itzstein@chde.qld.gov.au",
+    "displayName": "Laura Itzstein",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 13.0,
+      "usagePercent": 26.0,
+      "lastLogonTime": null,
+      "itemCount": 29184
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "b50e4a26-17e7-4e3e-83c7-2bbd0040b842",
+    "primarySmtpAddress": "Kristian.Wegener@hpw.qld.gov.au",
+    "displayName": "Kristian Wegener",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 502
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "a9666305-d160-4488-b409-503ddc0d5c60",
+    "primarySmtpAddress": "Tahlia.Zipf@hpw.qld.gov.au",
+    "displayName": "Tahlia Zipf",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 2749
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "0bfdb81f-d937-43f1-b5bd-a2fe3362a576",
+    "primarySmtpAddress": "v.tanya.erdos@hpw.qld.gov.au",
+    "displayName": "V-ERDOS Tanya",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 394
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "01ee8c7d-98d2-402c-96a8-61c6bda13e43",
+    "primarySmtpAddress": "Sarah.Manson@hpw.qld.gov.au",
+    "displayName": "Sarah Manson",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 11.0,
+      "usagePercent": 22.0,
+      "lastLogonTime": null,
+      "itemCount": 14151
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "fcc55183-27d8-4dec-9d94-0ebe92ff66ce",
+    "primarySmtpAddress": "Cassandra.Koch@hpw.qld.gov.au",
+    "displayName": "Cassandra Koch",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 4237
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "eae73e12-0e4e-49ee-9ca9-be3595b89b86",
+    "primarySmtpAddress": "Joshua.Prosser@hpw.qld.gov.au",
+    "displayName": "Joshua Prosser",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 207
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "e42d306e-ec2e-4d12-9e1b-58097bb24860",
+    "primarySmtpAddress": "Leonie.Wood@hpw.qld.gov.au",
+    "displayName": "Leonie Wood",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 6.0,
+      "usagePercent": 12.0,
+      "lastLogonTime": null,
+      "itemCount": 10800
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "d30867b3-05cb-42dd-b79a-ac6076f6edd8",
+    "primarySmtpAddress": "Owen.Taylor@hpw.qld.gov.au",
+    "displayName": "Owen Taylor",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 1961
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "78875718-0624-4daa-80ee-2ab6fbb1b39f",
+    "primarySmtpAddress": "Pratikshya.Gautam@smartservice.qld.gov.au",
+    "displayName": "Pratikshya Gautam",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 4171
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "37b57986-0710-49b4-9d31-89d9e68042da",
+    "primarySmtpAddress": "Paul.Mills@hpw.qld.gov.au",
+    "displayName": "Paul Mills",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1145
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "1bce4ce5-f572-409c-b52a-6ae9a4489322",
+    "primarySmtpAddress": "Johnathan.Pain@hpw.qld.gov.au",
+    "displayName": "Johnathan Pain",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 4069
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "27a87335-cf97-4f4a-8172-6b096c3d9730",
+    "primarySmtpAddress": "Jessica.Green2@hpw.qld.gov.au",
+    "displayName": "Jessica Green2",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 4521
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "14ca75cd-17c5-417c-9958-8992d951e787",
+    "primarySmtpAddress": "Dannielle.Tomarra@hpw.qld.gov.au",
+    "displayName": "Dannielle Tomarra",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 22.0,
+      "usagePercent": 44.0,
+      "lastLogonTime": null,
+      "itemCount": 48369
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "8390549a-3517-4676-a290-41fafc39de97",
+    "primarySmtpAddress": "Brett.King@hpw.qld.gov.au",
+    "displayName": "Brett King",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 14.0,
+      "usagePercent": 28.0,
+      "lastLogonTime": null,
+      "itemCount": 13360
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "86941ad7-3052-4307-b739-f00fe41c1990",
+    "primarySmtpAddress": "Shishira.Roy@hpw.qld.gov.au",
+    "displayName": "Shishira Roy",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 3538
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "07078128-44dd-4472-89d8-f3bb0cfe7c02",
+    "primarySmtpAddress": "Ross.Phillips.admin@hpwqld.onmicrosoft.com",
+    "displayName": "Ross Phillips (Admin)",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 345
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "5f1e87c0-b08d-49e9-b138-3f79f04cfee4",
+    "primarySmtpAddress": "Jett.Allan@hpw.qld.gov.au",
+    "displayName": "Jett Allan",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 2379
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "c0d3ebfd-af72-43d0-8af3-6bd21aa8b002",
+    "primarySmtpAddress": "Lucas.Gibbins@hpw.qld.gov.au",
+    "displayName": "Lucas Gibbins",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1161
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "b174f2e8-c989-4a77-8181-ff58b12c2384",
+    "primarySmtpAddress": "April.Holmes@hpw.qld.gov.au",
+    "displayName": "April Holmes",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 2.0,
+      "usagePercent": 4.0,
+      "lastLogonTime": null,
+      "itemCount": 2155
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "d2d90df7-e27f-4c65-986a-4d0d6ce87dfb",
+    "primarySmtpAddress": "Plony.Verkerk@hpw.qld.gov.au",
+    "displayName": "Plony Verkerk",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3926
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "6a5637d8-d5ff-403e-b0f8-981b62d82ac4",
+    "primarySmtpAddress": "Rachel.Caton@hpw.qld.gov.au",
+    "displayName": "Rachel Caton",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 1359
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "09d21af2-37f8-4f3b-974f-a367b2d84036",
+    "primarySmtpAddress": "Medy.Hassan@hpw.qld.gov.au",
+    "displayName": "Medy Hassan",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 5.0,
+      "usagePercent": 10.0,
+      "lastLogonTime": null,
+      "itemCount": 9366
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "84752d7b-08ee-494c-aa28-3d448c70493f",
+    "primarySmtpAddress": "Wayne.Bougoure@hpw.qld.gov.au",
+    "displayName": "Wayne Bougoure",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 212
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "cf66f9cd-7550-4200-8102-6a9346099bbb",
+    "primarySmtpAddress": "Tania.Menzel@smartservice.qld.gov.au",
+    "displayName": "Tania Menzel",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 3.0,
+      "usagePercent": 6.0,
+      "lastLogonTime": null,
+      "itemCount": 5694
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "6e3b88a1-09c8-4990-b9c9-a6dcc24f3761",
+    "primarySmtpAddress": "Keira.Fitzgerald@hpw.qld.gov.au",
+    "displayName": "Keira Fitzgerald",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3379
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "54063f32-1dc7-47f3-a53d-7e45f4cf9392",
+    "primarySmtpAddress": "Anthony.Ward@hpw.qld.gov.au",
+    "displayName": "Anthony Ward",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 8.0,
+      "usagePercent": 16.0,
+      "lastLogonTime": null,
+      "itemCount": 13990
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "27a11b58-c492-4504-9695-98ecc8bf8499",
+    "primarySmtpAddress": "Farida.Karimi@chde.qld.gov.au",
+    "displayName": "Farida Karimi",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 2963
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "305b1285-7b3f-46e6-93e5-9d115c632f58",
+    "primarySmtpAddress": "Alexis.Bocking@hpw.qld.gov.au",
+    "displayName": "Alexis Bocking",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 6.0,
+      "usagePercent": 12.0,
+      "lastLogonTime": null,
+      "itemCount": 4711
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "7d8409b3-d94a-4dd9-aaf8-74a00d926b25",
+    "primarySmtpAddress": "atish.sewak.admin@hpwqld.onmicrosoft.com",
+    "displayName": "Atish Sewak (Admin)",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 186
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "aada4e98-472c-43c6-bf3e-2181240dea2f",
+    "primarySmtpAddress": "Nikky.Ly@hpw.qld.gov.au",
+    "displayName": "Nikky Ly",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1477
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "7b038070-9fc3-4e84-b421-beff14e720bb",
+    "primarySmtpAddress": "Janice.Caza@hpw.qld.gov.au",
+    "displayName": "Janice Caza",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1758
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "fd8397ed-7009-4c6f-bca0-a18e63eca96c",
+    "primarySmtpAddress": "Mitchell.Robinson@hpw.qld.gov.au",
+    "displayName": "Mitchell Robinson",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 2007
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "ae85c2e8-3e7e-43bb-a724-d2404a9041a2",
+    "primarySmtpAddress": "Angelique.Pietsch@chde.qld.gov.au",
+    "displayName": "Angelique Pietsch",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 7.0,
+      "usagePercent": 14.0,
+      "lastLogonTime": null,
+      "itemCount": 21837
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "9692c9d1-ff2b-4bd0-9cb6-333aaa06d9b3",
+    "primarySmtpAddress": "Lily.Ioane@hpw.qld.gov.au",
+    "displayName": "Lily Ioane",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 3022
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "27625fde-10d7-4e1e-810b-0d999803355d",
+    "primarySmtpAddress": "Louise.Lowry@chde.qld.gov.au",
+    "displayName": "Louise Lowry",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 3328
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "7e649d5f-0a3c-45b3-9461-b0de98b2ef62",
+    "primarySmtpAddress": "Andrea.Shailer@hpw.qld.gov.au",
+    "displayName": "Andrea Shailer",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 773
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "88426ca4-6010-428b-a6e2-a222a1c945b3",
+    "primarySmtpAddress": "ODGHousing@epw.qld.gov.au",
+    "displayName": "ODGHousing Logon",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 358
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "248caeed-62f6-454a-9d48-b38c0f4225d3",
+    "primarySmtpAddress": "phillip.hill.admin@hpwqld.onmicrosoft.com",
+    "displayName": "Phillip Hill (Admin)",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 312
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "b80d7153-93cc-4c4e-8f8d-89786f958595",
+    "primarySmtpAddress": "Marni.Kyle@hpw.qld.gov.au",
+    "displayName": "Marni Kyle",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 5.0,
+      "usagePercent": 10.0,
+      "lastLogonTime": null,
+      "itemCount": 8267
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "e1d05fbe-813a-43e5-85d3-7caabbf3a47e",
+    "primarySmtpAddress": "Anna.LloydJones@smartservice.qld.gov.au",
+    "displayName": "Anna LloydJones",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1695
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "501b8aed-77b4-4fbb-9a8a-33ddc3cf55f9",
+    "primarySmtpAddress": "Alisia.Bean@hpw.qld.gov.au",
+    "displayName": "Alisia Bean",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 425
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "da36d88e-59e0-4819-b001-3538014db980",
+    "primarySmtpAddress": "Julian.White@hpw.qld.gov.au",
+    "displayName": "Julian White",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 9.0,
+      "usagePercent": 18.0,
+      "lastLogonTime": null,
+      "itemCount": 11903
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "4dbb5e27-c426-478d-a888-b422a1e1e6d2",
+    "primarySmtpAddress": "Carmen.Jensen@chde.qld.gov.au",
+    "displayName": "Carmen Jensen",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 2062
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "495cdad8-d8f2-4252-b6fe-9857543e53d1",
+    "primarySmtpAddress": "Phoebe.McDonald@smartservice.qld.gov.au",
+    "displayName": "Phoebe McDonald",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 5138
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "0c0d0e2c-5d52-41bc-903b-bbe3c8c24c70",
+    "primarySmtpAddress": "vincent.welsh.admin@hpwqld.onmicrosoft.com",
+    "displayName": "Vincent Welsh (Admin)",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 67
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "f84574e3-a782-4344-87eb-a1a74319cf7a",
+    "primarySmtpAddress": "Johnson.Lee@hpw.qld.gov.au",
+    "displayName": "Johnson Lee",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 740
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "87a4c765-f112-4984-b67e-ad532e629be0",
+    "primarySmtpAddress": "Scott.Rubie@hpw.qld.gov.au",
+    "displayName": "Scott Rubie",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 6.0,
+      "usagePercent": 12.0,
+      "lastLogonTime": null,
+      "itemCount": 6813
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "daadf2fb-8bca-4613-9e96-7e103831fd68",
+    "primarySmtpAddress": "Stacey.Heseltine@epw.qld.gov.au",
+    "displayName": "Stacey Heseltine",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3066
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "6bfbb51b-1999-41fc-97fc-8f8d6462fe53",
+    "primarySmtpAddress": "Yvette.Wirken@hpw.qld.gov.au",
+    "displayName": "Yvette Wirken",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 23.0,
+      "usagePercent": 46.0,
+      "lastLogonTime": null,
+      "itemCount": 33024
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "1345dc76-3a5c-4bc4-bc17-796e628cd9cc",
+    "primarySmtpAddress": "Colin.Wheatland@hpw.qld.gov.au",
+    "displayName": "Colin Wheatland",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 276
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "90e6668c-6feb-4e93-bac2-8055ffb5d6f0",
+    "primarySmtpAddress": "Charity.Seleni@hpw.qld.gov.au",
+    "displayName": "Charity Seleni",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 2276
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "a85a36b2-f760-42d8-9466-c3cd1e3d182f",
+    "primarySmtpAddress": "Charlotte.Penner@hpw.qld.gov.au",
+    "displayName": "Charlotte Penner",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 14.0,
+      "usagePercent": 28.0,
+      "lastLogonTime": null,
+      "itemCount": 22118
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "3c86cf22-70a8-4f63-ab9f-4218ef10ea84",
+    "primarySmtpAddress": "Hangale.Okusitino@hpw.qld.gov.au",
+    "displayName": "Hangale Okusitino",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 6.0,
+      "usagePercent": 12.0,
+      "lastLogonTime": null,
+      "itemCount": 11571
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "666a87ff-3e32-44f0-9fd8-8077433a3a5d",
+    "primarySmtpAddress": "Dino.Forbes.admin@hpwqld.onmicrosoft.com",
+    "displayName": "Dino Forbes (Admin)",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 122
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "1dcecadb-415f-4d77-88bb-3a1d36c9455e",
+    "primarySmtpAddress": "Blake.Gray@chde.qld.gov.au",
+    "displayName": "Blake Gray",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1366
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "1aa55a07-28c5-4c1b-8331-a4be9c39375d",
+    "primarySmtpAddress": "Valerie.Fe'ao@hpw.qld.gov.au",
+    "displayName": "Valerie Fe'ao",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 4907
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "c2d5e771-6788-4589-8b11-8fd0365a4b7e",
+    "primarySmtpAddress": "Dion.Scott@smartservice.qld.gov.au",
+    "displayName": "Dion Scott",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 1.0,
+      "usagePercent": 2.0,
+      "lastLogonTime": null,
+      "itemCount": 3952
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "f97b2680-44ea-4a40-9458-e75053de61d0",
+    "primarySmtpAddress": "Claire.Farrow@hpw.qld.gov.au",
+    "displayName": "Claire Farrow",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1227
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "fe5cb61b-eb6b-4881-8c3b-5e1c05c5f35d",
+    "primarySmtpAddress": "Lilly.Prenc@hpw.qld.gov.au",
+    "displayName": "Lilly Prenc",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 21
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "ad60add8-097d-4923-90d5-82b2fc6e0936",
+    "primarySmtpAddress": "peter.loh.admin@hpwqld.onmicrosoft.com",
+    "displayName": "Peter Loh (Admin)",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 165
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "bff26efa-27c3-4b9f-a5fa-1c4b3692397e",
+    "primarySmtpAddress": "Tom.Wolodzko@hpw.qld.gov.au",
+    "displayName": "Tom Wolodzko",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 363
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "6bbceb05-8459-40a8-b637-82d5461be00f",
+    "primarySmtpAddress": "Daniel.Ualesiseuao@hpw.qld.gov.au",
+    "displayName": "Daniel Ualesi Seuao",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 1818
+    },
+    "permissions": null
+  },
+  {
+    "exchangeGuid": "9e704416-8f25-40ba-966c-5672618d9537",
+    "primarySmtpAddress": "V.Nikki.Scott@hpw.qld.gov.au",
+    "displayName": "V-SCOTT Nikki",
+    "current": {
+      "quotaGB": 50.0,
+      "totalGB": 0.0,
+      "usagePercent": 0.0,
+      "lastLogonTime": null,
+      "itemCount": 110
+    },
+    "permissions": null
+  }
+]

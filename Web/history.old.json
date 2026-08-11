@@ -81378,5 +81378,1488 @@
         }
       ]
     }
+  ],
+  "9e8858ee-2f02-4e1c-9137-4cbd99ed1523": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 3376,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "2652051c-2182-4fdd-aa0e-caa98caea4b2": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 4414,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "d0454041-9d10-4948-b7ce-37fe2d057641": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 4.0,
+      "ItemCount": 4972,
+      "UsagePercent": 8.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "8232bf0e-f90c-4dbb-beb5-7bdfd03f4f32": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 876,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "364a992c-967e-4fa9-98bd-bad5b9b0121a": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 2238,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "82729f42-9d5b-4a13-8be9-73c43d1c9397": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 15411,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "03f41f48-e8a0-499f-9ff7-b11d4dac6e3e": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 22.0,
+      "ItemCount": 15760,
+      "UsagePercent": 44.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "6cb10c34-3b95-45e2-8e16-cc72cb23e8d6": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3517,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "fe0d80da-6c97-423a-9536-9ed7fba96c5b": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 13.0,
+      "ItemCount": 17969,
+      "UsagePercent": 26.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "807dcfd4-90c9-43cd-8612-2a82c59fe378": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 3.0,
+      "ItemCount": 5572,
+      "UsagePercent": 6.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "dc86e34f-72dd-440d-a45b-0a7cace1f4c7": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 6506,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "659ae121-8f78-4f47-a811-6791b7220772": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 22.0,
+      "ItemCount": 45231,
+      "UsagePercent": 44.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "c6b36ee4-4438-4dfa-a87e-6b55ac63426f": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 277,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "e9286427-c0c4-424f-bcff-4cc9f1b35919": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 124,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "8d27b18d-f63a-42e3-aec3-118af32d52de": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 3.0,
+      "ItemCount": 7582,
+      "UsagePercent": 6.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "5b5b3080-7ae8-4226-a927-5b66ea8d6356": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 31.0,
+      "ItemCount": 24011,
+      "UsagePercent": 62.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "6dac6f18-1c18-4e26-b7a5-f5d0c313e4fc": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 4.0,
+      "ItemCount": 6348,
+      "UsagePercent": 8.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "4efd4a7d-fbea-4ce0-adfa-7bc0610db9cd": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 2853,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "8287eb18-601f-42fc-bcd6-6be7fef62d46": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 4914,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "12d09fcd-0e70-4a18-99fe-77167d81ec44": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1072,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "9c128582-d65f-45aa-b870-0cba19e96fa0": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 2066,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "41c6af7f-47e9-4554-8a14-02a53b9af7a2": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 8.0,
+      "ItemCount": 11502,
+      "UsagePercent": 16.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "f004899f-b2a5-4dce-b981-9a47b47837db": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 11796,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "9481e9fb-2f97-4934-b69f-5adc0726e786": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 6624,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "7b3e7337-c3cc-4765-bda4-c8d202a7521f": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 2289,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "c8d2b139-d42d-47ad-aafe-cde60bb0f871": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 5970,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "6a1fe3bf-ef7d-4d82-a214-97fa3c1df9c1": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 3470,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "70b6dd3f-9b73-41e0-9692-d0d0d1b2fcea": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 15.0,
+      "ItemCount": 29887,
+      "UsagePercent": 30.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "aaa50d75-e8e2-4007-8e2c-f0c0fedc21de": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3203,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "530d990c-d073-4d60-a1cf-f54f3ee939bf": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 3.0,
+      "ItemCount": 8084,
+      "UsagePercent": 6.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "fb77a8cc-28f7-4cc3-a993-ea7ed57ab48c": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 1454,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "674b5190-37cf-4bea-8dc5-04666dd70894": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 10.0,
+      "ItemCount": 28227,
+      "UsagePercent": 20.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "e3810f47-1b54-431e-a83d-16dbaebaa66e": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 6686,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "828fc4d2-c357-467f-9a4f-fa86d7553c71": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1564,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "6a3e4c15-34b6-488c-9ccb-dc614687d018": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1437,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "03285354-7876-4561-922c-3425bc376fd3": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 2446,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "449f3c46-ae0f-4246-98b4-49cba72e65da": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 423,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "a4b08021-90d3-4b78-af38-6abcb4c0a47d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 60,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "0773626e-6440-4069-a69a-bcdffa410d13": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 62,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "a2391fa4-d8e9-4eff-adf1-344ea4177440": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1480,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "c035da7c-5f3b-4315-bb3d-bde7987b471f": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 13.0,
+      "ItemCount": 19798,
+      "UsagePercent": 26.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "f5b8f48a-84f5-402c-8cd0-c07a4b3a092d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 9.0,
+      "ItemCount": 12238,
+      "UsagePercent": 18.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "034d3323-2dcf-4791-86d3-535d2a67b065": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 416,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "ca4d870b-b736-4d32-b856-55366b4e8348": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1554,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "a5ea1e52-932c-4018-b027-4fbce87554d2": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 5.0,
+      "ItemCount": 11781,
+      "UsagePercent": 10.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "39c00986-9884-453d-b15d-a39ffdbc06cd": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 60.0,
+      "ItemCount": 39924,
+      "UsagePercent": 120.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "9328ba77-b5ad-4b18-8ee4-b51643e1bd7a": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 8.0,
+      "ItemCount": 8323,
+      "UsagePercent": 16.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "325fb726-3b21-423f-9719-7425884882b1": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 4463,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "7bd34e7b-47dc-4a4d-aeb1-94028e3c242d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 3.0,
+      "ItemCount": 12045,
+      "UsagePercent": 6.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "843d182b-be76-47ee-b42c-d3e362b4cd46": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 2169,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "59b90885-12c3-4835-804a-0f942705bf83": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 2621,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "7d0e4671-4a58-497a-ac2f-d4dda83507c9": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 5173,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "d6b2881a-57bf-4a8d-8bea-b9935bb43313": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1340,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "75149aee-7983-4d53-8b9f-ce773bf90bf3": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 3.0,
+      "ItemCount": 4801,
+      "UsagePercent": 6.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "7ff9ede8-2b6d-4902-9a0d-8002fc3a8382": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 12322,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "2cab13ee-41c6-4867-b8a9-53ebd4877005": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 5.0,
+      "ItemCount": 18577,
+      "UsagePercent": 10.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "2244694f-b025-492e-8e50-c742e4d12d02": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3363,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "ba90bd80-703a-4617-8b1f-a052c529302e": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 6.0,
+      "ItemCount": 20812,
+      "UsagePercent": 12.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "2d8a82cb-12c4-4c48-9fe0-14f459717452": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 29,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "0d8e02a8-0c50-46cc-9335-9cce09872d63": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1333,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "06a8cc08-9caa-4a18-aaf0-55c56d41991d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 7.0,
+      "ItemCount": 12539,
+      "UsagePercent": 14.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "1fd8eade-90a7-44c5-9d37-4fd3a7678efc": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 3379,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "ef6e025b-910e-43ea-9d3c-bdaf31fc4448": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 2655,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "c7f97507-e526-43bb-8c32-76b3d6f6c394": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 4.0,
+      "ItemCount": 7825,
+      "UsagePercent": 8.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "be4ee800-4be8-4b8d-b6ec-da02dbf005a4": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 4.0,
+      "ItemCount": 12070,
+      "UsagePercent": 8.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "efe24e98-2d23-44ef-88e1-3623ef6d3bf1": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 4.0,
+      "ItemCount": 20524,
+      "UsagePercent": 8.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "ea8f02a8-3060-481c-ada2-6c6203a141e7": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3834,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "c2d5e771-6788-4589-8b11-8fd0365a4b7e": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3952,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    },
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3952,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "e4cd9aa5-558c-4b63-a516-c1371fd534f5": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 6514,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "40c89a34-642c-4cc8-984b-3812e9a32078": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 12.0,
+      "ItemCount": 15360,
+      "UsagePercent": 24.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "4ef760e4-4c6b-4404-8f59-31c9d209044d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 433,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "711583ca-cd77-442f-9e93-8eb44d7cdaad": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 5126,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "7f8c1166-5dc8-4200-8baf-01f6e858a86a": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 4.0,
+      "ItemCount": 8473,
+      "UsagePercent": 8.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "5b4b8983-651c-41c5-a560-e49140d957ba": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 4788,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "6f196216-12b0-4ee0-9013-10a158682887": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 6.0,
+      "ItemCount": 9613,
+      "UsagePercent": 12.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "2cce0234-b1e8-4610-86fc-004beb4c894c": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 2624,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "c87dcac5-c48c-4ade-97ca-1e0bd9225ae3": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 22.0,
+      "ItemCount": 21483,
+      "UsagePercent": 44.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "79c4d97a-2f5a-4e11-ab96-b2ef10968342": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 2235,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "813e63fe-a94a-48bf-980e-dff1c8630bc5": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 150,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "a0beab8d-780f-4851-9315-348af9e4068a": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 136,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "7a33a9d4-7a99-4a2c-a15f-368e476b966d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 10.0,
+      "ItemCount": 22653,
+      "UsagePercent": 20.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "7ca027c0-cd65-41ed-a2ad-1fd9fb7993a3": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 5.0,
+      "ItemCount": 13627,
+      "UsagePercent": 10.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "3b280e48-d879-4404-a0f1-17302997f0f6": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 3.0,
+      "ItemCount": 6922,
+      "UsagePercent": 6.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "fc953256-353a-4819-968b-aceebfdc33a2": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3492,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "f8abbcfc-2eae-43d8-9ae0-68ceac4ad9aa": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 4.0,
+      "ItemCount": 6098,
+      "UsagePercent": 8.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "2bf9ae80-90f5-4bb3-972c-67231f28ef5d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 3.0,
+      "ItemCount": 9632,
+      "UsagePercent": 6.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "d2dccc17-b51a-425d-b6f8-1a2d3aab5545": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 9.0,
+      "ItemCount": 9878,
+      "UsagePercent": 18.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "afcd266a-e7df-4f6d-aa3d-3f93348c276e": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 12.0,
+      "ItemCount": 15799,
+      "UsagePercent": 24.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "5784cad8-40cd-4da5-aaad-5364a06a1e80": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 12.0,
+      "ItemCount": 17091,
+      "UsagePercent": 24.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "63f99b15-0e1f-4a37-b5dd-337d187618c1": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 2493,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "e7fa6ac4-f3a1-4a46-bdaf-743a84ec3d17": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 34.0,
+      "ItemCount": 42544,
+      "UsagePercent": 68.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "1f6f8c32-b545-44a0-a08e-059f1abf37bd": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 18.0,
+      "ItemCount": 10803,
+      "UsagePercent": 36.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "801b27ce-0d4d-4f77-a040-ecec3d19cdc5": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 8176,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "5d78b8ef-51a7-494a-8aea-a7719f4ae6d2": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 3.0,
+      "ItemCount": 5107,
+      "UsagePercent": 6.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "9fa60a91-4f1c-4624-8a22-436305814b42": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 1308,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "ae0abe4d-4a51-413d-be1f-6dab0ddbfd0e": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 22.0,
+      "ItemCount": 8180,
+      "UsagePercent": 44.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "24a493cb-8ddf-450c-a91d-992b1ec70151": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 719,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "c38e1e30-dbc8-4789-869c-26a770411387": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 25,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "afb21454-9d3a-4cfc-89f1-cf31d086c8c1": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 13245,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "626bebba-8c82-41a0-aa58-5c6d3015753a": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 411,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "4b537b61-59fe-4245-a8c7-1979ea0ccd5e": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3221,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "31418827-ccd4-4042-8eaa-0d1b61fdd39c": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 13.0,
+      "ItemCount": 29184,
+      "UsagePercent": 26.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "b50e4a26-17e7-4e3e-83c7-2bbd0040b842": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 502,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "a9666305-d160-4488-b409-503ddc0d5c60": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 2749,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "0bfdb81f-d937-43f1-b5bd-a2fe3362a576": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 394,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "01ee8c7d-98d2-402c-96a8-61c6bda13e43": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 11.0,
+      "ItemCount": 14151,
+      "UsagePercent": 22.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "fcc55183-27d8-4dec-9d94-0ebe92ff66ce": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 4237,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "eae73e12-0e4e-49ee-9ca9-be3595b89b86": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 207,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "e42d306e-ec2e-4d12-9e1b-58097bb24860": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 6.0,
+      "ItemCount": 10800,
+      "UsagePercent": 12.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "d30867b3-05cb-42dd-b79a-ac6076f6edd8": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 1961,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "78875718-0624-4daa-80ee-2ab6fbb1b39f": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 4171,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "37b57986-0710-49b4-9d31-89d9e68042da": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1145,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "1bce4ce5-f572-409c-b52a-6ae9a4489322": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 4069,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "27a87335-cf97-4f4a-8172-6b096c3d9730": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 4521,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "14ca75cd-17c5-417c-9958-8992d951e787": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 22.0,
+      "ItemCount": 48369,
+      "UsagePercent": 44.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "8390549a-3517-4676-a290-41fafc39de97": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 14.0,
+      "ItemCount": 13360,
+      "UsagePercent": 28.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "86941ad7-3052-4307-b739-f00fe41c1990": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 3538,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "07078128-44dd-4472-89d8-f3bb0cfe7c02": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 345,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "5f1e87c0-b08d-49e9-b138-3f79f04cfee4": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 2379,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "c0d3ebfd-af72-43d0-8af3-6bd21aa8b002": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1161,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "b174f2e8-c989-4a77-8181-ff58b12c2384": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 2.0,
+      "ItemCount": 2155,
+      "UsagePercent": 4.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "d2d90df7-e27f-4c65-986a-4d0d6ce87dfb": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3926,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "6a5637d8-d5ff-403e-b0f8-981b62d82ac4": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 1359,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "09d21af2-37f8-4f3b-974f-a367b2d84036": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 5.0,
+      "ItemCount": 9366,
+      "UsagePercent": 10.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "84752d7b-08ee-494c-aa28-3d448c70493f": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 212,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "cf66f9cd-7550-4200-8102-6a9346099bbb": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 3.0,
+      "ItemCount": 5694,
+      "UsagePercent": 6.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "6e3b88a1-09c8-4990-b9c9-a6dcc24f3761": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3379,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "54063f32-1dc7-47f3-a53d-7e45f4cf9392": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 8.0,
+      "ItemCount": 13990,
+      "UsagePercent": 16.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "27a11b58-c492-4504-9695-98ecc8bf8499": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 2963,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "305b1285-7b3f-46e6-93e5-9d115c632f58": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 6.0,
+      "ItemCount": 4711,
+      "UsagePercent": 12.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "7d8409b3-d94a-4dd9-aaf8-74a00d926b25": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 186,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "aada4e98-472c-43c6-bf3e-2181240dea2f": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1477,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "7b038070-9fc3-4e84-b421-beff14e720bb": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1758,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "fd8397ed-7009-4c6f-bca0-a18e63eca96c": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 2007,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "ae85c2e8-3e7e-43bb-a724-d2404a9041a2": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 7.0,
+      "ItemCount": 21837,
+      "UsagePercent": 14.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "9692c9d1-ff2b-4bd0-9cb6-333aaa06d9b3": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 3022,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "27625fde-10d7-4e1e-810b-0d999803355d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 3328,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "7e649d5f-0a3c-45b3-9461-b0de98b2ef62": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 773,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "88426ca4-6010-428b-a6e2-a222a1c945b3": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 358,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "248caeed-62f6-454a-9d48-b38c0f4225d3": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 312,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "b80d7153-93cc-4c4e-8f8d-89786f958595": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 5.0,
+      "ItemCount": 8267,
+      "UsagePercent": 10.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "e1d05fbe-813a-43e5-85d3-7caabbf3a47e": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1695,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "501b8aed-77b4-4fbb-9a8a-33ddc3cf55f9": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 425,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "da36d88e-59e0-4819-b001-3538014db980": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 9.0,
+      "ItemCount": 11903,
+      "UsagePercent": 18.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "4dbb5e27-c426-478d-a888-b422a1e1e6d2": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 2062,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "495cdad8-d8f2-4252-b6fe-9857543e53d1": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 5138,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "0c0d0e2c-5d52-41bc-903b-bbe3c8c24c70": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 67,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "f84574e3-a782-4344-87eb-a1a74319cf7a": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 740,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "87a4c765-f112-4984-b67e-ad532e629be0": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 6.0,
+      "ItemCount": 6813,
+      "UsagePercent": 12.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "daadf2fb-8bca-4613-9e96-7e103831fd68": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 1.0,
+      "ItemCount": 3066,
+      "UsagePercent": 2.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "6bfbb51b-1999-41fc-97fc-8f8d6462fe53": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 23.0,
+      "ItemCount": 33024,
+      "UsagePercent": 46.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "1345dc76-3a5c-4bc4-bc17-796e628cd9cc": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 276,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "90e6668c-6feb-4e93-bac2-8055ffb5d6f0": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 2276,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "a85a36b2-f760-42d8-9466-c3cd1e3d182f": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 14.0,
+      "ItemCount": 22118,
+      "UsagePercent": 28.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "3c86cf22-70a8-4f63-ab9f-4218ef10ea84": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 6.0,
+      "ItemCount": 11571,
+      "UsagePercent": 12.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "666a87ff-3e32-44f0-9fd8-8077433a3a5d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 122,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "1dcecadb-415f-4d77-88bb-3a1d36c9455e": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1366,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "1aa55a07-28c5-4c1b-8331-a4be9c39375d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 4907,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "f97b2680-44ea-4a40-9458-e75053de61d0": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1227,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "fe5cb61b-eb6b-4881-8c3b-5e1c05c5f35d": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 21,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "ad60add8-097d-4923-90d5-82b2fc6e0936": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 165,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "bff26efa-27c3-4b9f-a5fa-1c4b3692397e": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 363,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "6bbceb05-8459-40a8-b637-82d5461be00f": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 1818,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
+  ],
+  "9e704416-8f25-40ba-966c-5672618d9537": [
+    {
+      "TimestampUtc": "2026-08-11T05:06:43Z",
+      "SizeGB": 0.0,
+      "ItemCount": 110,
+      "UsagePercent": 0.0,
+      "ArchiveSizeGB": 0
+    }
   ]
 }
