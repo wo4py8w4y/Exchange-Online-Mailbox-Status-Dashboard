@@ -1,55 +1,22 @@
-// 1. Update Global Variable assignments to use PascalCase
-function getMailboxes() {
-    return dashboardData?.Mailboxes || [];
-}
-
-function updateGlobalStats() {
-    document.getElementById("mailboxCount").textContent = dashboardData.MailboxCount || 0;
-    
-    let totalStorage = 0;
-    let totalPerms = 0;
-    
-    getMailboxes().forEach(m => {
-        totalStorage += (m.TotalGB || 0);
-        // Ensure Permissions exists before counting
-        if (m.Permissions && Array.isArray(m.Permissions)) {
-            totalPerms += m.Permissions.length;
-        }
-    });
-
-    document.getElementById("totalStorage").textContent = totalStorage.toFixed(2) + " GB";
-    document.getElementById("totalPermissions").textContent = totalPerms;
-    document.getElementById("thresholdCount").textContent = dashboardData.ThresholdCount || 0;
-}
-
-// 2. Update Table Rendering to use flattened PascalCase properties
-function renderUsageTable() {
-    const tbody = document.querySelector("#usageTable tbody");
-    if (!tbody) return;
-
-    tbody.innerHTML = "";
-
-    for (const m of getMailboxes()) {
-        const tr = document.createElement("tr");
-
-        if (m.Error) {
-            tr.innerHTML = `
-        <td>${escapeHtml(m.PrimarySmtpAddress || m.DisplayName)}</td>
-        <td colspan="7"><span class="badge danger">Error</span> ${escapeHtml(m.Error)}</td>
-      `;
-        } else {
-            // Updated to strip 'current' nesting and use PascalCase
-            tr.innerHTML = `
-        <td>${escapeHtml(m.PrimarySmtpAddress)}</td>
-        <td>${escapeHtml(m.RecipientTypeDetails || "")}</td>
-        <td>${formatGB(m.TotalGB)}</td>
-        <td>${formatNumber(m.ItemCount)}</td>
-        <td>${formatGB(m.QuotaGB)}</td>
-        <td>${m.UsagePercent}%</td>
-        <td>${m.Permissions ? m.Permissions.length : 0}</td>
-        <td>${escapeHtml(m.ThresholdState || "ok")}</td>
-      `;
-        }
-        tbody.appendChild(tr);
-    }
-}
+[
+  "2026-08-11T01:10:18.5478624Z",
+  {
+    "ExchangeGuid": "08823433-3098-41c3-91a5-e5fc1fc2d2c2",
+    "PrimarySmtpAddress": "AccountsPayable@smartservice.qld.gov.au",
+    "DisplayName": "SSQ Accounts Payable",
+    "Samples": [
+      {
+        "TimestampUtc": "2026-07-31T17:23:14.952475Z",
+        "SizeGB": 0.0,
+        "ItemCount": 10,
+        "PermissionCount": 5,
+        "QuotaGB": 50.0,
+        "UsagePercent": 0.0,
+        "LastLogonTime": null,
+        "ArchiveEnabled": false,
+        "ArchiveSizeGB": 0.0,
+        "ArchiveItemCount": 0
+      }
+    ]
+  }
+]

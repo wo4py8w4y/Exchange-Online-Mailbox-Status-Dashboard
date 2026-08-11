@@ -1,35 +1,56 @@
 [CmdletBinding()]
 param (
-    [string]$HistoryPath = ".\history.json",
-    [string]$HotDataPath = ".\data.json"
+    [string]$HistoryPath = "..\Web\history.json",
+    [string]$HotDataPath = "..\Web\data.json"
 )
 
 Write-Host "Extracting Hot Data from History..." -ForegroundColor Cyan
 
-# 1. Load the Historical Database (using PS7 AsHashtable for speed)
 if (-not (Test-Path $HistoryPath)) {
     Write-Error "History file not found at $HistoryPath"
     return
 }
 
-$HistoryDB = Get-Content $HistoryPath -Raw | ConvertFrom-Json -AsHashtable
-$HotDataList = [System.Collections.Generic.List[object]]::new()
+# 1. Load the raw JSON
+$RawData = Get-Content $HistoryPath -Raw | ConvertFrom-Json
 
-# 2. Iterate and extract the latest snapshot for each Mailbox
-foreach ($Guid in $HistoryDB.Keys) {
-    $Records = $HistoryDB[$Guid]
-    
-    # Assuming your collector appends to the array, the last item [-1] is the newest.
-    # If it prepends, change this to [0].
-    $LatestRecord = $Records[-1] 
-
-    # Ensure the ExchangeGuid is attached to the hot record for UI reference
-    $LatestRecord | Add-Member -MemberType NoteProperty -Name "ExchangeGuid" -Value $Guid -Force
-    
-    $HotDataList.Add($LatestRecord)
+# 2. Handle the mixed array (Skip the first item if it's a timestamp string)
+$Mailboxes = if ($RawData[0] -is [string]) { 
+    $RawData[1..($RawData.Count - 1)] 
+} else { 
+    $RawData 
 }
 
-# 3. Save the Hot Data payload
+$HotDataList = [System.Collections.Generic.List[object]]::new()
+
+# 3. Iterate, flatten, and extract the latest sample
+foreach ($mbx in $Mailboxes) {
+    # Safety check: Ensure it has the Samples array
+    if ($null -eq $mbx.Samples -or $mbx.Samples.Count -eq 0) { continue }
+
+    # Grab the very last sample in the array (the newest one)
+    $LatestSample = $mbx.Samples[-1]
+
+    # Map the nested data to a flat object for the HTML frontend
+    $FlatRecord = [ordered]@{
+        ExchangeGuid       = $mbx.ExchangeGuid
+        PrimarySmtpAddress = $mbx.PrimarySmtpAddress
+        DisplayName        = $mbx.DisplayName
+        MailboxSizeGB      = $LatestSample.SizeGB
+        ItemCount          = $LatestSample.ItemCount
+        PermissionCount    = $LatestSample.PermissionCount
+        QuotaGB            = $LatestSample.QuotaGB
+        UsagePercent       = $LatestSample.UsagePercent
+        LastLogonTime      = $LatestSample.LastLogonTime
+        ArchiveEnabled     = $LatestSample.ArchiveEnabled
+        ArchiveSizeGB      = $LatestSample.ArchiveSizeGB
+        ArchiveItemCount   = $LatestSample.ArchiveItemCount
+    }
+    
+    $HotDataList.Add($FlatRecord)
+}
+
+# 4. Save the cleanly formatted Hot Data payload
 $HotDataList | ConvertTo-Json -Depth 10 | Set-Content $HotDataPath -Encoding utf8
 
-Write-Host "Successfully extracted $($HotDataList.Count) active records to $HotDataPath" -ForegroundColor Green
+Write-Host "Successfully extracted and flattened $($HotDataList.Count) active records to $HotDataPath" -ForegroundColor Green
