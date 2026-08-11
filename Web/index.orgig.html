@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <title>Exchange Online Mailbox Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body data-page="overview">
+    <header>
+        <div>
+            <h1>Exchange Online Mailbox Dashboard</h1>
+            <p id="lastUpdated">Loading...</p>
+        </div>
+        <button id="refreshButton">Refresh now</button>
+    </header>
+
+    <nav class="panel view-nav" aria-label="Views">
+        <strong>Views:</strong>
+        <a href="index.html">Dashboard</a> |
+        <a href="history.html">History</a> |
+        <a href="permissions.html">Permissions</a> |
+        <a href="thresholds.html">Thresholds</a>
+    </nav>
+
+    <main>
+        <section class="cards">
+            <article>
+                <span class="label">Mailboxes</span>
+                <strong id="mailboxCount">0</strong>
+            </article>
+            <article>
+                <span class="label">Total storage</span>
+                <strong id="totalStorage">0 GB</strong>
+            </article>
+            <article>
+                <span class="label">Total permissions</span>
+                <strong id="totalPermissions">0</strong>
+            </article>
+            <article class="danger-card">
+                <span class="label">At or above 94%</span>
+                <strong id="thresholdCount">0</strong>
+            </article>
+            <article>
+                <span class="label">Largest mailbox</span>
+                <strong id="largestMailbox">N/A</strong>
+            </article>
+        </section>
+
+        <section class="chart-grid">
+            <article class="panel">
+                <h2>Mailbox health</h2>
+                <canvas id="usageDonutChart" width="520" height="360"></canvas>
+            </article>
+
+            <article class="panel">
+                <h2>Top storage consumers</h2>
+                <canvas id="topStorageChart" width="760" height="420"></canvas>
+            </article>
+        </section>
+
+        <section class="panel">
+            <h2>Current usage</h2>
+            <div class="table-wrap">
+                <table id="usageTable">
+                    <thead>
+                        <tr>
+                            <th>Mailbox</th>
+                            <th>Type</th>
+                            <th>Storage GB</th>
+                            <th>Items</th>
+                            <th>Quota GB</th>
+                            <th>Usage %</th>
+                            <th>Permissions</th>
+                            <th>Last logon</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script defer src="dashboard.js"></script>
+</body>
+
+</html>

@@ -16,8 +16,21 @@ document.addEventListener("DOMContentLoaded", () => {
         mailboxSelect.addEventListener("change", renderHistoryPage);
     }
 
-    loadDashboard().catch(showError);
+    // Search and Filter Listeners
+    const searchInput = document.getElementById("mailboxSearch");
+    if (searchInput) {
+        searchInput.addEventListener("input", applyFilter);
+    }
 
+    const clearBtn = document.getElementById("clearSearchBtn");
+    if (clearBtn) {
+        clearBtn.addEventListener("click", () => {
+            if (searchInput) searchInput.value = "";
+            applyFilter();
+        });
+    }
+
+    loadDashboard().catch(showError);
     resetAutoRefreshTimer();
 });
 
@@ -44,669 +57,525 @@ async function loadDashboard() {
     if (historyResponse.ok) {
         historyData = await historyResponse.json();
     } else {
-        historyData = { mailboxHistory: [] };
+        console.warn(`Could not load ${HISTORY_URL}, history charts may be empty.`);
     }
 
-    renderCommon();
-    renderCurrentPage();
+    populateSearchDropdown(dashboardData.mailboxes || []);
+    highlightNav();
+
+    const page = document.body.getAttribute("data-page");
+    if (page === "overview") {
+        updateLastUpdated(dashboardData.generatedUtc);
+        applyFilter(); // Renders cards, charts, and table with current filter state
+    } else if (page === "history") {
+        populateHistorySelect();
+        renderHistoryPage();
+    } else if (page === "permissions") {
+        renderPermissionsTable();
+    } else if (page === "thresholds") {
+        renderThresholdsTable();
+    }
 }
 
-function resetAutoRefreshTimer() {
-    if (refreshTimer) {
-        clearInterval(refreshTimer);
+// --- Search / Filter Logic ---
+
+function populateSearchDropdown(mailboxes) {
+    const dataList = document.getElementById('mailboxList');
+    if (!dataList) return;
+    
+    dataList.innerHTML = ''; 
+    mailboxes.forEach(m => {
+        if (!m.error) {
+            const option = document.createElement('option');
+            option.value = m.primarySmtpAddress;
+            option.textContent = m.displayName || m.primarySmtpAddress;
+            dataList.appendChild(option);
+        }
+    });
+}
+
+function getMailboxes() {
+    const allMailboxes = dashboardData?.mailboxes || [];
+    const searchInput = document.getElementById("mailboxSearch");
+    
+    // If no search input exists on the page, or it's empty, return everything
+    if (!searchInput || !searchInput.value) {
+        return allMailboxes;
     }
 
+    const term = searchInput.value.toLowerCase();
+    
+    // Filter by DisplayName or SMTP Address
+    return allMailboxes.filter(m => 
+        (m.displayName && m.displayName.toLowerCase().includes(term)) ||
+        (m.primarySmtpAddress && m.primarySmtpAddress.toLowerCase().includes(term))
+    );
+}
+
+function applyFilter() {
+    updateTopCards();
+    drawDonutChart();
+    drawBarChart();
+    renderUsageTable();
+
+    const searchInput = document.getElementById("mailboxSearch");
+    const tableTitle = document.getElementById("tableTitle");
+    if (tableTitle && searchInput) {
+        const count = getMailboxes().length;
+        tableTitle.textContent = searchInput.value ? `Current usage (Filtered: ${count})` : "Current usage";
+    }
+}
+
+// --- Render Logic ---
+
+function resetAutoRefreshTimer() {
+    if (refreshTimer) clearInterval(refreshTimer);
     refreshTimer = setInterval(() => {
         loadDashboard().catch(showError);
     }, refreshMs);
 }
 
-function renderCommon() {
-    const lastUpdated = document.getElementById("lastUpdated");
-
-    if (lastUpdated && dashboardData) {
-        lastUpdated.textContent = `Generated: ${formatDate(dashboardData.generatedUtc)} | Auto-refresh: ${refreshMs / 1000}s`;
-    }
-
-    highlightCurrentNav();
-}
-
-function renderCurrentPage() {
-    const page = document.body.dataset.page || "overview";
-
-    if (page === "thresholds") {
-        renderThresholdPage();
+function updateLastUpdated(utcString) {
+    const el = document.getElementById("lastUpdated");
+    if (!el) return;
+    if (!utcString) {
+        el.textContent = "Data unavailable";
         return;
     }
-
-    if (page === "history") {
-        renderHistorySelect();
-        renderHistoryPage();
-        return;
-    }
-
-    if (page === "permissions") {
-        renderPermissionsPage();
-        return;
-    }
-
-    renderOverviewPage();
+    const d = new Date(utcString);
+    el.textContent = `Last updated: ${d.toLocaleString()}`;
 }
 
-function getMailboxes() {
-    return dashboardData?.Mailboxes || [];
-}
-
-function updateGlobalStats() {
-    document.getElementById("mailboxCount").textContent = dashboardData.MailboxCount || 0;
-
-    let totalStorage = 0;
-    let totalPerms = 0;
-
-    getMailboxes().forEach(m => {
-        totalStorage += (m.TotalGB || 0);
-        // Ensure Permissions exists before counting
-        if (m.Permissions && Array.isArray(m.Permissions)) {
-            totalPerms += m.Permissions.length;
+function highlightNav() {
+    const page = document.body.getAttribute("data-page");
+    if (!page) return;
+    const links = document.querySelectorAll("nav.view-nav a");
+    links.forEach(link => {
+        link.classList.remove("active");
+        const href = link.getAttribute("href");
+        if (
+            (page === "overview" && href.includes("index.html")) ||
+            href.includes(`${page}.html`)
+        ) {
+            link.classList.add("active");
         }
     });
-
-    document.getElementById("totalStorage").textContent = totalStorage.toFixed(2) + " GB";
-    document.getElementById("totalPermissions").textContent = totalPerms;
-    document.getElementById("thresholdCount").textContent = dashboardData.ThresholdCount || 0;
 }
 
-// 2. Update Table Rendering to use flattened PascalCase properties
+function showError(error) {
+    const lastUpdated = document.getElementById("lastUpdated");
+    if (lastUpdated) {
+        lastUpdated.textContent = error.message;
+    }
+    console.error(error);
+}
+
 function renderUsageTable() {
     const tbody = document.querySelector("#usageTable tbody");
     if (!tbody) return;
 
     tbody.innerHTML = "";
+    const mailboxes = getMailboxes();
 
-    for (const m of getMailboxes()) {
+    if (mailboxes.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 20px;">No mailboxes found matching that search.</td></tr>`;
+        return;
+    }
+
+    for (const m of mailboxes) {
         const tr = document.createElement("tr");
 
-        if (m.Error) {
+        if (m.error) {
             tr.innerHTML = `
-        <td>${escapeHtml(m.PrimarySmtpAddress || m.DisplayName)}</td>
-        <td colspan="7"><span class="badge danger">Error</span> ${escapeHtml(m.Error)}</td>
-      `;
+                <td>${escapeHtml(m.primarySmtpAddress || m.displayName)}</td>
+                <td colspan="7"><span class="badge danger">Error</span> ${escapeHtml(m.error)}</td>
+            `;
         } else {
-            // Updated to strip 'current' nesting and use PascalCase
             tr.innerHTML = `
-        <td>${escapeHtml(m.PrimarySmtpAddress)}</td>
-        <td>${escapeHtml(m.RecipientTypeDetails || "")}</td>
-        <td>${formatGB(m.TotalGB)}</td>
-        <td>${formatNumber(m.ItemCount)}</td>
-        <td>${formatGB(m.QuotaGB)}</td>
-        <td>${m.UsagePercent}%</td>
-        <td>${m.Permissions ? m.Permissions.length : 0}</td>
-        <td>${escapeHtml(m.ThresholdState || "ok")}</td>
-      `;
+                <td>${escapeHtml(m.primarySmtpAddress)}</td>
+                <td>${escapeHtml(m.recipientTypeDetails || "")}</td>
+                <td>${formatGB(m.current?.totalGB)}</td>
+                <td>${formatNumber(m.current?.itemCount)}</td>
+                <td>${formatGB(m.current?.quotaGB)}</td>
+                <td>${usageBadge(m.current?.usagePercent)}</td>
+                <td>${formatNumber(m.permissions?.length || 0)}</td>
+                <td>${formatDate(m.current?.lastLogonTime)}</td>
+            `;
         }
         tbody.appendChild(tr);
     }
+}
 
-    function getHealthyMailboxes() {
-        return getMailboxes().filter(m => !m.error && m.current);
+function updateTopCards() {
+    const mailboxes = getMailboxes();
+    let validBoxes = mailboxes.filter(m => !m.error && m.current);
+
+    const countEl = document.getElementById("mailboxCount");
+    if (countEl) countEl.textContent = formatNumber(mailboxes.length);
+
+    const totalStorageEl = document.getElementById("totalStorage");
+    if (totalStorageEl) {
+        const sumGB = validBoxes.reduce((acc, m) => acc + (m.current.totalGB || 0), 0);
+        totalStorageEl.textContent = `${formatGB(sumGB)} GB`;
     }
 
-    function renderOverviewPage() {
-        if (!document.getElementById("mailboxCount")) return;
-
-        const mailboxes = getHealthyMailboxes();
-
-        const totalGB = mailboxes.reduce((sum, m) => sum + Number(m.current?.totalGB || 0), 0);
-        const totalPermissions = mailboxes.reduce((sum, m) => sum + (m.permissions?.length || 0), 0);
-        const thresholdCount = dashboardData.thresholdCount || 0;
-
-        const largest = [...mailboxes].sort((a, b) => {
-            return Number(b.current?.totalGB || 0) - Number(a.current?.totalGB || 0);
-        })[0];
-
-        document.getElementById("mailboxCount").textContent = formatNumber(dashboardData.mailboxCount || mailboxes.length);
-        document.getElementById("totalStorage").textContent = formatGB(totalGB);
-        document.getElementById("totalPermissions").textContent = formatNumber(totalPermissions);
-        document.getElementById("thresholdCount").textContent = formatNumber(thresholdCount);
-        document.getElementById("largestMailbox").textContent =
-            largest ? `${largest.primarySmtpAddress} (${formatGB(largest.current?.totalGB)})` : "N/A";
-
-        renderUsageTable();
-        drawUsageDonut("usageDonutChart", mailboxes);
-        drawTopStorageBarChart("topStorageChart", mailboxes);
+    const totalPermsEl = document.getElementById("totalPermissions");
+    if (totalPermsEl) {
+        const sumPerms = validBoxes.reduce((acc, m) => acc + (m.permissions?.length || 0), 0);
+        totalPermsEl.textContent = formatNumber(sumPerms);
     }
 
-    function renderThresholdPage() {
-        const thresholdMailboxes = dashboardData.thresholdMailboxes || [];
-        const tbody = document.querySelector("#thresholdTable tbody");
-
-        if (tbody) {
-            tbody.innerHTML = "";
-
-            for (const m of thresholdMailboxes) {
-                const tr = document.createElement("tr");
-
-                tr.innerHTML = `
-        <td>${escapeHtml(m.primarySmtpAddress)}</td>
-        <td>${escapeHtml(m.recipientTypeDetails || "")}</td>
-        <td>${formatGB(m.current?.totalGB)}</td>
-        <td>${formatGB(m.current?.quotaGB)}</td>
-        <td>${usageBadge(m.current?.usagePercent)}</td>
-        <td>${formatNumber(m.current?.itemCount)}</td>
-        <td>${formatNumber(m.permissions?.length || 0)}</td>
-        <td><span class="badge danger">Critical</span></td>
-      `;
-
-                tbody.appendChild(tr);
-            }
-
-            if (thresholdMailboxes.length === 0) {
-                const tr = document.createElement("tr");
-                tr.innerHTML = `<td colspan="8"><span class="badge ok">No mailboxes are above the critical threshold.</span></td>`;
-                tbody.appendChild(tr);
-            }
-        }
-
-        drawThresholdChart("thresholdChart", thresholdMailboxes);
+    const thresholdEl = document.getElementById("thresholdCount");
+    if (thresholdEl) {
+        const threshSettings = dashboardData?.thresholds || { warningPercent: 80, criticalPercent: 95 };
+        const overWarn = validBoxes.filter(m => m.current.usagePercent >= threshSettings.warningPercent).length;
+        thresholdEl.textContent = formatNumber(overWarn);
     }
-    // Locate where you process history data and add this check:
-    const mailboxHistoryData = historyData.MailboxHistory.find(h => h.PrimarySmtpAddress === selectedMailbox);
 
-    if (mailboxHistoryData) {
-        // Array Normalization: If Samples is a single object, wrap it in an array []
-        const samplesArray = Array.isArray(mailboxHistoryData.Samples)
-            ? mailboxHistoryData.Samples
-            : [mailboxHistoryData.Samples];
-
-        // Now safely run .map() on samplesArray
-        const labels = samplesArray.map(s => new Date(s.TimestampUtc).toLocaleDateString());
-        const dataPoints = samplesArray.map(s => s.TotalGB);
-
-        // Continue building chart...
-    }
-    function renderHistorySelect() {
-        const select = document.getElementById("mailboxSelect");
-        if (!select) return;
-
-        const selected = select.value;
-        select.innerHTML = "";
-
-        const historyEntries = historyData?.mailboxHistory || [];
-
-        for (const entry of historyEntries) {
-            const option = document.createElement("option");
-            option.value = entry.primarySmtpAddress;
-            option.textContent = entry.primarySmtpAddress;
-            select.appendChild(option);
-        }
-
-        if ([...select.options].some(o => o.value === selected)) {
-            select.value = selected;
+    const largestEl = document.getElementById("largestMailbox");
+    if (largestEl) {
+        if (validBoxes.length === 0) {
+            largestEl.textContent = "N/A";
+        } else {
+            const largest = validBoxes.reduce((prev, current) => {
+                return (prev.current.totalGB > current.current.totalGB) ? prev : current;
+            });
+            largestEl.textContent = `${largest.displayName || largest.primarySmtpAddress} (${formatGB(largest.current.totalGB)} GB)`;
         }
     }
+}
 
-    function renderHistoryPage() {
-        const select = document.getElementById("mailboxSelect");
-        if (!select) return;
+function drawDonutChart() {
+    const canvas = document.getElementById("usageDonutChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const entry = (historyData?.mailboxHistory || [])
-            .find(h => h.primarySmtpAddress === select.value);
+    const mailboxes = getMailboxes();
+    let totalUsed = 0;
+    let totalFree = 0;
 
-        drawLineChart(
-            "historyStorageChart",
-            entry?.samples || [],
-            "totalGB",
-            "Storage GB",
-            "#2563eb",
-            value => `${value.toFixed(2)} GB`
-        );
-
-        drawLineChart(
-            "historyUtilisationChart",
-            entry?.samples || [],
-            "usagePercent",
-            "Utilisation %",
-            "#dc2626",
-            value => `${value.toFixed(1)}%`
-        );
+    for (const m of mailboxes) {
+        if (m.error || !m.current) continue;
+        const used = m.current.totalGB || 0;
+        const quota = m.current.quotaGB || 50; 
+        totalUsed += used;
+        totalFree += Math.max(0, quota - used);
     }
 
-    // Locate where you process history data and add this check:
-    const mailboxHistoryData = historyData.MailboxHistory.find(h => h.PrimarySmtpAddress === selectedMailbox);
-
-    if (mailboxHistoryData) {
-        // Array Normalization: If Samples is a single object, wrap it in an array []
-        const samplesArray = Array.isArray(mailboxHistoryData.Samples)
-            ? mailboxHistoryData.Samples
-            : [mailboxHistoryData.Samples];
-
-        // Now safely run .map() on samplesArray
-        const labels = samplesArray.map(s => new Date(s.TimestampUtc).toLocaleDateString());
-        const dataPoints = samplesArray.map(s => s.TotalGB);
-
-        // Continue building chart...
-    }// 1. Update Global Variable assignments to use PascalCase
-    function getMailboxes() {
-        return dashboardData?.Mailboxes || [];
+    if (totalUsed === 0 && totalFree === 0) {
+        totalFree = 1; 
     }
 
-    function updateGlobalStats() {
-        document.getElementById("mailboxCount").textContent = dashboardData.MailboxCount || 0;
+    const cx = canvas.width / 2;
+    const cy = canvas.height / 2;
+    const radius = Math.min(cx, cy) * 0.7;
 
-        let totalStorage = 0;
-        let totalPerms = 0;
+    const total = totalUsed + totalFree;
+    const usedAngle = (totalUsed / total) * 2 * Math.PI;
 
-        getMailboxes().forEach(m => {
-            totalStorage += (m.TotalGB || 0);
-            // Ensure Permissions exists before counting
-            if (m.Permissions && Array.isArray(m.Permissions)) {
-                totalPerms += m.Permissions.length;
-            }
-        });
+    ctx.lineWidth = 40;
+    ctx.lineCap = "round";
 
-        document.getElementById("totalStorage").textContent = totalStorage.toFixed(2) + " GB";
-        document.getElementById("totalPermissions").textContent = totalPerms;
-        document.getElementById("thresholdCount").textContent = dashboardData.ThresholdCount || 0;
-    }
+    // Draw background track (Free space)
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = getCssVariable("--border-color") || "#eee";
+    ctx.stroke();
 
-    // 2. Update Table Rendering to use flattened PascalCase properties
-    function renderUsageTable() {
-        const tbody = document.querySelector("#usageTable tbody");
-        if (!tbody) return;
-
-        tbody.innerHTML = "";
-
-        for (const m of getMailboxes()) {
-            const tr = document.createElement("tr");
-
-            if (m.Error) {
-                tr.innerHTML = `
-        <td>${escapeHtml(m.PrimarySmtpAddress || m.DisplayName)}</td>
-        <td colspan="7"><span class="badge danger">Error</span> ${escapeHtml(m.Error)}</td>
-      `;
-            } else {
-                // Updated to strip 'current' nesting and use PascalCase
-                tr.innerHTML = `
-        <td>${escapeHtml(m.PrimarySmtpAddress)}</td>
-        <td>${escapeHtml(m.RecipientTypeDetails || "")}</td>
-        <td>${formatGB(m.TotalGB)}</td>
-        <td>${formatNumber(m.ItemCount)}</td>
-        <td>${formatGB(m.QuotaGB)}</td>
-        <td>${m.UsagePercent}%</td>
-        <td>${m.Permissions ? m.Permissions.length : 0}</td>
-        <td>${escapeHtml(m.ThresholdState || "ok")}</td>
-      `;
-            }
-            tbody.appendChild(tr);
-        }
-    }
-
-    function renderPermissionsPage() {
-        const container = document.getElementById("permissionsContainer");
-        if (!container) return;
-
-        container.innerHTML = "";
-
-        for (const m of getHealthyMailboxes()) {
-            const card = document.createElement("div");
-            card.className = "permission-card";
-
-            const permissionRows = (m.permissions || []).map(p => `
-      <tr>
-        <td>${escapeHtml(p.permissionType || "")}</td>
-        <td>${escapeHtml(p.user || "")}</td>
-        <td>${escapeHtml(p.accessRights || "")}</td>
-      </tr>
-    `).join("");
-
-            card.innerHTML = `
-      <h3>${escapeHtml(m.primarySmtpAddress)}</h3>
-      ${permissionRows
-                    ? `<table>
-               <thead>
-                 <tr>
-                   <th>Type</th>
-                   <th>User / principal</th>
-                   <th>Rights</th>
-                 </tr>
-               </thead>
-               <tbody>${permissionRows}</tbody>
-             </table>`
-                    : `<p><span class="badge ok">No explicit permissions found</span></p>`
-                }
-    `;
-
-            container.appendChild(card);
-        }
-    }
-
-    function drawUsageDonut(canvasId, mailboxes) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
-
-        const counts = {
-            ok: mailboxes.filter(m => m.current.thresholdState === "ok").length,
-            warning: mailboxes.filter(m => m.current.thresholdState === "warning").length,
-            critical: mailboxes.filter(m => m.current.thresholdState === "critical").length
-        };
-
-        drawDonut(canvas, [
-            { label: "OK", value: counts.ok, color: "#16a34a" },
-            { label: "Warning", value: counts.warning, color: "#d97706" },
-            { label: "Critical", value: counts.critical, color: "#dc2626" }
-        ]);
-    }
-
-    function drawTopStorageBarChart(canvasId, mailboxes) {
-        const top = [...mailboxes]
-            .sort((a, b) => Number(b.current.totalGB || 0) - Number(a.current.totalGB || 0))
-            .slice(0, 10)
-            .map(m => ({
-                label: m.primarySmtpAddress,
-                value: Number(m.current.totalGB || 0),
-                color: stateColor(m.current.thresholdState)
-            }));
-
-        drawBarChart(canvasId, top, "Top mailbox storage usage");
-    }
-
-    function drawThresholdChart(canvasId, mailboxes) {
-        const data = [...mailboxes]
-            .sort((a, b) => Number(b.current.usagePercent || 0) - Number(a.current.usagePercent || 0))
-            .map(m => ({
-                label: m.primarySmtpAddress,
-                value: Number(m.current.usagePercent || 0),
-                color: "#dc2626"
-            }));
-
-        drawBarChart(canvasId, data, "Critical mailboxes by utilisation %");
-    }
-
-    function drawDonut(canvas, segments) {
-        const ctx = canvas.getContext("2d");
-        clearCanvas(ctx, canvas);
-
-        const total = segments.reduce((sum, s) => sum + s.value, 0);
-        const cx = canvas.width / 2;
-        const cy = canvas.height / 2;
-        const radius = Math.min(cx, cy) - 30;
-
-        if (total === 0) {
-            ctx.fillText("No data available", 30, 40);
-            return;
-        }
-
-        let start = -Math.PI / 2;
-
-        for (const segment of segments) {
-            const angle = (segment.value / total) * Math.PI * 2;
-
-            ctx.beginPath();
-            ctx.moveTo(cx, cy);
-            ctx.arc(cx, cy, radius, start, start + angle);
-            ctx.closePath();
-            ctx.fillStyle = segment.color;
-            ctx.fill();
-
-            start += angle;
-        }
-
+    // Draw used track
+    if (usedAngle > 0) {
         ctx.beginPath();
-        ctx.fillStyle = "#ffffff";
-        ctx.arc(cx, cy, radius * 0.55, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = "#111827";
-        ctx.font = "22px Segoe UI";
-        ctx.textAlign = "center";
-        ctx.fillText(`${total}`, cx, cy - 4);
-        ctx.font = "13px Segoe UI";
-        ctx.fillText("Mailboxes", cx, cy + 18);
-
-        ctx.textAlign = "left";
-        let y = 24;
-
-        for (const segment of segments) {
-            ctx.fillStyle = segment.color;
-            ctx.fillRect(20, y - 10, 12, 12);
-            ctx.fillStyle = "#111827";
-            ctx.fillText(`${segment.label}: ${segment.value}`, 40, y);
-            y += 22;
-        }
-    }
-
-    function drawBarChart(canvasId, data, title) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
-
-        const ctx = canvas.getContext("2d");
-        clearCanvas(ctx, canvas);
-
-        if (!data.length) {
-            ctx.fillStyle = "#111827";
-            ctx.fillText("No data available", 30, 40);
-            return;
-        }
-
-        const paddingLeft = 220;
-        const paddingRight = 40;
-        const paddingTop = 50;
-        const rowHeight = 32;
-        const barHeight = 20;
-        const maxValue = Math.max(...data.map(d => d.value), 1);
-        const chartWidth = canvas.width - paddingLeft - paddingRight;
-
-        ctx.fillStyle = "#111827";
-        ctx.font = "16px Segoe UI";
-        ctx.fillText(title, 20, 26);
-
-        data.forEach((d, index) => {
-            const y = paddingTop + index * rowHeight;
-            const barWidth = (d.value / maxValue) * chartWidth;
-
-            ctx.fillStyle = "#374151";
-            ctx.font = "12px Segoe UI";
-            ctx.fillText(shorten(d.label, 28), 20, y + 15);
-
-            ctx.fillStyle = d.color || "#2563eb";
-            ctx.fillRect(paddingLeft, y, barWidth, barHeight);
-
-            ctx.fillStyle = "#111827";
-            ctx.fillText(d.value.toFixed(2), paddingLeft + barWidth + 8, y + 15);
-        });
-    }
-
-    function drawLineChart(canvasId, samples, valueField, title, color, labelFormatter) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
-
-        const ctx = canvas.getContext("2d");
-        clearCanvas(ctx, canvas);
-
-        if (!samples.length) {
-            ctx.fillStyle = "#111827";
-            ctx.fillText("No historical data available yet.", 30, 40);
-            return;
-        }
-
-        const points = samples.map(s => ({
-            timestamp: s.timestampUtc,
-            value: Number(s[valueField] || 0),
-            state: s.thresholdState || "ok"
-        }));
-
-        const padding = 50;
-        const width = canvas.width - padding * 2;
-        const height = canvas.height - padding * 2;
-        const maxY = Math.max(...points.map(p => p.value), 1);
-
-        ctx.fillStyle = "#111827";
-        ctx.font = "16px Segoe UI";
-        ctx.fillText(title, 20, 26);
-
-        ctx.strokeStyle = "#e5e7eb";
-        ctx.lineWidth = 1;
-
-        for (let i = 0; i <= 4; i++) {
-            const y = padding + (height / 4) * i;
-
-            ctx.beginPath();
-            ctx.moveTo(padding, y);
-            ctx.lineTo(canvas.width - padding, y);
-            ctx.stroke();
-
-            const label = labelFormatter(maxY - (maxY / 4) * i);
-            ctx.fillStyle = "#6b7280";
-            ctx.fillText(label, 8, y + 4);
-        }
-
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-
-        points.forEach((point, index) => {
-            const x = padding + (points.length === 1 ? 0 : (width / (points.length - 1)) * index);
-            const y = padding + height - (point.value / maxY) * height;
-
-            if (index === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-        });
-
+        ctx.arc(cx, cy, radius, -Math.PI / 2, -Math.PI / 2 + usedAngle);
+        ctx.strokeStyle = "#0078d4";
         ctx.stroke();
-
-        points.forEach((point, index) => {
-            const x = padding + (points.length === 1 ? 0 : (width / (points.length - 1)) * index);
-            const y = padding + height - (point.value / maxY) * height;
-
-            ctx.beginPath();
-            ctx.fillStyle = stateColor(point.state);
-            ctx.arc(x, y, 4, 0, Math.PI * 2);
-            ctx.fill();
-        });
-
-        const first = points[0];
-        const last = points[points.length - 1];
-
-        ctx.fillStyle = "#6b7280";
-        ctx.font = "12px Segoe UI";
-        ctx.fillText(`First: ${formatDate(first.timestamp)}`, padding, canvas.height - 16);
-        ctx.fillText(`Latest: ${formatDate(last.timestamp)}`, canvas.width / 2, canvas.height - 16);
     }
 
-    function usageBadge(percent) {
-        if (percent === null || percent === undefined || isNaN(percent)) {
-            return `<span class="badge">N/A</span>`;
-        }
+    // Inner text
+    ctx.fillStyle = getCssVariable("--text-primary") || "#333";
+    ctx.font = "bold 24px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const percentStr = total > 0 ? ((totalUsed / total) * 100).toFixed(1) + "%" : "0%";
+    ctx.fillText(percentStr, cx, cy - 10);
 
-        const critical = dashboardData?.criticalThresholdPercent ?? 94;
-        const warning = dashboardData?.warningThresholdPercent ?? 85;
+    ctx.font = "14px sans-serif";
+    ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
+    ctx.fillText("Used overall", cx, cy + 15);
+}
 
-        const cls = percent >= critical ? "danger" : percent >= warning ? "warning" : "ok";
-        return `<span class="badge ${cls}">${Number(percent).toFixed(2)}%</span>`;
+function drawBarChart() {
+    const canvas = document.getElementById("topStorageChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const mailboxes = getMailboxes().filter(m => !m.error && m.current);
+    mailboxes.sort((a, b) => (b.current.totalGB || 0) - (a.current.totalGB || 0));
+
+    const top = mailboxes.slice(0, 10);
+    if (top.length === 0) return;
+
+    const maxVal = top[0].current.totalGB || 1;
+    const chartHeight = canvas.height - 60;
+    const chartWidth = canvas.width - 40;
+    const barSpacing = chartWidth / top.length;
+    const barWidth = barSpacing * 0.6;
+
+    ctx.fillStyle = "#0078d4";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+
+    top.forEach((m, idx) => {
+        const val = m.current.totalGB || 0;
+        const barH = (val / maxVal) * chartHeight;
+        const x = 20 + idx * barSpacing + (barSpacing - barWidth) / 2;
+        const y = canvas.height - 30 - barH;
+
+        ctx.fillRect(x, y, barWidth, barH);
+
+        // Value text
+        ctx.fillStyle = getCssVariable("--text-primary") || "#333";
+        ctx.font = "12px sans-serif";
+        ctx.fillText(val.toFixed(1), x + barWidth / 2, y - 5);
+
+        // Label (truncate name)
+        let label = (m.displayName || m.primarySmtpAddress).split("@")[0];
+        if (label.length > 10) label = label.substring(0, 8) + "...";
+        ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
+        ctx.fillText(label, x + barWidth / 2, canvas.height - 10);
+        ctx.fillStyle = "#0078d4";
+    });
+}
+
+function populateHistorySelect() {
+    const sel = document.getElementById("mailboxSelect");
+    if (!sel || !dashboardData) return;
+
+    sel.innerHTML = `<option value="">-- Select a mailbox --</option>`;
+    
+    const sorted = [...(dashboardData.mailboxes || [])].sort((a, b) => {
+        const nameA = (a.displayName || a.primarySmtpAddress || "").toLowerCase();
+        const nameB = (b.displayName || b.primarySmtpAddress || "").toLowerCase();
+        return nameA.localeCompare(nameB);
+    });
+
+    for (const m of sorted) {
+        if (m.error) continue;
+        const opt = document.createElement("option");
+        opt.value = m.exchangeGuid;
+        opt.textContent = `${m.displayName || m.primarySmtpAddress} (${m.primarySmtpAddress})`;
+        sel.appendChild(opt);
     }
+}
 
-    function stateColor(state) {
-        if (state === "critical") return "#dc2626";
-        if (state === "warning") return "#d97706";
-        return "#16a34a";
-    }
+function renderHistoryPage() {
+    const sel = document.getElementById("mailboxSelect");
+    if (!sel || !sel.value) return;
 
-    function clearCanvas(ctx, canvas) {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
+    const guid = sel.value;
+    const histPoints = historyData?.[guid] || [];
 
-    function formatNumber(value) {
-        if (value === null || value === undefined || isNaN(value)) return "N/A";
-        return Number(value).toLocaleString();
-    }
-
-    function formatGB(value) {
-        if (value === null || value === undefined || isNaN(value)) return "N/A";
-        return `${Number(value).toLocaleString(undefined, { maximumFractionDigits: 2 })} GB`;
-    }
-
-    function formatDate(value) {
-        if (!value) return "N/A";
-
-        const date = new Date(value);
-        if (isNaN(date.getTime())) return value;
-
-        return date.toLocaleString();
-    }
-
-    function shorten(value, maxLength) {
-        const text = String(value || "");
-        if (text.length <= maxLength) return text;
-        return `${text.slice(0, maxLength - 3)}...`;
-    }
-
-    function escapeHtml(value) {
-        return String(value ?? "")
-            .replaceAll("&", "&amp;")
-            .replaceAll("<", "&lt;")
-            .replaceAll(">", "&gt;")
-            .replaceAll('"', "&quot;")
-            .replaceAll("'", "&#039;");
-    }
-
-    function highlightCurrentNav() {
-        const page = document.body.dataset.page || "overview";
-        const links = document.querySelectorAll(".view-nav a");
-
-        links.forEach(link => {
-            const href = link.getAttribute("href") || "";
-
-            if (
-                (page === "overview" && href.includes("index.html")) ||
-                href.includes(`${page}.html`)
-            ) {
-                link.classList.add("active");
-            }
-        });
-    }
-
-    function showError(error) {
-        const lastUpdated = document.getElementById("lastUpdated");
-        if (lastUpdated) {
-            lastUpdated.textContent = error.message;
-        }
-
-        console.error(error);
-    }
-
-    function renderUsageTable() {
-        const tbody = document.querySelector("#usageTable tbody");
-        if (!tbody) return;
-
+    const tbody = document.querySelector("#historyTable tbody");
+    if (tbody) {
         tbody.innerHTML = "";
-
-        for (const m of getMailboxes()) {
-            const tr = document.createElement("tr");
-
-            if (m.error) {
+        if (histPoints.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4">No history data for this mailbox.</td></tr>`;
+        } else {
+            const sortedDesc = [...histPoints].sort((a, b) => new Date(b.Timestamp) - new Date(a.Timestamp));
+            for (const pt of sortedDesc) {
+                const tr = document.createElement("tr");
                 tr.innerHTML = `
-        <td>${escapeHtml(m.primarySmtpAddress || m.displayName)}</td>
-        <td colspan="7"><span class="badge danger">Error</span> ${escapeHtml(m.error)}</td>
-      `;
-            } else {
-                tr.innerHTML = `
-        <td>${escapeHtml(m.primarySmtpAddress)}</td>
-        <td>${escapeHtml(m.recipientTypeDetails || "")}</td>
-        <td>${formatGB(m.current?.totalGB)}</td>
-        <td>${formatNumber(m.current?.itemCount)}</td>
-        <td>${formatGB(m.current?.quotaGB)}</td>
-        <td>${usageBadge(m.current?.usagePercent)}</td>
-        <td>${formatNumber(m.permissions?.length || 0)}</td>
-        <td>${formatDate(m.current?.lastLogonTime)}</td>
-      `;
+                    <td>${formatDate(pt.Timestamp)}</td>
+                    <td>${formatGB(pt.TotalGB)}</td>
+                    <td>${formatNumber(pt.ItemCount)}</td>
+                    <td>${pt.UsagePercent != null ? pt.UsagePercent.toFixed(1) + "%" : ""}</td>
+                `;
+                tbody.appendChild(tr);
             }
+        }
+    }
+    drawHistoryChart(histPoints);
+}
 
+function drawHistoryChart(histPoints) {
+    const canvas = document.getElementById("historyChart");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (!histPoints || histPoints.length < 2) {
+        ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
+        ctx.font = "14px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("Not enough history to chart.", canvas.width / 2, canvas.height / 2);
+        return;
+    }
+
+    const sorted = [...histPoints].sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
+    let minVal = Number.MAX_VALUE;
+    let maxVal = Number.MIN_VALUE;
+
+    for (const pt of sorted) {
+        const v = pt.TotalGB || 0;
+        if (v < minVal) minVal = v;
+        if (v > maxVal) maxVal = v;
+    }
+
+    if (maxVal === minVal) {
+        minVal = 0; 
+        maxVal = maxVal * 2 || 10;
+    }
+
+    const padX = 40;
+    const padY = 40;
+    const chartW = canvas.width - padX * 2;
+    const chartH = canvas.height - padY * 2;
+
+    const getX = (index) => padX + (index / (sorted.length - 1)) * chartW;
+    const getY = (val) => (canvas.height - padY) - ((val - minVal) / (maxVal - minVal)) * chartH;
+
+    ctx.beginPath();
+    ctx.strokeStyle = "#0078d4";
+    ctx.lineWidth = 3;
+    ctx.lineJoin = "round";
+
+    sorted.forEach((pt, i) => {
+        const x = getX(i);
+        const y = getY(pt.TotalGB || 0);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    ctx.fillStyle = "#0078d4";
+    sorted.forEach((pt, i) => {
+        const x = getX(i);
+        const y = getY(pt.TotalGB || 0);
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+    });
+
+    ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
+    ctx.font = "12px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(formatDate(sorted[0].Timestamp).split(",")[0], padX, canvas.height - 15);
+    ctx.fillText(formatDate(sorted[sorted.length - 1].Timestamp).split(",")[0], canvas.width - padX, canvas.height - 15);
+
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillText(maxVal.toFixed(1) + " GB", padX - 10, padY);
+    ctx.fillText(minVal.toFixed(1) + " GB", padX - 10, canvas.height - padY);
+}
+
+function renderPermissionsTable() {
+    const tbody = document.querySelector("#permsTable tbody");
+    if (!tbody || !dashboardData) return;
+    tbody.innerHTML = "";
+
+    const mailboxes = dashboardData.mailboxes || [];
+    let hasAny = false;
+
+    for (const m of mailboxes) {
+        if (m.error || !m.permissions || m.permissions.length === 0) continue;
+        for (const p of m.permissions) {
+            hasAny = true;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${escapeHtml(m.displayName || m.primarySmtpAddress)}</td>
+                <td>${escapeHtml(p.user)}</td>
+                <td>${escapeHtml(p.accessRights.join(", "))}</td>
+                <td>${p.isInherited ? "Yes" : "No"}</td>
+            `;
             tbody.appendChild(tr);
         }
     }
+
+    if (!hasAny) {
+        tbody.innerHTML = `<tr><td colspan="4">No permissions found.</td></tr>`;
+    }
+}
+
+function renderThresholdsTable() {
+    const tbody = document.querySelector("#thresholdsTable tbody");
+    if (!tbody || !dashboardData) return;
+    tbody.innerHTML = "";
+
+    const mailboxes = dashboardData.mailboxes || [];
+    const thresholds = dashboardData.thresholds || { warningPercent: 80, criticalPercent: 95 };
+
+    let count = 0;
+    for (const m of mailboxes) {
+        if (m.error || !m.current) continue;
+        const pct = m.current.usagePercent || 0;
+        
+        let state = "";
+        if (pct >= thresholds.criticalPercent) {
+            state = "Critical";
+        } else if (pct >= thresholds.warningPercent) {
+            state = "Warning";
+        }
+
+        if (state) {
+            count++;
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${escapeHtml(m.displayName || m.primarySmtpAddress)}</td>
+                <td>${formatGB(m.current.totalGB)}</td>
+                <td>${formatGB(m.current.quotaGB)}</td>
+                <td>${usageBadge(pct)}</td>
+                <td><span class="badge ${state === 'Critical' ? 'danger' : 'warning'}">${state}</span></td>
+            `;
+            tbody.appendChild(tr);
+        }
+    }
+
+    if (count === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">No mailboxes currently over warning/critical thresholds.</td></tr>`;
+    }
+}
+
+// --- Helpers ---
+
+function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function formatGB(val) {
+    if (typeof val !== "number") return "0.00";
+    return val.toFixed(2);
+}
+
+function formatNumber(val) {
+    if (typeof val !== "number") return "0";
+    return val.toLocaleString();
+}
+
+function formatDate(isoString) {
+    if (!isoString) return "N/A";
+    const d = new Date(isoString);
+    return d.toLocaleString();
+}
+
+function usageBadge(percent) {
+    if (typeof percent !== "number") return "0%";
+    const pStr = percent.toFixed(1) + "%";
+    const thresholds = dashboardData?.thresholds || { warningPercent: 80, criticalPercent: 95 };
+    if (percent >= thresholds.criticalPercent) {
+        return `<span class="badge danger">${pStr}</span>`;
+    } else if (percent >= thresholds.warningPercent) {
+        return `<span class="badge warning">${pStr}</span>`;
+    }
+    return pStr;
+}
+
+function getCssVariable(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 }

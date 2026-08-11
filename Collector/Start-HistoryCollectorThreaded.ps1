@@ -578,7 +578,7 @@ try {
             Write-Warning ("Token expires in {0} minute(s). Estimated run time is ~{1} minute(s) with ThrottleLimit {2}. " +
                 "The token may expire before all chunks complete. If that happens, re-run with: " +
                 "-ResumeFromRunRoot '{3}' (and a fresh -AccessToken or omit -AccessToken to re-authenticate).") `
-                -f $tokenMinutesRemaining, $estimatedMinutes, $ThrottleLimit, $runRoot
+                -Message $tokenMinutesRemaining, $estimatedMinutes, $ThrottleLimit, $runRoot
         }
     }
 
