@@ -211,29 +211,33 @@ function Get-CsvFileFromPicker {
 
 function Convert-ExoSizeToBytes {
     param([Parameter(Mandatory)] $SizeObject)
-    if ($null -eq $SizeObject) { return 0 }
+    if ($null -eq $SizeObject) { return [int64]0 }
     try {
         if ($SizeObject.PSObject.Properties.Name -contains "Value" -and $SizeObject.Value -and $SizeObject.Value.PSObject.Methods.Name -contains "ToBytes") {
             return [int64]$SizeObject.Value.ToBytes()
         }
     } catch {}
     $text = [string]$SizeObject
-    if ($text -match "\(([\d,]+)\s+bytes\)") { return ($matches[1] -replace ",", "") }
+    # Canonical EXO string format: "4.993 GB (5,362,556,928 bytes)"
+    if ($text -match "\(([\d,]+)\s+bytes\)") { return [int64]($matches[1] -replace ",", "") }
+    # Unit-only fallback: "4.993 GB" (no bytes parenthetical)
     if ($text -match "([\d\.]+)\s*(KB|MB|GB|TB)") {
         $value = [double]$matches[1]
         switch ($matches[2]) {
-            "KB" { return $value * 1KB }
-            "MB" { return $value * 1MB }
-            "GB" { return $value * 1GB }
-            "TB" { return $value * 1TB }
+            "KB" { return [int64]($value * 1KB) }
+            "MB" { return [int64]($value * 1MB) }
+            "GB" { return [int64]($value * 1GB) }
+            "TB" { return [int64]($value * 1TB) }
         }
     }
-    return 0
+    # Raw numeric fallback: EXO REST module may return bare byte counts as integers
+    if ($text -match "^\d+$") { return [int64]$text }
+    return [int64]0
 }
 
 function Convert-BytesToGB {
     param([int64]$Bytes)
-    if ($Bytes -le 0) { return 0 }
+    if ($Bytes -le 0) { return [double]0.0 }
     return [Math]::Round($Bytes / 1GB, 2)
 }
 
