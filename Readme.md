@@ -4,11 +4,11 @@ This guide sets up the collector for delegated Exchange Online auth with a reusa
 
 ## What this uses
 
-- [Register-EntraApp.ps1](C:/TEMP/MailboxDashboard/Collector/Register-EntraApp.ps1)
-- [Start-HistoryCollectorThreaded.ps1](C:/TEMP/MailboxDashboard/Collector/Start-HistoryCollectorThreaded.ps1)
-- [HistoryCollector.ps1](C:/TEMP/MailboxDashboard/Collector/HistoryCollector.ps1)
-- [Get-ExchangeOnlineAccessToken.ps1](C:/TEMP/MailboxDashboard/Collector/Get-ExchangeOnlineAccessToken.ps1)
-- [dashboardConfig.json](C:/TEMP/MailboxDashboard/Collector/Config/dashboardConfig.json)
+- [Register-EntraApp.ps1](Collector\Register-EntraApp.ps1)
+- [Start-HistoryCollectorThreaded.ps1](Collector\Start-HistoryCollectorThreaded.ps1)
+- [HistoryCollector.ps1](Collector/HistoryCollector.ps1)
+- [Get-ExchangeOnlineAccessToken.ps1](Collector/Get-ExchangeOnlineAccessToken.ps1)
+- [dashboardConfig.json](/Collector/Config/dashboardConfig.json)
 
 ## 1. Prerequisites
 
@@ -38,12 +38,12 @@ This will:
 - create or update the app registration
 - create a client secret
 - grant the Exchange Online delegated permission
-- update [dashboardConfig.json](C:/TEMP/MailboxDashboard/Collector/Config/dashboardConfig.json)
+- update [dashboardConfig.json](Collector/Config/dashboardConfig.json)
 
   - expected output
 
   ```PowerShell
-  PS C:\TEMP\MailboxDashboard\Collector> . .\Register-EntraApp.ps1 -ConfigPath  C:\TEMP\MailboxDashboard\Collector\Config\dashboardConfig.json -AppId 260cd5f4-a25c-4976-b1ca-2aeaf1cc3464 -TenantIdOrDomain ec445a2a-b5ba-46f6-bead-4595e9fbd4a2 -DisplayName 'exchange report'
+  PS C:\TEMP\MailboxDashboard\Collector> . .\Register-EntraApp.ps1 -ConfigPath  .\Config\dashboardConfig.json -AppId 260cd5f4-a25c-4976-b1ca-2aeaf1cc3464 -TenantIdOrDomain ec445a2a-b5ba-46f6-bead-4595e9fbd4a2 -DisplayName 'exchange report'
 
   Confirm
   Are you sure you want to perform this action?
@@ -73,7 +73,7 @@ This will:
 
 ## 3. Verify the config
 
-Check that [dashboardConfig.json](C:/TEMP/MailboxDashboard/Collector/Config/dashboardConfig.json) contains:
+Check that [dashboardConfig.json](Collector/Config/dashboardConfig.json) contains:
 
 - `Organization`
 - `AppID`
@@ -94,7 +94,7 @@ The bootstrapper will:
 - read the config
 - open browser sign-in and create a delegated access token automatically
 - split the mailbox CSV into chunks
-- run [HistoryCollector.ps1](C:/TEMP/MailboxDashboard/Collector/HistoryCollector.ps1) in thread jobs
+- run [HistoryCollector.ps1](Collector/HistoryCollector.ps1) in thread jobs
 - merge the chunk output into `history.json`
 
 ## 5. Run the collector directly
@@ -109,10 +109,10 @@ It will connect automatically if Exchange Online is not already connected.
 
 If app creation fails, make sure your Graph login has permission to create apps and grant app roles.
 
-- If token creation fails, re-run [Register-EntraApp.ps1](C:/TEMP/MailboxDashboard/Collector/Register-EntraApp.ps1) and confirm the delegated Exchange permission, redirect URI, and public client flow settings are present.
-- If paths are wrong, check the relative values in [dashboardConfig.json](C:/TEMP/MailboxDashboard/Collector/Config/dashboardConfig.json).
+- If token creation fails, re-run [Register-EntraApp.ps1](Collector/Register-EntraApp.ps1) and confirm the delegated Exchange permission, redirect URI, and public client flow settings are present.
+- If paths are wrong, check the relative values in [dashboardConfig.json](Collector/Config/dashboardConfig.json).
 
 ## 7. Notes
 
 - The app secret remains available for future app-only scenarios, but the threaded collector now uses delegated browser sign-in by default.
-- The mailbox CSV should point to [mailboxes.csv](C:/TEMP/MailboxDashboard/Mailboxes/mailboxes.csv).
+- The mailbox CSV should point to [mailboxes.csv](Mailboxes/mailboxes.csv).
