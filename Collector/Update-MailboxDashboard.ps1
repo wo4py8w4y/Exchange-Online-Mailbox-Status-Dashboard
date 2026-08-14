@@ -13,77 +13,227 @@
     .\Update-MailboxDashboard.ps1 -UseFilePicker -Interactive
 #>
 
-[CmdletBinding(DefaultParameterSetName = "Certificate")]
+[CmdletBinding(DefaultParameterSetName = "ConfigOnly")]
 param(
     [Parameter()]
-    [string]$CsvPath = "F:\Website\Qbuild-Mon\Collector\users.csv",
+    [string]$ConfigPath = (Join-Path -Path $PSScriptRoot -ChildPath "Config\dashboardConfig.json"),
 
     [Parameter()]
-    [string]$OutputJsonPath = "F:\Website\Qbuild-Mon\Web\data.json",
-
-    [Parameter()]
-    [string]$HistoryJsonPath = "F:\Website\Qbuild-Mon\Web\history.json",
+    [switch]$SkipConfigValidation,
 
     [Parameter()]
     [switch]$UseFilePicker,
 
-    [Parameter(ParameterSetName = "Interactive")]
+    [Parameter(ParameterSetName = "ConfigOnly")]
+    [Parameter(ParameterSetName = "ConfigWithAuthOverride")]
     [switch]$Interactive,
 
-    [Parameter(ParameterSetName = "Certificate")]
+    [Parameter(ParameterSetName = "ConfigWithAuthOverride")]
     [string]$AppId,
 
-    [Parameter(ParameterSetName = "Certificate")]
+    [Parameter(ParameterSetName = "ConfigWithAuthOverride")]
     [string]$Organization,
 
-    [Parameter(ParameterSetName = "Certificate")]
+    [Parameter(ParameterSetName = "ConfigWithAuthOverride")]
     [string]$CertificateThumbprint,
 
-    [Parameter()]
-    [int]$MaxHistorySamples = 365,
-
-    [Parameter()]
-    [double]$CriticalThresholdPercent = 94,
-
-    [Parameter()]
-    [double]$WarningThresholdPercent = 85,
-
-    [Parameter()]
-    [switch]$IncludeArchive,
-
-    [Parameter()]
-    [switch]$IncludeSendAs,
-
-    [Parameter()]
-    [switch]$IncludeFolderPermissions,
-
-    [Parameter()]
-    [int]$CollectorScheduleMinutes = 30,
-
-    [Parameter()]
-    [int]$WebRefreshSeconds = 60,
-
-    [Parameter()]
-    [bool]$RegisterScheduledTask,
-
-    [Parameter()]
-    [string]$ScheduledTaskName = "Exchange Online Mailbox Dashboard Collector",
-
-    [Parameter()]
-    [string]$WebRootPath = "F:\Website\Qbuild-Mon\Web",
-
-    [Parameter()]
-    [string]$DashboardUrl = "http://localhost:8888/",
-
-    [Parameter()]
-    [string]$LogRootPath = "F:\Website\Qbuild-Mon\Collector\Logs",
-
-    [Parameter()]
-    [string]$LogFilePath
+    [Parameter(ParameterSetName = "ConfigWithAuthOverride")]
+    [string]$ClientSecret
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Continue"
+
+function Resolve-AbsolutePath {
+    param(
+        [Parameter(Mandatory)] [string]$Path,
+        [Parameter()] [string]$BaseDirectory
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        throw "Path cannot be empty."
+    }
+
+    if ([System.IO.Path]::IsPathRooted($Path)) {
+        return [System.IO.Path]::GetFullPath($Path)
+    }
+
+    $root = if ([string]::IsNullOrWhiteSpace($BaseDirectory)) { $PSScriptRoot } else { $BaseDirectory }
+    return [System.IO.Path]::GetFullPath((Join-Path -Path $root -ChildPath $Path))
+}
+
+function Test-ConfigHasNonEmptyStringValue {
+    param(
+        [Parameter(Mandatory)] $ConfigObject,
+        [Parameter(Mandatory)] [string[]]$Names
+    )
+
+    foreach ($name in $Names) {
+        if ($ConfigObject.PSObject.Properties.Name -contains $name) {
+            $value = $ConfigObject.$name
+            if (-not [string]::IsNullOrWhiteSpace([string]$value)) {
+                return $true
+            }
+        }
+    }
+
+    return $false
+}
+
+function Validate-DashboardConfig {
+    param(
+        [Parameter(Mandatory)] $ConfigObject,
+        [Parameter(Mandatory)] [string]$ResolvedConfigPath,
+        [Parameter(Mandatory)] [bool]$IsInteractiveMode
+    )
+
+    $issues = [System.Collections.Generic.List[string]]::new()
+
+    if (-not (Test-ConfigHasNonEmptyStringValue -ConfigObject $ConfigObject -Names @("MailboxesCsvPath", "CsvPath"))) {
+        $issues.Add("Either 'MailboxesCsvPath' or 'CsvPath' must be provided.")
+    }
+
+    if (-not (Test-ConfigHasNonEmptyStringValue -ConfigObject $ConfigObject -Names @("HotDataJsonPath", "OutputJsonPath"))) {
+        $issues.Add("Either 'HotDataJsonPath' or 'OutputJsonPath' must be provided.")
+    }
+
+    if (-not (Test-ConfigHasNonEmptyStringValue -ConfigObject $ConfigObject -Names @("HistoryJsonPath"))) {
+        $issues.Add("'HistoryJsonPath' must be provided.")
+    }
+
+    if (-not $IsInteractiveMode) {
+        if (-not (Test-ConfigHasNonEmptyStringValue -ConfigObject $ConfigObject -Names @("Organization"))) {
+            $issues.Add("'Organization' must be provided for unattended execution.")
+        }
+        if (-not (Test-ConfigHasNonEmptyStringValue -ConfigObject $ConfigObject -Names @("AppID", "AppId"))) {
+            $issues.Add("Either 'AppID' or 'AppId' must be provided for unattended execution.")
+        }
+        if (-not (Test-ConfigHasNonEmptyStringValue -ConfigObject $ConfigObject -Names @("Thumbprint", "CertificateThumbprint"))) {
+            $issues.Add("Either 'Thumbprint' or 'CertificateThumbprint' must be provided for unattended execution.")
+        }
+    }
+
+    $maxHistorySamples = if ($ConfigObject.PSObject.Properties.Name -contains "MaxHistorySamples" -and $null -ne $ConfigObject.MaxHistorySamples) { [int]$ConfigObject.MaxHistorySamples } else { 365 }
+    if ($maxHistorySamples -lt 1) {
+        $issues.Add("'MaxHistorySamples' must be greater than 0.")
+    }
+
+    $warningThresholdPercent = if ($ConfigObject.PSObject.Properties.Name -contains "WarningThresholdPercent" -and $null -ne $ConfigObject.WarningThresholdPercent) { [double]$ConfigObject.WarningThresholdPercent } else { 85.0 }
+    $criticalThresholdPercent = if ($ConfigObject.PSObject.Properties.Name -contains "CriticalThresholdPercent" -and $null -ne $ConfigObject.CriticalThresholdPercent) { [double]$ConfigObject.CriticalThresholdPercent } else { 94.0 }
+
+    if ($warningThresholdPercent -lt 0 -or $warningThresholdPercent -gt 100) {
+        $issues.Add("'WarningThresholdPercent' must be between 0 and 100.")
+    }
+    if ($criticalThresholdPercent -lt 0 -or $criticalThresholdPercent -gt 100) {
+        $issues.Add("'CriticalThresholdPercent' must be between 0 and 100.")
+    }
+    if ($warningThresholdPercent -ge $criticalThresholdPercent) {
+        $issues.Add("'WarningThresholdPercent' must be less than 'CriticalThresholdPercent'.")
+    }
+
+    $collectorScheduleMinutes = if ($ConfigObject.PSObject.Properties.Name -contains "CollectorScheduleMinutes" -and $null -ne $ConfigObject.CollectorScheduleMinutes) { [int]$ConfigObject.CollectorScheduleMinutes } else { 30 }
+    if ($collectorScheduleMinutes -lt 1) {
+        $issues.Add("'CollectorScheduleMinutes' must be greater than 0.")
+    }
+
+    $webRefreshSeconds = if ($ConfigObject.PSObject.Properties.Name -contains "WebRefreshSeconds" -and $null -ne $ConfigObject.WebRefreshSeconds) { [int]$ConfigObject.WebRefreshSeconds } else { 60 }
+    if ($webRefreshSeconds -lt 1) {
+        $issues.Add("'WebRefreshSeconds' must be greater than 0.")
+    }
+
+    $registerScheduledTask = if ($ConfigObject.PSObject.Properties.Name -contains "RegisterScheduledTask") { [bool]$ConfigObject.RegisterScheduledTask } else { $false }
+    if ($registerScheduledTask -and -not (Test-ConfigHasNonEmptyStringValue -ConfigObject $ConfigObject -Names @("ScheduledTaskName"))) {
+        $issues.Add("'ScheduledTaskName' must be provided when 'RegisterScheduledTask' is true.")
+    }
+
+    if ($issues.Count -gt 0) {
+        $details = $issues | ForEach-Object { " - $_" } | Out-String
+        throw "Config validation failed for '$ResolvedConfigPath':`n$details"
+    }
+}
+
+$defaultConfigPath = Resolve-AbsolutePath -Path (Join-Path -Path $PSScriptRoot -ChildPath "Config\dashboardConfig.json")
+$resolvedConfigPath = Resolve-AbsolutePath -Path $ConfigPath -BaseDirectory $PSScriptRoot
+if (-not (Test-Path -LiteralPath $resolvedConfigPath)) {
+    throw "Configuration file not found at '$resolvedConfigPath'."
+}
+
+$isAlternateConfig = $resolvedConfigPath -ne $defaultConfigPath
+$usedAuthOverrides = $PSBoundParameters.ContainsKey("AppId") -or
+    $PSBoundParameters.ContainsKey("Organization") -or
+    $PSBoundParameters.ContainsKey("CertificateThumbprint") -or
+    $PSBoundParameters.ContainsKey("ClientSecret")
+
+if ($usedAuthOverrides -and -not $isAlternateConfig) {
+    throw "AppId/Organization/CertificateThumbprint/ClientSecret overrides are only allowed when -ConfigPath points to an alternate config file."
+}
+
+$config = Get-Content -LiteralPath $resolvedConfigPath -Raw | ConvertFrom-Json
+$skipConfigValidationFromConfig = if ($config.PSObject.Properties.Name -contains "SkipConfigValidation") { [bool]$config.SkipConfigValidation } else { $false }
+$effectiveSkipConfigValidation = if ($PSBoundParameters.ContainsKey("SkipConfigValidation")) { [bool]$SkipConfigValidation } else { $skipConfigValidationFromConfig }
+if (-not $effectiveSkipConfigValidation) {
+    Validate-DashboardConfig -ConfigObject $config -ResolvedConfigPath $resolvedConfigPath -IsInteractiveMode ([bool]$Interactive)
+}
+$configDirectory = Split-Path -Path $resolvedConfigPath -Parent
+$configBaseDirectory = Split-Path -Path $configDirectory -Parent
+
+$CsvPath = if ($UseFilePicker) {
+    $null
+}
+elseif ($config.PSObject.Properties.Name -contains "MailboxesCsvPath" -and -not [string]::IsNullOrWhiteSpace([string]$config.MailboxesCsvPath)) {
+    Resolve-AbsolutePath -Path ([string]$config.MailboxesCsvPath) -BaseDirectory $configBaseDirectory
+}
+elseif ($config.PSObject.Properties.Name -contains "CsvPath" -and -not [string]::IsNullOrWhiteSpace([string]$config.CsvPath)) {
+    Resolve-AbsolutePath -Path ([string]$config.CsvPath) -BaseDirectory $configBaseDirectory
+}
+else {
+    Resolve-AbsolutePath -Path "..\Mailboxes\mailboxes.csv" -BaseDirectory $PSScriptRoot
+}
+
+$OutputJsonPath = if ($config.PSObject.Properties.Name -contains "HotDataJsonPath" -and -not [string]::IsNullOrWhiteSpace([string]$config.HotDataJsonPath)) {
+    Resolve-AbsolutePath -Path ([string]$config.HotDataJsonPath) -BaseDirectory $configBaseDirectory
+}
+elseif ($config.PSObject.Properties.Name -contains "OutputJsonPath" -and -not [string]::IsNullOrWhiteSpace([string]$config.OutputJsonPath)) {
+    Resolve-AbsolutePath -Path ([string]$config.OutputJsonPath) -BaseDirectory $configBaseDirectory
+}
+else {
+    Resolve-AbsolutePath -Path "..\Web\data.json" -BaseDirectory $PSScriptRoot
+}
+
+$HistoryJsonPath = if ($config.PSObject.Properties.Name -contains "HistoryJsonPath" -and -not [string]::IsNullOrWhiteSpace([string]$config.HistoryJsonPath)) {
+    Resolve-AbsolutePath -Path ([string]$config.HistoryJsonPath) -BaseDirectory $configBaseDirectory
+}
+else {
+    Resolve-AbsolutePath -Path "..\Web\history.json" -BaseDirectory $PSScriptRoot
+}
+
+$WebRootPath = if ($config.PSObject.Properties.Name -contains "WebRootPath" -and -not [string]::IsNullOrWhiteSpace([string]$config.WebRootPath)) {
+    Resolve-AbsolutePath -Path ([string]$config.WebRootPath) -BaseDirectory $configBaseDirectory
+}
+else {
+    Split-Path -Path $OutputJsonPath -Parent
+}
+
+$DashboardUrl = if ($config.PSObject.Properties.Name -contains "DashboardUrl" -and -not [string]::IsNullOrWhiteSpace([string]$config.DashboardUrl)) { [string]$config.DashboardUrl } else { "http://localhost:8888/" }
+$LogRootPath = if ($config.PSObject.Properties.Name -contains "LogRootPath" -and -not [string]::IsNullOrWhiteSpace([string]$config.LogRootPath)) { Resolve-AbsolutePath -Path ([string]$config.LogRootPath) -BaseDirectory $configBaseDirectory } else { Resolve-AbsolutePath -Path ".\Logs" -BaseDirectory $PSScriptRoot }
+$LogFilePath = if ($config.PSObject.Properties.Name -contains "LogFilePath" -and -not [string]::IsNullOrWhiteSpace([string]$config.LogFilePath)) { Resolve-AbsolutePath -Path ([string]$config.LogFilePath) -BaseDirectory $configBaseDirectory } else { $null }
+
+$MaxHistorySamples = if ($config.PSObject.Properties.Name -contains "MaxHistorySamples" -and $null -ne $config.MaxHistorySamples) { [int]$config.MaxHistorySamples } else { 365 }
+$CriticalThresholdPercent = if ($config.PSObject.Properties.Name -contains "CriticalThresholdPercent" -and $null -ne $config.CriticalThresholdPercent) { [double]$config.CriticalThresholdPercent } else { 94.0 }
+$WarningThresholdPercent = if ($config.PSObject.Properties.Name -contains "WarningThresholdPercent" -and $null -ne $config.WarningThresholdPercent) { [double]$config.WarningThresholdPercent } else { 85.0 }
+
+$IncludeArchive = if ($config.PSObject.Properties.Name -contains "IncludeArchive") { [bool]$config.IncludeArchive } else { $false }
+$IncludeSendAs = if ($config.PSObject.Properties.Name -contains "IncludeSendAs") { [bool]$config.IncludeSendAs } else { $false }
+$IncludeFolderPermissions = if ($config.PSObject.Properties.Name -contains "IncludeFolderPermissions") { [bool]$config.IncludeFolderPermissions } else { $false }
+$CollectorScheduleMinutes = if ($config.PSObject.Properties.Name -contains "CollectorScheduleMinutes" -and $null -ne $config.CollectorScheduleMinutes) { [int]$config.CollectorScheduleMinutes } else { 30 }
+$WebRefreshSeconds = if ($config.PSObject.Properties.Name -contains "WebRefreshSeconds" -and $null -ne $config.WebRefreshSeconds) { [int]$config.WebRefreshSeconds } else { 60 }
+$RegisterScheduledTask = if ($config.PSObject.Properties.Name -contains "RegisterScheduledTask") { [bool]$config.RegisterScheduledTask } else { $false }
+$ScheduledTaskName = if ($config.PSObject.Properties.Name -contains "ScheduledTaskName" -and -not [string]::IsNullOrWhiteSpace([string]$config.ScheduledTaskName)) { [string]$config.ScheduledTaskName } else { "Exchange Online Mailbox Dashboard Collector" }
+
+$Organization = if ($PSBoundParameters.ContainsKey("Organization")) { $Organization } elseif ($config.PSObject.Properties.Name -contains "Organization") { [string]$config.Organization } else { $null }
+$AppId = if ($PSBoundParameters.ContainsKey("AppId")) { $AppId } elseif ($config.PSObject.Properties.Name -contains "AppID") { [string]$config.AppID } elseif ($config.PSObject.Properties.Name -contains "AppId") { [string]$config.AppId } else { $null }
+$CertificateThumbprint = if ($PSBoundParameters.ContainsKey("CertificateThumbprint")) { $CertificateThumbprint } elseif ($config.PSObject.Properties.Name -contains "Thumbprint") { [string]$config.Thumbprint } elseif ($config.PSObject.Properties.Name -contains "CertificateThumbprint") { [string]$config.CertificateThumbprint } else { $null }
+$ClientSecret = if ($PSBoundParameters.ContainsKey("ClientSecret")) { $ClientSecret } elseif ($config.PSObject.Properties.Name -contains "ClientSecret") { [string]$config.ClientSecret } else { $null }
 
 # ---------------------------------------------------------------------------
 # Logging & Structural Helpers
@@ -241,6 +391,358 @@ function Convert-BytesToGB {
     return [Math]::Round($Bytes / 1GB, 2)
 }
 
+function Convert-StringArray {
+    param([Parameter()] $InputObject)
+    if ($null -eq $InputObject) { return @() }
+
+    return @(
+        foreach ($item in @($InputObject)) {
+            if ($null -eq $item) { continue }
+            if ($item -is [string]) {
+                $value = $item.Trim()
+                if (-not [string]::IsNullOrWhiteSpace($value)) { $value }
+                continue
+            }
+            if ($item.PSObject.Properties.Name -contains "Capability" -and $item.Capability) {
+                [string]$item.Capability
+                continue
+            }
+            [string]$item
+        }
+    )
+}
+
+function Try-ConvertToBoolean {
+    param([Parameter()] $InputObject)
+    if ($null -eq $InputObject) { return $null }
+    try { return [bool]$InputObject } catch { return $null }
+}
+
+function Get-RecordValue {
+    param(
+        [Parameter(Mandatory)] [psobject]$Record,
+        [Parameter(Mandatory)] [string[]]$PropertyNames
+    )
+    foreach ($propertyName in $PropertyNames) {
+        if ($Record.PSObject.Properties.Name -contains $propertyName) {
+            $value = $Record.$propertyName
+            if ($null -ne $value -and -not [string]::IsNullOrWhiteSpace([string]$value)) { return $value }
+        }
+    }
+    return $null
+}
+
+function Get-IsoUtcDateOrNull {
+    param([Parameter()] $InputObject)
+    if ($null -eq $InputObject -or [string]::IsNullOrWhiteSpace([string]$InputObject)) { return $null }
+    try { return ([datetimeoffset]::Parse([string]$InputObject)).ToUniversalTime().ToString("o") } catch { return $null }
+}
+
+function Get-RetentionPolicyCatalog {
+    $retentionPolicyCommand = Get-Command -Name Get-RetentionPolicy -ErrorAction SilentlyContinue
+    if ($null -eq $retentionPolicyCommand) {
+        Write-Log -Tag "RETENTION" -Level "WARN" -Message "Get-RetentionPolicy cmdlet is unavailable. Retention policy catalog enrichment is disabled."
+        return @{}
+    }
+
+    try {
+        $policies = @(Get-RetentionPolicy -ErrorAction Stop)
+    }
+    catch {
+        Write-Log -Tag "RETENTION" -Level "WARN" -Message "Failed to query retention policies: $($_.Exception.Message)"
+        return @{}
+    }
+
+    $lookup = @{}
+    foreach ($policy in $policies) {
+        if ($null -eq $policy) { continue }
+
+        $policyName = if ($policy.PSObject.Properties.Name -contains "Name") { [string]$policy.Name } else { [string]$policy.Identity }
+        if ([string]::IsNullOrWhiteSpace($policyName)) { continue }
+
+        $tagLinks = if ($policy.PSObject.Properties.Name -contains "RetentionPolicyTagLinks") {
+            Convert-StringArray -InputObject $policy.RetentionPolicyTagLinks
+        }
+        else {
+            @()
+        }
+
+        $lookup[$policyName.ToLowerInvariant()] = [pscustomobject]@{
+            Name                    = $policyName
+            IsKnownPolicy           = $true
+            MailboxCount            = 0
+            IsDefaultPolicy         = if ($policy.PSObject.Properties.Name -contains "IsDefault") { Try-ConvertToBoolean -InputObject $policy.IsDefault } else { $null }
+            RetentionId             = if ($policy.PSObject.Properties.Name -contains "RetentionId") { [string]$policy.RetentionId } elseif ($policy.PSObject.Properties.Name -contains "Guid") { [string]$policy.Guid } else { $null }
+            RetentionPolicyTagLinks = @($tagLinks)
+            TagCount                = @($tagLinks).Count
+            Comment                 = if ($policy.PSObject.Properties.Name -contains "Comment" -and -not [string]::IsNullOrWhiteSpace([string]$policy.Comment)) { [string]$policy.Comment } else { $null }
+        }
+    }
+
+    return $lookup
+}
+
+function Get-LicenseAssessment {
+    param(
+        [Parameter()] [string]$RecipientTypeDetails,
+        [Parameter()] [Nullable[bool]]$IsInactiveMailbox,
+        [Parameter()] [Nullable[bool]]$SkuAssigned,
+        [Parameter()] [string[]]$PersistedCapabilities
+    )
+
+    $normalizedRecipientType = [string]$RecipientTypeDetails
+    $normalizedRecipientType = $normalizedRecipientType.ToLowerInvariant()
+    $nonLicensedTypes = @(
+        "sharedmailbox", "roommailbox", "equipmentmailbox", "discoverymailbox",
+        "publicfoldermailbox", "groupmailbox", "schedulingmailbox", "teammailbox",
+        "auditlogmailbox", "arbitrationmailbox"
+    )
+
+    $capabilities = @($PersistedCapabilities | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+    $hasLicense = ($SkuAssigned -eq $true) -or ($capabilities.Count -gt 0)
+
+    $licenseRequired = $true
+    $requirementReason = "Recipient type '$RecipientTypeDetails' is expected to require mailbox licensing."
+    if ($IsInactiveMailbox -eq $true) {
+        $licenseRequired = $false
+        $requirementReason = "Inactive mailbox; licensing is generally not required."
+    }
+    elseif ($nonLicensedTypes -contains $normalizedRecipientType) {
+        $licenseRequired = $false
+        $requirementReason = "Recipient type '$RecipientTypeDetails' is typically unlicensed."
+    }
+
+    $licenseTypes = if ($capabilities.Count -gt 0) { $capabilities } elseif ($hasLicense) { @("SKUAssigned") } else { @() }
+
+    return [pscustomobject]@{
+        LicenseRequired          = $licenseRequired
+        HasLicense               = $hasLicense
+        LicenseTypes             = @($licenseTypes)
+        LicenseType              = if ($licenseTypes.Count -gt 0) { [string]($licenseTypes -join ", ") } else { $null }
+        IsLicenseCompliant       = (-not $licenseRequired) -or $hasLicense
+        LicenseRequirementReason = $requirementReason
+    }
+}
+
+function Get-RetentionPolicyNameFromMailboxRecord {
+    param([Parameter(Mandatory)] [psobject]$MailboxRecord)
+    if (-not ($MailboxRecord.PSObject.Properties.Name -contains "Retention") -or $null -eq $MailboxRecord.Retention) { return $null }
+    $retention = $MailboxRecord.Retention
+    if ($retention.PSObject.Properties.Name -contains "RetentionPolicy" -and -not [string]::IsNullOrWhiteSpace([string]$retention.RetentionPolicy)) {
+        return [string]$retention.RetentionPolicy
+    }
+    return $null
+}
+
+function Build-RetentionPolicyCatalog {
+    param(
+        [Parameter(Mandatory)] [hashtable]$PolicyLookup,
+        [Parameter(Mandatory)] [object[]]$MailboxRecords
+    )
+
+    $mailboxCountsByPolicy = @{}
+    foreach ($mailboxRecord in @($MailboxRecords)) {
+        if ($null -eq $mailboxRecord) { continue }
+        $policyName = Get-RetentionPolicyNameFromMailboxRecord -MailboxRecord $mailboxRecord
+        if ([string]::IsNullOrWhiteSpace($policyName)) { continue }
+        $key = $policyName.ToLowerInvariant()
+        if (-not $mailboxCountsByPolicy.ContainsKey($key)) {
+            $mailboxCountsByPolicy[$key] = [pscustomobject]@{ Name = $policyName; Count = 0 }
+        }
+        $mailboxCountsByPolicy[$key].Count += 1
+    }
+
+    $catalogKeys = @($PolicyLookup.Keys + $mailboxCountsByPolicy.Keys | Sort-Object -Unique)
+    $catalog = foreach ($catalogKey in $catalogKeys) {
+        $mailboxCount = if ($mailboxCountsByPolicy.ContainsKey($catalogKey)) { [int]$mailboxCountsByPolicy[$catalogKey].Count } else { 0 }
+        if ($PolicyLookup.ContainsKey($catalogKey)) {
+            $policy = $PolicyLookup[$catalogKey]
+            [pscustomobject]@{
+                Name                    = [string]$policy.Name
+                IsKnownPolicy           = [bool]$policy.IsKnownPolicy
+                MailboxCount            = $mailboxCount
+                IsDefaultPolicy         = $policy.IsDefaultPolicy
+                RetentionId             = $policy.RetentionId
+                RetentionPolicyTagLinks = @($policy.RetentionPolicyTagLinks)
+                TagCount                = if ($null -ne $policy.TagCount) { [int]$policy.TagCount } else { 0 }
+                Comment                 = $policy.Comment
+            }
+        }
+        else {
+            [pscustomobject]@{
+                Name                    = [string]$mailboxCountsByPolicy[$catalogKey].Name
+                IsKnownPolicy           = $false
+                MailboxCount            = $mailboxCount
+                IsDefaultPolicy         = $null
+                RetentionId             = $null
+                RetentionPolicyTagLinks = @()
+                TagCount                = 0
+                Comment                 = "Policy is assigned to one or more mailboxes but was not returned by Get-RetentionPolicy."
+            }
+        }
+    }
+
+    return @($catalog | Sort-Object -Property @{ Expression = { -1 * [int]$_.MailboxCount } }, @{ Expression = { [string]$_.Name } })
+}
+
+function Apply-RetentionPolicyDetailsToMailboxRecords {
+    param(
+        [Parameter(Mandatory)] [object[]]$MailboxRecords,
+        [Parameter(Mandatory)] [object[]]$RetentionPolicies
+    )
+
+    $policyIndex = @{}
+    foreach ($policy in @($RetentionPolicies)) {
+        if ($null -eq $policy -or [string]::IsNullOrWhiteSpace([string]$policy.Name)) { continue }
+        $policyIndex[[string]$policy.Name.ToLowerInvariant()] = $policy
+    }
+
+    foreach ($mailboxRecord in @($MailboxRecords)) {
+        if ($null -eq $mailboxRecord -or -not ($mailboxRecord.PSObject.Properties.Name -contains "Retention") -or $null -eq $mailboxRecord.Retention) { continue }
+        $policyName = Get-RetentionPolicyNameFromMailboxRecord -MailboxRecord $mailboxRecord
+        if ([string]::IsNullOrWhiteSpace($policyName)) {
+            $mailboxRecord.Retention.RetentionPolicyDetails = $null
+            continue
+        }
+
+        $lookupKey = $policyName.ToLowerInvariant()
+        if (-not $policyIndex.ContainsKey($lookupKey)) {
+            $mailboxRecord.Retention.RetentionPolicyDetails = [pscustomobject]@{
+                Name            = $policyName
+                IsKnownPolicy   = $false
+                MailboxCount    = 0
+                IsDefaultPolicy = $null
+                RetentionId     = $null
+                TagCount        = 0
+                Comment         = "Policy was not found in retention policy catalog."
+            }
+            continue
+        }
+
+        $policy = $policyIndex[$lookupKey]
+        $mailboxRecord.Retention.RetentionPolicyDetails = [pscustomobject]@{
+            Name            = [string]$policy.Name
+            IsKnownPolicy   = [bool]$policy.IsKnownPolicy
+            MailboxCount    = [int]$policy.MailboxCount
+            IsDefaultPolicy = $policy.IsDefaultPolicy
+            RetentionId     = $policy.RetentionId
+            TagCount        = if ($null -ne $policy.TagCount) { [int]$policy.TagCount } else { 0 }
+            Comment         = $policy.Comment
+        }
+    }
+}
+
+function Get-LastSampleTimestampOrNow {
+    param(
+        [Parameter(Mandatory)] [psobject]$HistoryEntry,
+        [Parameter(Mandatory)] [datetime]$SnapshotTimeUtc
+    )
+
+    $latestSample = $null
+    if ($HistoryEntry.PSObject.Properties.Name -contains "Samples") {
+        $samples = @($HistoryEntry.Samples)
+        if ($samples.Count -gt 0) {
+            $latestSample = $samples[-1]
+        }
+    }
+
+    if ($null -ne $latestSample -and $latestSample.PSObject.Properties.Name -contains "TimestampUtc" -and -not [string]::IsNullOrWhiteSpace([string]$latestSample.TimestampUtc)) {
+        return [string]$latestSample.TimestampUtc
+    }
+
+    return $SnapshotTimeUtc.ToString("o")
+}
+
+function Update-MailboxPolicyAndLicenseChangeHistory {
+    param(
+        [Parameter(Mandatory)] [psobject]$HistoryEntry,
+        [Parameter(Mandatory)] [psobject]$CurrentRecord,
+        [Parameter(Mandatory)] [datetime]$SnapshotTimeUtc
+    )
+
+    $eventTimestampUtc = $SnapshotTimeUtc.ToString("o")
+    $baselineTimestampUtc = Get-LastSampleTimestampOrNow -HistoryEntry $HistoryEntry -SnapshotTimeUtc $SnapshotTimeUtc
+
+    if (-not ($HistoryEntry.PSObject.Properties.Name -contains "RetentionPolicyChangeHistory") -or $null -eq $HistoryEntry.RetentionPolicyChangeHistory) {
+        $HistoryEntry.RetentionPolicyChangeHistory = @()
+    }
+    if (-not ($HistoryEntry.PSObject.Properties.Name -contains "LicenseAssignmentHistory") -or $null -eq $HistoryEntry.LicenseAssignmentHistory) {
+        $HistoryEntry.LicenseAssignmentHistory = @()
+    }
+
+    $retentionHistory = [System.Collections.Generic.List[object]]::new()
+    foreach ($item in @($HistoryEntry.RetentionPolicyChangeHistory)) {
+        if ($null -ne $item) { $retentionHistory.Add($item) }
+    }
+
+    $licenseHistory = [System.Collections.Generic.List[object]]::new()
+    foreach ($item in @($HistoryEntry.LicenseAssignmentHistory)) {
+        if ($null -ne $item) { $licenseHistory.Add($item) }
+    }
+
+    $currentRetentionPolicy = if ($CurrentRecord.Retention -and $CurrentRecord.Retention.PSObject.Properties.Name -contains "RetentionPolicy") { [string]$CurrentRecord.Retention.RetentionPolicy } else { $null }
+    $currentLicenseType = if ($CurrentRecord.Licensing -and $CurrentRecord.Licensing.PSObject.Properties.Name -contains "LicenseType") { [string]$CurrentRecord.Licensing.LicenseType } else { $null }
+    $currentHasLicense = if ($CurrentRecord.Licensing -and $CurrentRecord.Licensing.PSObject.Properties.Name -contains "HasLicense") { Try-ConvertToBoolean -InputObject $CurrentRecord.Licensing.HasLicense } else { $null }
+    $currentLicenseRequired = if ($CurrentRecord.Licensing -and $CurrentRecord.Licensing.PSObject.Properties.Name -contains "LicenseRequired") { Try-ConvertToBoolean -InputObject $CurrentRecord.Licensing.LicenseRequired } else { $null }
+
+    $previousRetentionPolicy = if ($HistoryEntry.Retention -and $HistoryEntry.Retention.PSObject.Properties.Name -contains "RetentionPolicy") { [string]$HistoryEntry.Retention.RetentionPolicy } else { $null }
+    $previousLicenseType = if ($HistoryEntry.Licensing -and $HistoryEntry.Licensing.PSObject.Properties.Name -contains "LicenseType") { [string]$HistoryEntry.Licensing.LicenseType } else { $null }
+    $previousHasLicense = if ($HistoryEntry.Licensing -and $HistoryEntry.Licensing.PSObject.Properties.Name -contains "HasLicense") { Try-ConvertToBoolean -InputObject $HistoryEntry.Licensing.HasLicense } else { $null }
+    $previousLicenseRequired = if ($HistoryEntry.Licensing -and $HistoryEntry.Licensing.PSObject.Properties.Name -contains "LicenseRequired") { Try-ConvertToBoolean -InputObject $HistoryEntry.Licensing.LicenseRequired } else { $null }
+
+    if ($retentionHistory.Count -eq 0 -and -not [string]::IsNullOrWhiteSpace($previousRetentionPolicy)) {
+        $retentionHistory.Add([pscustomobject]@{
+            TimestampUtc = $baselineTimestampUtc
+            RetentionPolicy = $previousRetentionPolicy
+        })
+    }
+
+    if ($retentionHistory.Count -eq 0 -or ([string]$retentionHistory[$retentionHistory.Count - 1].RetentionPolicy) -ne [string]$currentRetentionPolicy) {
+        $retentionHistory.Add([pscustomobject]@{
+            TimestampUtc = $eventTimestampUtc
+            RetentionPolicy = $currentRetentionPolicy
+        })
+    }
+
+    if ($licenseHistory.Count -eq 0 -and ($null -ne $previousHasLicense -or $null -ne $previousLicenseRequired -or -not [string]::IsNullOrWhiteSpace($previousLicenseType))) {
+        $licenseHistory.Add([pscustomobject]@{
+            TimestampUtc = $baselineTimestampUtc
+            HasLicense = $previousHasLicense
+            LicenseRequired = $previousLicenseRequired
+            LicenseType = $previousLicenseType
+        })
+    }
+
+    $appendLicenseEvent = $false
+    if ($licenseHistory.Count -eq 0) {
+        $appendLicenseEvent = $true
+    }
+    else {
+        $lastLicense = $licenseHistory[$licenseHistory.Count - 1]
+        $lastHasLicense = if ($lastLicense.PSObject.Properties.Name -contains "HasLicense") { Try-ConvertToBoolean -InputObject $lastLicense.HasLicense } else { $null }
+        $lastLicenseRequired = if ($lastLicense.PSObject.Properties.Name -contains "LicenseRequired") { Try-ConvertToBoolean -InputObject $lastLicense.LicenseRequired } else { $null }
+        $lastLicenseType = if ($lastLicense.PSObject.Properties.Name -contains "LicenseType") { [string]$lastLicense.LicenseType } else { $null }
+
+        if ($lastHasLicense -ne $currentHasLicense -or $lastLicenseRequired -ne $currentLicenseRequired -or [string]$lastLicenseType -ne [string]$currentLicenseType) {
+            $appendLicenseEvent = $true
+        }
+    }
+
+    if ($appendLicenseEvent) {
+        $licenseHistory.Add([pscustomobject]@{
+            TimestampUtc = $eventTimestampUtc
+            HasLicense = $currentHasLicense
+            LicenseRequired = $currentLicenseRequired
+            LicenseType = $currentLicenseType
+        })
+    }
+
+    $HistoryEntry.RetentionPolicyChangeHistory = @($retentionHistory)
+    $HistoryEntry.LicenseAssignmentHistory = @($licenseHistory)
+    $CurrentRecord.RetentionPolicyChangeHistory = @($retentionHistory)
+    $CurrentRecord.LicenseAssignmentHistory = @($licenseHistory)
+}
+
 function Read-JsonFile {
     param([Parameter(Mandatory)] [string]$Path)
     if (-not (Test-Path -LiteralPath $Path)) { return $null }
@@ -343,18 +845,19 @@ function Get-HistoryEntry {
 function Connect-ToExchangeOnline {
     if ($Interactive) { Connect-ExchangeOnline -ShowBanner:$false; return }
     if ([string]::IsNullOrWhiteSpace($AppId) -or [string]::IsNullOrWhiteSpace($Organization) -or [string]::IsNullOrWhiteSpace($CertificateThumbprint)) {
-        throw "For unattended execution, supply -AppId, -Organization and -CertificateThumbprint."
+        throw "Unattended execution requires AppId, Organization, and CertificateThumbprint in the selected config file (or as overrides when using an alternate -ConfigPath)."
     }
     Connect-ExchangeOnline -AppId $AppId -Organization $Organization -CertificateThumbprint $CertificateThumbprint -ShowBanner:$false
 }
 
 function Show-DashboardRuntimeSummary {
-    param($CsvPath, $OutputJsonPath, $HistoryJsonPath, $WebRootPath, $DashboardUrl, $Organization, $AppId, $CertificateThumbprint, $WarningThresholdPercent, $CriticalThresholdPercent, $WebRefreshSeconds, $CollectorScheduleMinutes, $ScheduledTaskName, [switch]$RegisterScheduledTask)
+    param($ConfigPath, $CsvPath, $OutputJsonPath, $HistoryJsonPath, $WebRootPath, $DashboardUrl, $Organization, $AppId, $CertificateThumbprint, $WarningThresholdPercent, $CriticalThresholdPercent, $WebRefreshSeconds, $CollectorScheduleMinutes, $ScheduledTaskName, [switch]$RegisterScheduledTask)
     $summary = @"
 
 ============================================================
  Exchange Online Mailbox Dashboard Collector Configuration
 ============================================================
+Config file:                 $ConfigPath
 CSV input file:              $CsvPath
 Current data JSON:           $OutputJsonPath
 Historical data JSON:        $HistoryJsonPath
@@ -373,9 +876,15 @@ Critical threshold:          $CriticalThresholdPercent%
 }
 
 function Get-MailboxDashboardRecord {
-    param([Parameter(Mandatory)] [string]$Identity, [Parameter(Mandatory)] $HistoryLookup, [Parameter(Mandatory)] [datetime]$SnapshotTimeUtc)
+    param(
+        [Parameter(Mandatory)] [string]$Identity,
+        [Parameter(Mandatory)] $HistoryLookup,
+        [Parameter(Mandatory)] [datetime]$SnapshotTimeUtc,
+        [Parameter(Mandatory)] [psobject]$MailboxRow,
+        [Parameter(Mandatory)] [string]$RunCorrelationId
+    )
 
-    $mailbox = Get-EXOMailbox -Identity $Identity -Properties DisplayName,PrimarySmtpAddress,RecipientTypeDetails,ExchangeGuid,ArchiveGuid,ArchiveStatus,ProhibitSendQuota,ProhibitSendReceiveQuota,IssueWarningQuota,GrantSendOnBehalfTo
+    $mailbox = Get-EXOMailbox -Identity $Identity -Properties DisplayName,PrimarySmtpAddress,RecipientTypeDetails,ExchangeGuid,ArchiveGuid,ArchiveStatus,ProhibitSendQuota,ProhibitSendReceiveQuota,IssueWarningQuota,GrantSendOnBehalfTo,SKUAssigned,PersistedCapabilities,IsInactiveMailbox,RetentionPolicy,RetentionHoldEnabled,LitigationHoldEnabled,LitigationHoldDuration,InPlaceHolds,SingleItemRecoveryEnabled,RetainDeletedItemsFor
     $stats = Get-EXOMailboxStatistics -Identity $Identity
     $exchangeGuid = [string]$mailbox.ExchangeGuid
     $historyEntry = Get-HistoryEntry -HistoryLookup $HistoryLookup -ExchangeGuid $exchangeGuid -PrimarySmtpAddress ([string]$mailbox.PrimarySmtpAddress)
@@ -454,6 +963,77 @@ function Get-MailboxDashboardRecord {
         } catch { Write-Warning "Could not query archive statistics for $Identity. Preserving the most recent known archive values." }
     }
 
+    $lastLogonTime = if ($stats.PSObject.Properties.Name -contains "LastLogonTime" -and $stats.LastLogonTime) {
+        try { $stats.LastLogonTime.ToString("o") } catch { $null }
+    }
+    else {
+        $null
+    }
+
+    $retentionProfile = [pscustomobject]@{
+        RetentionPolicy = if ($mailbox.PSObject.Properties.Name -contains "RetentionPolicy") { [string]$mailbox.RetentionPolicy } else { $null }
+        RetentionHoldEnabled = if ($mailbox.PSObject.Properties.Name -contains "RetentionHoldEnabled") { Try-ConvertToBoolean -InputObject $mailbox.RetentionHoldEnabled } else { $null }
+        LitigationHoldEnabled = if ($mailbox.PSObject.Properties.Name -contains "LitigationHoldEnabled") { Try-ConvertToBoolean -InputObject $mailbox.LitigationHoldEnabled } else { $null }
+        LitigationHoldDurationDays = if ($mailbox.PSObject.Properties.Name -contains "LitigationHoldDuration" -and $null -ne $mailbox.LitigationHoldDuration) { [int]$mailbox.LitigationHoldDuration } else { $null }
+        InPlaceHolds = if ($mailbox.PSObject.Properties.Name -contains "InPlaceHolds") { Convert-StringArray -InputObject $mailbox.InPlaceHolds } else { @() }
+        SingleItemRecoveryEnabled = if ($mailbox.PSObject.Properties.Name -contains "SingleItemRecoveryEnabled") { Try-ConvertToBoolean -InputObject $mailbox.SingleItemRecoveryEnabled } else { $null }
+        RetainDeletedItemsFor = if ($mailbox.PSObject.Properties.Name -contains "RetainDeletedItemsFor" -and $null -ne $mailbox.RetainDeletedItemsFor) { [string]$mailbox.RetainDeletedItemsFor } else { $null }
+    }
+
+    $recipientTypeDetails = if ($mailbox.PSObject.Properties.Name -contains "RecipientTypeDetails") { [string]$mailbox.RecipientTypeDetails } else { "" }
+    $skuAssigned = if ($mailbox.PSObject.Properties.Name -contains "SKUAssigned") { Try-ConvertToBoolean -InputObject $mailbox.SKUAssigned } else { $null }
+    $persistedCapabilities = if ($mailbox.PSObject.Properties.Name -contains "PersistedCapabilities") { Convert-StringArray -InputObject $mailbox.PersistedCapabilities } else { @() }
+    $isInactiveMailbox = if ($mailbox.PSObject.Properties.Name -contains "IsInactiveMailbox") { Try-ConvertToBoolean -InputObject $mailbox.IsInactiveMailbox } else { $null }
+    $licenseAssessment = Get-LicenseAssessment -RecipientTypeDetails $recipientTypeDetails -IsInactiveMailbox $isInactiveMailbox -SkuAssigned $skuAssigned -PersistedCapabilities $persistedCapabilities
+
+    $licensingProfile = [pscustomobject]@{
+        RecipientTypeDetails = $recipientTypeDetails
+        IsSharedMailbox = ($recipientTypeDetails -eq "SharedMailbox")
+        SKUAssigned = $skuAssigned
+        PersistedCapabilities = @($persistedCapabilities)
+        ArchiveStatus = if ($mailbox.PSObject.Properties.Name -contains "ArchiveStatus") { [string]$mailbox.ArchiveStatus } else { $null }
+        IsInactiveMailbox = $isInactiveMailbox
+        LicenseRequired = $licenseAssessment.LicenseRequired
+        HasLicense = $licenseAssessment.HasLicense
+        LicenseTypes = @($licenseAssessment.LicenseTypes)
+        LicenseType = $licenseAssessment.LicenseType
+        IsLicenseCompliant = $licenseAssessment.IsLicenseCompliant
+        LicenseRequirementReason = $licenseAssessment.LicenseRequirementReason
+    }
+
+    $cleanupAttemptUtc = Get-IsoUtcDateOrNull -InputObject (Get-RecordValue -Record $MailboxRow -PropertyNames @("LastCleanupAttemptUtc", "CleanupLastAttemptUtc"))
+    $cleanupSuccessUtc = Get-IsoUtcDateOrNull -InputObject (Get-RecordValue -Record $MailboxRow -PropertyNames @("LastCleanupSuccessUtc", "CleanupLastSuccessUtc"))
+    $cleanupStatus = Get-RecordValue -Record $MailboxRow -PropertyNames @("CleanupStatus", "MailboxCleanupStatus")
+    $cleanupVersion = Get-RecordValue -Record $MailboxRow -PropertyNames @("CleanupVersion")
+    $cleanupLastProcessedBy = Get-RecordValue -Record $MailboxRow -PropertyNames @("LastProcessedBy")
+    $cleanupCorrelationId = Get-RecordValue -Record $MailboxRow -PropertyNames @("CleanupCorrelationId", "CorrelationId")
+    $cleanupNotes = Get-RecordValue -Record $MailboxRow -PropertyNames @("CleanupNotes", "MaintenanceNotes")
+
+    if ($null -eq $cleanupStatus) {
+        $cleanupStatus = if ($cleanupSuccessUtc) { "Success" } else { "Unknown" }
+    }
+
+    $daysSinceSuccessfulCleanup = $null
+    if ($cleanupSuccessUtc) {
+        try {
+            $daysSinceSuccessfulCleanup = [Math]::Floor(((Get-Date).ToUniversalTime() - ([datetimeoffset]::Parse($cleanupSuccessUtc)).UtcDateTime).TotalDays)
+        }
+        catch {
+            $daysSinceSuccessfulCleanup = $null
+        }
+    }
+
+    $mailboxMaintenance = [pscustomobject]@{
+        LastCleanupAttemptUtc = $cleanupAttemptUtc
+        LastCleanupSuccessUtc = $cleanupSuccessUtc
+        CleanupStatus = [string]$cleanupStatus
+        DaysSinceSuccessfulCleanup = $daysSinceSuccessfulCleanup
+        CleanupVersion = if ($cleanupVersion) { [string]$cleanupVersion } else { $null }
+        LastProcessedBy = if ($cleanupLastProcessedBy) { [string]$cleanupLastProcessedBy } else { "Update-MailboxDashboard" }
+        CorrelationId = if ($cleanupCorrelationId) { [string]$cleanupCorrelationId } else { $RunCorrelationId }
+        Notes = if ($cleanupNotes) { [string]$cleanupNotes } else { "No external cleanup telemetry was provided for this mailbox." }
+    }
+
     $thresholdState = if ($usagePercent -ge $CriticalThresholdPercent) { "critical" } elseif ($usagePercent -ge $WarningThresholdPercent) { "warning" } else { "ok" }
 
     return [pscustomobject]@{
@@ -470,6 +1050,7 @@ function Get-MailboxDashboardRecord {
             QuotaGB                  = $quotaGB
             UsagePercent             = $usagePercent
             ThresholdState           = $thresholdState
+            LastLogonTime            = $lastLogonTime
             ArchiveEnabled           = $archiveEnabled
             ArchiveSizeGB            = $archiveSizeGB
             ArchiveItemCount         = $archiveItemCount
@@ -481,6 +1062,12 @@ function Get-MailboxDashboardRecord {
                 }
             } else { $null }
             Permissions              = $permissions
+            Retention                = $retentionProfile
+            Licensing                = $licensingProfile
+            MailboxMaintenance       = $mailboxMaintenance
+            LastCleanupSuccessUtc    = $mailboxMaintenance.LastCleanupSuccessUtc
+            CleanupStatus            = $mailboxMaintenance.CleanupStatus
+            DaysSinceSuccessfulCleanup = $mailboxMaintenance.DaysSinceSuccessfulCleanup
         }
         History = [pscustomobject]@{
             TimestampUtc    = $SnapshotTimeUtc.ToString("o")
@@ -495,6 +1082,7 @@ function Get-MailboxDashboardRecord {
             ArchiveSizeGB   = $archiveSizeGB
             ArchiveItemCount = $archiveItemCount
             ThresholdState  = $thresholdState
+            LastLogonTime   = $lastLogonTime
         }
     }
 }
@@ -513,12 +1101,19 @@ function Show-CriticalThresholdReport {
 }
 
 function Register-MailboxDashboardScheduledTask {
-    param([Parameter(Mandatory)] [string]$TaskName, [Parameter(Mandatory)] [string]$ScriptPath, [Parameter(Mandatory)] [string]$CsvPath, [Parameter(Mandatory)] [string]$OutputJsonPath, [Parameter(Mandatory)] [string]$HistoryJsonPath, [Parameter(Mandatory)] [string]$WebRootPath, [Parameter(Mandatory)] [string]$DashboardUrl, [Parameter(Mandatory)] [string]$AppId, [Parameter(Mandatory)] [string]$Organization, [Parameter(Mandatory)] [string]$CertificateThumbprint, [double]$WarningThresholdPercent, [double]$CriticalThresholdPercent, [int]$WebRefreshSeconds, [int]$CollectorScheduleMinutes, [switch]$IncludeSendAs, [switch]$IncludeArchive, [switch]$IncludeFolderPermissions, [string]$LogRootPath)
+    param(
+        [Parameter(Mandatory)] [string]$TaskName,
+        [Parameter(Mandatory)] [string]$ScriptPath,
+        [Parameter(Mandatory)] [string]$ConfigPath,
+        [int]$CollectorScheduleMinutes
+    )
     
-    $arguments = @("-NoProfile", "-ExecutionPolicy Bypass", "-File `"$ScriptPath`"", "-CsvPath `"$CsvPath`"", "-OutputJsonPath `"$OutputJsonPath`"", "-HistoryJsonPath `"$HistoryJsonPath`"", "-WebRootPath `"$WebRootPath`"", "-DashboardUrl `"$DashboardUrl`"", "-AppId `"$AppId`"", "-Organization `"$Organization`"", "-CertificateThumbprint `"$CertificateThumbprint`"")
-    if ($IncludeSendAs) { $arguments += "-IncludeSendAs" }
-    if ($IncludeArchive) { $arguments += "-IncludeArchive" }
-    if ($IncludeFolderPermissions) { $arguments += "-IncludeFolderPermissions" }
+    $arguments = @(
+        "-NoProfile",
+        "-ExecutionPolicy Bypass",
+        "-File `"$ScriptPath`"",
+        "-ConfigPath `"$ConfigPath`""
+    )
 
     $action = New-ScheduledTaskAction -Execute "pwsh.exe" -Argument ($arguments -join " ")
     $trigger = New-ScheduledTaskTrigger -Once -At (Get-Date).AddMinutes(1) -RepetitionInterval (New-TimeSpan -Minutes $CollectorScheduleMinutes) -RepetitionDuration ([TimeSpan]::MaxValue)
@@ -532,20 +1127,19 @@ function Register-MailboxDashboardScheduledTask {
 # Execution Block Lifecycle
 # ---------------------------------------------------------------------------
 try {
-    $resolvedLogPath = Start-DashboardLogging -LogRootPath $LogRootPath -LogFilePath $LogFilePath
+    Start-DashboardLogging -LogRootPath $LogRootPath -LogFilePath $LogFilePath
     Write-Log -Tag "START" -Message "Collector runtime execution initialized."
 
     $OverviewUrl   = Join-DashboardUrl -BaseUrl $DashboardUrl -Page "index.html"
     $ThresholdsUrl = Join-DashboardUrl -BaseUrl $DashboardUrl -Page "thresholds.html"
     $HistoryUrl    = Join-DashboardUrl -BaseUrl $DashboardUrl -Page "history.html"
-    $PermissionsUrl = Join-DashboardUrl -BaseUrl $DashboardUrl -Page "permissions.html"
 
     if ($UseFilePicker -or [string]::IsNullOrWhiteSpace($CsvPath)) {
         $CsvPath = Get-CsvFileFromPicker
     }
     if (-not (Test-Path -LiteralPath $CsvPath)) { throw "CSV target data mapping missing: $CsvPath" }
 
-    Show-DashboardRuntimeSummary -CsvPath $CsvPath -OutputJsonPath $OutputJsonPath -HistoryJsonPath $HistoryJsonPath -WebRootPath $WebRootPath -DashboardUrl $OverviewUrl -Organization $Organization -AppId $AppId -CertificateThumbprint $CertificateThumbprint -WarningThresholdPercent $WarningThresholdPercent -CriticalThresholdPercent $CriticalThresholdPercent -WebRefreshSeconds $WebRefreshSeconds -CollectorScheduleMinutes $CollectorScheduleMinutes -ScheduledTaskName $ScheduledTaskName -RegisterScheduledTask:$RegisterScheduledTask
+    Show-DashboardRuntimeSummary -ConfigPath $resolvedConfigPath -CsvPath $CsvPath -OutputJsonPath $OutputJsonPath -HistoryJsonPath $HistoryJsonPath -WebRootPath $WebRootPath -DashboardUrl $OverviewUrl -Organization $Organization -AppId $AppId -CertificateThumbprint $CertificateThumbprint -WarningThresholdPercent $WarningThresholdPercent -CriticalThresholdPercent $CriticalThresholdPercent -WebRefreshSeconds $WebRefreshSeconds -CollectorScheduleMinutes $CollectorScheduleMinutes -ScheduledTaskName $ScheduledTaskName -RegisterScheduledTask:$RegisterScheduledTask
 
     Write-Log -Tag "INPUT" -Message "Processing structural targets from matching CSV mappings."
     $mailboxRows = Import-Csv -LiteralPath $CsvPath
@@ -557,8 +1151,11 @@ try {
     Import-Module ExchangeOnlineManagement
     Connect-ToExchangeOnline
     Write-Log -Tag "EXO" -Level "SUCCESS" -Message "Remote endpoint synchronization pipeline connected."
+    $retentionPolicyLookup = Get-RetentionPolicyCatalog
+    Write-Log -Tag "RETENTION" -Message "Retention policy catalog entries discovered: $($retentionPolicyLookup.Count)"
 
     $snapshotTimeUtc = (Get-Date).ToUniversalTime()
+    $runCorrelationId = [guid]::NewGuid().ToString()
     $existingHistoryData = Read-JsonFile -Path $HistoryJsonPath
     $historyLookup = Get-HistoryLookup -HistoryData $existingHistoryData
 
@@ -569,7 +1166,7 @@ try {
         $mailboxIdentity = $row.Mailbox.Trim()
         
         try {
-            $result = Get-MailboxDashboardRecord -Identity $mailboxIdentity -HistoryLookup $historyLookup -SnapshotTimeUtc $snapshotTimeUtc
+            $result = Get-MailboxDashboardRecord -Identity $mailboxIdentity -HistoryLookup $historyLookup -SnapshotTimeUtc $snapshotTimeUtc -MailboxRow $row -RunCorrelationId $runCorrelationId
             $currentRecords += $result.Current
 
             $historyEntry = Get-HistoryEntry -HistoryLookup $historyLookup -ExchangeGuid ([string]$result.Current.ExchangeGuid) -PrimarySmtpAddress ([string]$result.Current.PrimarySmtpAddress)
@@ -581,6 +1178,14 @@ try {
                 $historyEntry.ExchangeGuid = [string]$result.Current.ExchangeGuid
                 $historyEntry.PrimarySmtpAddress = [string]$result.Current.PrimarySmtpAddress
                 $historyEntry.DisplayName = [string]$result.Current.DisplayName
+                $historyEntry.Permissions = @($result.Current.Permissions)
+                Update-MailboxPolicyAndLicenseChangeHistory -HistoryEntry $historyEntry -CurrentRecord $result.Current -SnapshotTimeUtc $snapshotTimeUtc
+                $historyEntry.Retention = $result.Current.Retention
+                $historyEntry.Licensing = $result.Current.Licensing
+                $historyEntry.MailboxMaintenance = $result.Current.MailboxMaintenance
+                $historyEntry.LastCleanupSuccessUtc = $result.Current.LastCleanupSuccessUtc
+                $historyEntry.CleanupStatus = $result.Current.CleanupStatus
+                $historyEntry.DaysSinceSuccessfulCleanup = $result.Current.DaysSinceSuccessfulCleanup
                 $historyEntry.Samples = $samples
             }
             else {
@@ -588,8 +1193,16 @@ try {
                     ExchangeGuid       = [string]$result.Current.ExchangeGuid
                     PrimarySmtpAddress = [string]$result.Current.PrimarySmtpAddress
                     DisplayName        = [string]$result.Current.DisplayName
+                    Permissions        = @($result.Current.Permissions)
+                    Retention          = $result.Current.Retention
+                    Licensing          = $result.Current.Licensing
+                    MailboxMaintenance = $result.Current.MailboxMaintenance
+                    LastCleanupSuccessUtc = $result.Current.LastCleanupSuccessUtc
+                    CleanupStatus = $result.Current.CleanupStatus
+                    DaysSinceSuccessfulCleanup = $result.Current.DaysSinceSuccessfulCleanup
                     Samples            = @($result.History)
                 }
+                Update-MailboxPolicyAndLicenseChangeHistory -HistoryEntry $historyEntry -CurrentRecord $result.Current -SnapshotTimeUtc $snapshotTimeUtc
 
                 $historyLookup.Entries.Add($historyEntry)
             }
@@ -613,9 +1226,15 @@ try {
         $currentRecords | Where-Object { $null -ne $_.UsagePercent -and $_.UsagePercent -ge $CriticalThresholdPercent } | Sort-Object { $_.UsagePercent } -Descending
     )
 
+    $retentionPolicies = Build-RetentionPolicyCatalog -PolicyLookup $retentionPolicyLookup -MailboxRecords $currentRecords
+    Apply-RetentionPolicyDetailsToMailboxRecords -MailboxRecords $currentRecords -RetentionPolicies $retentionPolicies
+    Apply-RetentionPolicyDetailsToMailboxRecords -MailboxRecords @($historyLookup.Entries) -RetentionPolicies $retentionPolicies
+
     Show-CriticalThresholdReport -ThresholdMailboxes $thresholdMailboxes -CriticalThresholdPercent $CriticalThresholdPercent
 
     $currentDashboardData = [pscustomobject]@{
+        '$schema'                = "./dashboard.schema.json"
+        SchemaVersion            = "2026-08-14"
         GeneratedUtc             = $snapshotTimeUtc.ToString("o")
         SourceCsv                = $CsvPath
         WebRootPath              = $WebRootPath
@@ -624,11 +1243,15 @@ try {
         WarningThresholdPercent  = $WarningThresholdPercent
         CriticalThresholdPercent = $CriticalThresholdPercent
         ThresholdCount           = $thresholdMailboxes.Count
+        RetentionPolicies        = @($retentionPolicies)
         Mailboxes                = $currentRecords
         ThresholdMailboxes       = $thresholdMailboxes
     }
 
     $historyOutput = [pscustomobject]@{
+        '$schema'         = "./dashboard.schema.json"
+        SchemaVersion     = "2026-08-14"
+        RetentionPolicies = @($retentionPolicies)
         MailboxHistory    = @($historyLookup.Entries)
         GeneratedUtc      = $snapshotTimeUtc.ToString("o")
         MaxHistorySamples = $MaxHistorySamples
@@ -641,7 +1264,7 @@ try {
     Write-JsonFileAtomic -InputObject $historyOutput -Path $HistoryJsonPath -Depth 12
 
     if ($RegisterScheduledTask) {
-        Register-MailboxDashboardScheduledTask -TaskName $ScheduledTaskName -ScriptPath $PSCommandPath -CsvPath $CsvPath -OutputJsonPath $OutputJsonPath -HistoryJsonPath $HistoryJsonPath -WebRootPath $WebRootPath -DashboardUrl $DashboardUrl -AppId $AppId -Organization $Organization -CertificateThumbprint $CertificateThumbprint -WarningThresholdPercent $WarningThresholdPercent -CriticalThresholdPercent $CriticalThresholdPercent -WebRefreshSeconds $WebRefreshSeconds -CollectorScheduleMinutes $CollectorScheduleMinutes -IncludeSendAs:$IncludeSendAs -IncludeArchive:$IncludeArchive -IncludeFolderPermissions:$IncludeFolderPermissions -LogRootPath $LogRootPath
+        Register-MailboxDashboardScheduledTask -TaskName $ScheduledTaskName -ScriptPath $PSCommandPath -ConfigPath $resolvedConfigPath -CollectorScheduleMinutes $CollectorScheduleMinutes
     }
 }
 catch {

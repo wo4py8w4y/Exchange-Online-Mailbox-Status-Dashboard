@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Mailbox Permissions</title>
+    <title>Mailbox Licensing</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="styles.css" />
     <script>
@@ -10,10 +10,10 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
 </head>
-<body data-page="permissions">
+<body data-page="licensing">
     <header class="app-header">
         <div>
-            <h1>Current Mailbox Permissions</h1>
+            <h1>Mailbox Licensing</h1>
             <p id="lastUpdated">Loading...</p>
         </div>
         <div class="header-actions">
@@ -38,14 +38,14 @@
         <section class="panel search-panel">
             <div class="search-panel-head">
                 <div>
-                    <h2>Permission explorer</h2>
-                    <p id="searchStatus" class="panel-subtitle">Search and select a mailbox to review delegated access.</p>
+                    <h2>Licensing analysis</h2>
+                    <p id="searchStatus" class="panel-subtitle">Inspect required licensing, assignment state, and compliance gaps.</p>
                 </div>
                 <button id="clearSearchBtn" class="btn-secondary">Clear</button>
             </div>
             <div class="search-shell">
                 <label class="sr-only" for="mailboxSearch">Find Mailbox</label>
-                <input id="mailboxSearch" autocomplete="off" placeholder="Search mailbox or delegate user">
+                <input id="mailboxSearch" autocomplete="off" placeholder="Search mailbox by name, SMTP, or type">
                 <button id="openMailboxBtn" class="btn-primary" type="button">Open mailbox view</button>
             </div>
             <div id="selectedMailboxSummary" class="selected-mailbox-summary" hidden></div>
@@ -60,15 +60,26 @@
 
         <section id="selectedMailboxPanel" class="panel selected-mailbox-panel" hidden></section>
 
+        <section class="chart-grid chart-grid-overview">
+            <article class="panel">
+                <h2>License compliance split</h2>
+                <canvas id="licensingComplianceChart" width="520" height="360"></canvas>
+            </article>
+            <article class="panel">
+                <h2>License type distribution</h2>
+                <canvas id="licensingTypeHistogramChart" width="760" height="420"></canvas>
+            </article>
+        </section>
+
         <section class="panel">
             <div class="table-header">
                 <div>
-                    <h2>Explicit permissions</h2>
-                    <p id="tableMeta" class="panel-subtitle"></p>
+                    <h2>Mailbox licensing detail</h2>
+                    <p id="licensingTableMeta" class="panel-subtitle"></p>
                 </div>
                 <div class="table-controls">
                     <label class="page-size-label">Show
-                        <select class="page-size-select" data-pagination-key="permsTable">
+                        <select class="page-size-select" data-pagination-key="licensingTable">
                             <option value="10">10</option>
                             <option value="20">20</option>
                             <option value="50" selected>50</option>
@@ -77,21 +88,25 @@
                     </label>
                     <div class="export-group">
                         <span>Export:</span>
-                        <button class="btn-export" data-export="permsTable" data-format="json">JSON</button>
-                        <button class="btn-export" data-export="permsTable" data-format="csv">CSV</button>
-                        <button class="btn-export" data-export="permsTable" data-format="pdf">PDF</button>
+                        <button class="btn-export" data-export="licensingTable" data-format="json">JSON</button>
+                        <button class="btn-export" data-export="licensingTable" data-format="csv">CSV</button>
+                        <button class="btn-export" data-export="licensingTable" data-format="pdf">PDF</button>
                     </div>
                 </div>
             </div>
-            <div id="permsTablePagination" class="pagination-bar"></div>
+            <div id="licensingTablePagination" class="pagination-bar"></div>
             <div class="table-wrap">
-                <table id="permsTable">
+                <table id="licensingTable">
                     <thead>
                         <tr>
                             <th>Mailbox</th>
-                            <th>Delegate User</th>
-                            <th>Rights</th>
-                            <th>Inherited</th>
+                            <th>SMTP Address</th>
+                            <th>Mailbox Type</th>
+                            <th>Required</th>
+                            <th>Assigned</th>
+                            <th>License Type</th>
+                            <th>Status</th>
+                            <th>Reason</th>
                         </tr>
                     </thead>
                     <tbody></tbody>

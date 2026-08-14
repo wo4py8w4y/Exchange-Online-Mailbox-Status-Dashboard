@@ -28,7 +28,10 @@
         <a href="mailbox.html">Mailbox</a> |
         <a href="history.html">History</a> |
         <a href="permissions.html">Permissions</a> |
-        <a href="thresholds.html">Thresholds</a>
+        <a href="thresholds.html">Thresholds</a> |
+        <a href="licensing.html">Licensing</a> |
+        <a href="retentionpolicy.html">Retention Policy</a> |
+        <a href="validate.html">Validate</a>
     </nav>
 
     <main>
@@ -61,6 +64,9 @@
             <article><span class="label">Archive storage</span><strong id="totalArchiveStorage">0 GB</strong></article>
             <article><span class="label">Threshold alerts</span><strong id="thresholdCount">0</strong></article>
             <article><span class="label">Largest mailbox</span><strong id="largestMailbox">N/A</strong></article>
+            <article><span class="label">Cleanup stale > 30 days</span><strong id="staleCleanupCount">0</strong></article>
+            <article><span class="label">Never cleaned</span><strong id="neverCleanedCount">0</strong></article>
+            <article><span class="label">Required license gaps</span><strong id="licenseGapCount">0</strong></article>
         </section>
 
         <section id="selectedMailboxPanel" class="panel selected-mailbox-panel" hidden></section>
@@ -82,6 +88,29 @@
                 <h2>Quota pressure</h2>
                 <canvas id="alertStatusChart" width="520" height="360"></canvas>
             </article>
+        </section>
+
+        <section class="panel">
+            <div class="table-header">
+                <div>
+                    <h2>Retention policy bindings</h2>
+                    <p id="retentionPolicyMeta" class="panel-subtitle"></p>
+                </div>
+            </div>
+            <div class="table-wrap">
+                <table id="retentionPolicyTable">
+                    <thead>
+                        <tr>
+                            <th>Policy</th>
+                            <th>Mailboxes</th>
+                            <th>Default</th>
+                            <th>Tag count</th>
+                            <th>Properties</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </section>
 
         <section class="panel">
@@ -118,6 +147,9 @@
                             <th>Items</th>
                             <th>Quota GB</th>
                             <th>Usage %</th>
+                            <th>Mailbox type</th>
+                            <th>License</th>
+                            <th>Cleanup</th>
                             <th>Permissions</th>
                             <th>Last logon</th>
                         </tr>

@@ -5,15 +5,16 @@ const MAX_TABLE_ROWS = 250;
 const DEFAULT_PAGE_SIZE = 50;
 const WARNING_THRESHOLD = 85;
 const CRITICAL_THRESHOLD = 94;
+const CLEANUP_WARNING_DAYS = 30;
 
 const AVAILABLE_THEMES = [
     { id: "default-light",  name: "Default Light",   file: null,                         baseTheme: "light" },
     { id: "default-dark",   name: "Default Dark",    file: null,                         baseTheme: "dark"  },
-    { id: "github-dark",    name: "GitHub Dark",     file: "theme/dark.jsonc",           baseTheme: "dark"  },
-    { id: "neon-punk",      name: "Neon Punk",       file: "theme/neon-punk.jsonc",      baseTheme: "dark"  },
-    { id: "undershaddows",  name: "Under Shadows",   file: "theme/undershaddows.jsonc",  baseTheme: "dark"  },
-    { id: "splendid",       name: "Splendid",        file: "theme/splendid.jsonc",       baseTheme: "light" },
-    { id: "eyes-wide-open", name: "Eyes Wide Open",  file: "theme/eyes-wide-open.jsonc", baseTheme: "light" },
+    { id: "aurora-night",   name: "Aurora Night",    file: "theme/aurora-night.jsonc",   baseTheme: "dark"  },
+    { id: "nerv",           name: "Nerv",            file: "theme/nerv.jsonc",           baseTheme: "dark"  },
+    { id: "graphite-ocean", name: "Graphite Ocean",  file: "theme/graphite-ocean.jsonc", baseTheme: "dark"  },
+    { id: "summit-light",   name: "Summit Light",    file: "theme/summit-light.jsonc",   baseTheme: "light" },
+    { id: "dusk-rose",      name: "Dusk Rose",       file: "theme/dusk-rose.jsonc",      baseTheme: "light" },
 ];
 
 const TABLE_EXPORT_CONFIG = {
@@ -23,6 +24,12 @@ const TABLE_EXPORT_CONFIG = {
             displayName: m.displayName, primarySmtpAddress: m.primarySmtpAddress,
             storageGB: m.current.totalGB, itemCount: m.current.itemCount,
             quotaGB: m.current.quotaGB, usagePercent: m.current.usagePercent,
+            mailboxType: m.licensing.recipientTypeDetails,
+            licenseRequired: m.licensing.licenseRequired,
+            hasLicense: m.licensing.hasLicense,
+            licenseType: m.licensing.licenseType,
+            cleanupStatus: getCleanupStatusLabel(m),
+            retentionPolicy: m.retention.retentionPolicy,
             permissions: m.permissions.length, lastLogonTime: m.current.lastLogonTime
         }),
         columns: [
@@ -32,6 +39,9 @@ const TABLE_EXPORT_CONFIG = {
             { header: "Items",         value: m => m.current.itemCount },
             { header: "Quota GB",      value: m => m.current.quotaGB ?? "Unlimited" },
             { header: "Usage %",       value: m => m.current.usagePercent },
+            { header: "Mailbox Type",  value: m => m.licensing.recipientTypeDetails || "Unknown" },
+            { header: "License",       value: m => getLicenseStatusLabel(m) },
+            { header: "Cleanup",       value: m => getCleanupStatusLabel(m) },
             { header: "Permissions",   value: m => m.permissions.length },
             { header: "Last Logon",    value: m => m.current.lastLogonTime ?? "" },
         ]
@@ -97,6 +107,45 @@ const TABLE_EXPORT_CONFIG = {
             { header: "Inherited", value: p => p.IsInherited ? "Yes" : "No" },
         ]
     },
+    licensingTable: {
+        title: "Mailbox Licensing",
+        toExportRow: m => ({
+            displayName: m.displayName,
+            primarySmtpAddress: m.primarySmtpAddress,
+            mailboxType: m.licensing.recipientTypeDetails,
+            licenseRequired: m.licensing.licenseRequired,
+            hasLicense: m.licensing.hasLicense,
+            licenseType: m.licensing.licenseType,
+            isLicenseCompliant: m.licensing.isLicenseCompliant,
+            reason: m.licensing.licenseRequirementReason
+        }),
+        columns: [
+            { header: "Mailbox", value: m => m.displayName },
+            { header: "SMTP Address", value: m => m.primarySmtpAddress },
+            { header: "Mailbox Type", value: m => m.licensing.recipientTypeDetails || "Unknown" },
+            { header: "Required", value: m => m.licensing.licenseRequired === true ? "Yes" : (m.licensing.licenseRequired === false ? "No" : "Unknown") },
+            { header: "Assigned", value: m => m.licensing.hasLicense === true ? "Yes" : (m.licensing.hasLicense === false ? "No" : "Unknown") },
+            { header: "License Type", value: m => m.licensing.licenseType || "" },
+            { header: "Compliance", value: m => m.licensing.isLicenseCompliant === true ? "Compliant" : "Gap" },
+        ]
+    },
+    retentionPolicyCatalogTable: {
+        title: "Retention Policy Catalog",
+        toExportRow: p => ({
+            policy: p.name,
+            mailboxCount: p.mailboxCount,
+            isDefaultPolicy: p.isDefaultPolicy,
+            tagCount: p.tagCount,
+            properties: formatRetentionPolicyProperties(p)
+        }),
+        columns: [
+            { header: "Policy", value: p => p.name },
+            { header: "Mailboxes", value: p => p.mailboxCount },
+            { header: "Default", value: p => p.isDefaultPolicy === true ? "Yes" : "No" },
+            { header: "Tag Count", value: p => p.tagCount ?? 0 },
+            { header: "Properties", value: p => formatRetentionPolicyProperties(p) }
+        ]
+    },
 };
 
 let refreshTimer = null;
@@ -104,6 +153,7 @@ let refreshMs = 60000;
 
 const state = {
     historyData: createEmptyHistoryData(),
+    retentionPolicies: [],
     currentMailboxes: [],
     selectableMailboxes: [],
     mailboxLookup: new Map(),
@@ -114,7 +164,9 @@ const state = {
         thresholdTable:          { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
         historyTable:            { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
         mailboxSnapshotsTable:   { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
-        mailboxPermissionsTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 }
+        mailboxPermissionsTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        licensingTable:          { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        retentionPolicyCatalogTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 }
     },
     tableData: {}
 };
@@ -207,6 +259,9 @@ async function loadDashboard() {
     const rawHistoryData = historyResponse.ok ? await historyResponse.json() : null;
 
     state.historyData = normaliseHistoryData(rawHistoryData);
+    const retentionPoliciesFromData = normaliseRetentionPolicyCatalog(rawDashboardData);
+    const retentionPoliciesFromHistory = normaliseRetentionPolicyCatalog(rawHistoryData);
+    state.retentionPolicies = retentionPoliciesFromData.length > 0 ? retentionPoliciesFromData : retentionPoliciesFromHistory;
 
     const currentFromData = extractMailboxArray(rawDashboardData)
         .map(normaliseMailbox)
@@ -336,6 +391,12 @@ function applyFilter(opts = {}) {
         case "mailbox":
             renderMailboxPage();
             break;
+        case "licensing":
+            renderLicensingPage();
+            break;
+        case "retentionpolicy":
+            renderRetentionPolicyPage();
+            break;
         default:
             renderOverviewPage();
             break;
@@ -390,6 +451,7 @@ function renderSelectedMailboxSummary(selected) {
             <div class="summary-metric"><span class="label">Primary</span><strong>${formatGB(selected.current.totalGB)} GB</strong></div>
             <div class="summary-metric"><span class="label">Archive</span><strong>${formatGB(selected.current.archiveSizeGB)} GB</strong></div>
             <div class="summary-metric"><span class="label">Usage</span><strong>${formatPercent(selected.current.usagePercent)}</strong></div>
+            <div class="summary-metric"><span class="label">Cleanup</span><strong>${escapeHtml(getCleanupStatusLabel(selected))}</strong></div>
             <div class="summary-metric"><span class="label">Permissions</span><strong>${formatNumber(selected.permissions.length)}</strong></div>
         </div>
     `;
@@ -429,6 +491,7 @@ function renderSearchResults(results, totalMatches, query) {
 function renderOverviewPage() {
     const mailboxes = getMailboxes();
     updateTopCards(mailboxes);
+    renderRetentionPolicyTable();
     renderSelectedMailboxPanel(getSelectedMailbox());
     drawUsageDonutChart(mailboxes);
     drawTopStorageChart(mailboxes);
@@ -483,6 +546,25 @@ function renderMailboxPage() {
     );
 }
 
+function renderLicensingPage() {
+    const selected = getSelectedMailbox();
+    const mailboxes = selected ? [selected] : getMailboxes();
+
+    renderSelectedMailboxPanel(selected);
+    drawLicensingOverviewCharts(mailboxes);
+    renderLicensingTable(mailboxes);
+}
+
+function renderRetentionPolicyPage() {
+    const selected = getSelectedMailbox();
+    const mailboxes = selected ? [selected] : getMailboxes();
+
+    renderSelectedMailboxPanel(selected);
+    drawRetentionPolicyCharts(mailboxes);
+    renderRetentionPolicyCatalogTable(mailboxes);
+    drawSingleMailboxPolicyChangeChart(selected);
+}
+
 function renderSelectedMailboxPanel(selected) {
     const panel = document.getElementById("selectedMailboxPanel");
     if (!panel) return;
@@ -513,6 +595,16 @@ function renderSelectedMailboxPanel(selected) {
                     <div class="spotlight-metric"><span class="label">Permissions</span><strong>${formatNumber(selected.permissions.length)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Last logon</span><strong>${formatDate(selected.current.lastLogonTime)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Change since last sample</span><strong>${deltaGB == null ? "N/A" : `${deltaGB >= 0 ? "+" : ""}${formatGB(deltaGB)} GB`}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Cleanup health</span><strong>${escapeHtml(getCleanupStatusLabel(selected))}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Mailbox type</span><strong>${escapeHtml(selected.licensing.recipientTypeDetails || "Unknown")}</strong></div>
+                    <div class="spotlight-metric"><span class="label">License required</span><strong>${selected.licensing.licenseRequired === true ? "Yes" : (selected.licensing.licenseRequired === false ? "No" : "Unknown")}</strong></div>
+                    <div class="spotlight-metric"><span class="label">License assigned</span><strong>${selected.licensing.hasLicense === true ? "Yes" : (selected.licensing.hasLicense === false ? "No" : "Unknown")}</strong></div>
+                    <div class="spotlight-metric"><span class="label">License type</span><strong>${escapeHtml(selected.licensing.licenseType || "N/A")}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Retention policy</span><strong>${escapeHtml(selected.retention.retentionPolicy || "None")}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Policy mailbox bindings</span><strong>${selected.retention.retentionPolicyDetails?.mailboxCount == null ? "N/A" : formatNumber(selected.retention.retentionPolicyDetails.mailboxCount)}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Retention policy changed</span><strong>${escapeHtml(getChangeAgeLabel(selected.retentionPolicyChangeHistory))}</strong></div>
+                    <div class="spotlight-metric"><span class="label">License state changed</span><strong>${escapeHtml(getChangeAgeLabel(selected.licenseAssignmentHistory))}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Litigation hold</span><strong>${formatBooleanState(selected.retention.litigationHoldEnabled)}</strong></div>
                 </div>
             </div>
             <canvas id="selectedMailboxSpotlightChart" width="320" height="320"></canvas>
@@ -542,6 +634,16 @@ function renderMailboxMetricCards(selected) {
         <article><span class="label">Archive items</span><strong>${formatNumber(selected.current.archiveItemCount)}</strong></article>
         <article><span class="label">Historical samples</span><strong>${formatNumber(history.length)}</strong></article>
         <article><span class="label">Growth in window</span><strong>${growth == null ? "N/A" : `${growth >= 0 ? "+" : ""}${formatGB(growth)} GB`}</strong></article>
+        <article><span class="label">Cleanup status</span><strong>${escapeHtml(getCleanupStatusLabel(selected))}</strong></article>
+        <article><span class="label">Mailbox type</span><strong>${escapeHtml(selected.licensing.recipientTypeDetails || "Unknown")}</strong></article>
+        <article><span class="label">License required</span><strong>${selected.licensing.licenseRequired === true ? "Yes" : (selected.licensing.licenseRequired === false ? "No" : "Unknown")}</strong></article>
+        <article><span class="label">License assigned</span><strong>${selected.licensing.hasLicense === true ? "Yes" : (selected.licensing.hasLicense === false ? "No" : "Unknown")}</strong></article>
+        <article><span class="label">License type</span><strong>${escapeHtml(selected.licensing.licenseType || "N/A")}</strong></article>
+        <article><span class="label">Retention policy</span><strong>${escapeHtml(selected.retention.retentionPolicy || "None")}</strong></article>
+        <article><span class="label">Policy mailbox bindings</span><strong>${selected.retention.retentionPolicyDetails?.mailboxCount == null ? "N/A" : formatNumber(selected.retention.retentionPolicyDetails.mailboxCount)}</strong></article>
+        <article><span class="label">Retention policy changed</span><strong>${escapeHtml(getChangeAgeLabel(selected.retentionPolicyChangeHistory))}</strong></article>
+        <article><span class="label">License state changed</span><strong>${escapeHtml(getChangeAgeLabel(selected.licenseAssignmentHistory))}</strong></article>
+        <article><span class="label">Litigation hold</span><strong>${formatBooleanState(selected.retention.litigationHoldEnabled)}</strong></article>
     `;
 }
 
@@ -567,7 +669,7 @@ function renderUsageTable(mailboxes) {
     renderPaginationBar("usageTablePagination", "usageTable");
 
     if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No mailboxes found matching that search.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No mailboxes found matching that search.</td></tr>`;
         return;
     }
 
@@ -579,10 +681,210 @@ function renderUsageTable(mailboxes) {
             <td>${formatNumber(mailbox.current.itemCount)}</td>
             <td>${mailbox.current.quotaGB == null ? "Unlimited" : formatGB(mailbox.current.quotaGB)}</td>
             <td>${usageBadge(mailbox.current.usagePercent)}</td>
+            <td>${escapeHtml(mailbox.licensing.recipientTypeDetails || "Unknown")}</td>
+            <td>${licenseBadge(mailbox)}</td>
+            <td>${cleanupBadge(mailbox)}</td>
             <td>${formatNumber(mailbox.permissions.length)}</td>
             <td>${formatDate(mailbox.current.lastLogonTime)}</td>
         </tr>
     `).join("");
+}
+
+function renderRetentionPolicyTable() {
+    const tbody = document.querySelector("#retentionPolicyTable tbody");
+    const meta = document.getElementById("retentionPolicyMeta");
+    if (!tbody || !meta) return;
+
+    const catalog = state.retentionPolicies.length > 0
+        ? state.retentionPolicies
+        : buildRetentionPolicyCatalogFromMailboxes(state.currentMailboxes);
+
+    if (catalog.length === 0) {
+        meta.textContent = "No retention policy assignments were discovered.";
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No retention policy catalog is available yet.</td></tr>`;
+        return;
+    }
+
+    const totalMailboxesBound = catalog.reduce((sum, policy) => sum + (Number(policy.mailboxCount) || 0), 0);
+    meta.textContent = `${formatNumber(catalog.length)} policy${catalog.length === 1 ? "" : "ies"} cataloged across ${formatNumber(totalMailboxesBound)} mailbox binding${totalMailboxesBound === 1 ? "" : "s"}.`;
+
+    tbody.innerHTML = catalog.map(policy => `
+        <tr>
+            <td>${escapeHtml(policy.name)}</td>
+            <td>${formatNumber(policy.mailboxCount)}</td>
+            <td>${policy.isDefaultPolicy === true ? "Yes" : "No"}</td>
+            <td>${formatNumber(policy.tagCount)}</td>
+            <td>${escapeHtml(formatRetentionPolicyProperties(policy))}</td>
+        </tr>
+    `).join("");
+}
+
+function drawLicensingOverviewCharts(mailboxes) {
+    const requiredAndCompliant = mailboxes.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense === true).length;
+    const requiredAndMissing = mailboxes.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense !== true).length;
+    const notRequired = mailboxes.filter(mailbox => mailbox.licensing.licenseRequired === false).length;
+
+    drawRingChart("licensingComplianceChart", [
+        { label: "Required + Assigned", value: requiredAndCompliant, color: getChartColor("success") },
+        { label: "Required + Missing", value: requiredAndMissing, color: getChartColor("danger") },
+        { label: "Not Required", value: notRequired, color: getChartColor("muted") }
+    ], [`${formatNumber(mailboxes.length)}`, "mailboxes"]);
+
+    const typeCounts = new Map();
+    mailboxes.forEach(mailbox => {
+        const key = String(mailbox.licensing.licenseType || (mailbox.licensing.hasLicense ? "Assigned (Unknown Type)" : "Unassigned")).trim();
+        typeCounts.set(key, (typeCounts.get(key) || 0) + 1);
+    });
+    const typeBars = Array.from(typeCounts.entries())
+        .map(([label, value]) => ({ label: truncateLabel(label, 28), value }))
+        .sort((left, right) => right.value - left.value)
+        .slice(0, 12);
+    drawHorizontalBarChart("licensingTypeHistogramChart", typeBars, "mailboxes");
+}
+
+function renderLicensingTable(mailboxes) {
+    const tbody = document.querySelector("#licensingTable tbody");
+    const tableMeta = document.getElementById("licensingTableMeta");
+    if (!tbody || !tableMeta) return;
+
+    const rows = [...mailboxes].sort((left, right) => {
+        const leftGap = left.licensing.licenseRequired === true && left.licensing.hasLicense !== true ? 1 : 0;
+        const rightGap = right.licensing.licenseRequired === true && right.licensing.hasLicense !== true ? 1 : 0;
+        if (rightGap !== leftGap) return rightGap - leftGap;
+        return (right.current.totalGB || 0) - (left.current.totalGB || 0);
+    });
+    state.tableData.licensingTable = rows;
+
+    const pg = state.pagination.licensingTable;
+    const totalPages = Math.max(1, Math.ceil(rows.length / pg.pageSize));
+    pg.page = Math.max(1, Math.min(pg.page, totalPages));
+    const pageRows = rows.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
+
+    const gaps = rows.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense !== true).length;
+    tableMeta.textContent = `${formatNumber(rows.length)} mailbox${rows.length === 1 ? "" : "es"} in view, ${formatNumber(gaps)} required-license gap${gaps === 1 ? "" : "s"}.`;
+
+    renderPaginationBar("licensingTablePagination", "licensingTable");
+
+    if (pageRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="empty-state">No mailbox licensing data found.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = pageRows.map(mailbox => `
+        <tr>
+            <td><a class="table-link" href="${escapeHtml(buildMailboxUrl("mailbox.html", mailbox))}">${escapeHtml(mailbox.displayName)}</a></td>
+            <td>${escapeHtml(mailbox.primarySmtpAddress)}</td>
+            <td>${escapeHtml(mailbox.licensing.recipientTypeDetails || "Unknown")}</td>
+            <td>${mailbox.licensing.licenseRequired === true ? "Yes" : (mailbox.licensing.licenseRequired === false ? "No" : "Unknown")}</td>
+            <td>${mailbox.licensing.hasLicense === true ? "Yes" : (mailbox.licensing.hasLicense === false ? "No" : "Unknown")}</td>
+            <td>${escapeHtml(mailbox.licensing.licenseType || "")}</td>
+            <td>${licenseBadge(mailbox)}</td>
+            <td>${escapeHtml(mailbox.licensing.licenseRequirementReason || "")}</td>
+        </tr>
+    `).join("");
+}
+
+function drawRetentionPolicyCharts(mailboxes) {
+    const policyCounts = new Map();
+    mailboxes.forEach(mailbox => {
+        const policyName = String(mailbox.retention.retentionPolicy || "Unassigned").trim() || "Unassigned";
+        policyCounts.set(policyName, (policyCounts.get(policyName) || 0) + 1);
+    });
+
+    const ringSegments = Array.from(policyCounts.entries())
+        .sort((left, right) => right[1] - left[1])
+        .slice(0, 8)
+        .map(([label, value], index) => ({
+            label,
+            value,
+            color: [
+                getChartColor("primary"),
+                getChartColor("secondary"),
+                getChartColor("accent"),
+                getChartColor("warning"),
+                getChartColor("success"),
+                getChartColor("danger"),
+                getChartColor("muted"),
+                "#9b59b6"
+            ][index % 8]
+        }));
+
+    drawRingChart("retentionPolicyDistributionChart", ringSegments, [`${formatNumber(mailboxes.length)}`, "mailboxes"]);
+
+    const bars = Array.from(policyCounts.entries())
+        .map(([label, value]) => ({ label: truncateLabel(label, 26), value }))
+        .sort((left, right) => right.value - left.value)
+        .slice(0, 12);
+    drawVerticalBarChart("retentionPolicyHistogramChart", bars, "mailboxes");
+}
+
+function renderRetentionPolicyCatalogTable(mailboxes) {
+    const tbody = document.querySelector("#retentionPolicyCatalogTable tbody");
+    const tableMeta = document.getElementById("retentionPolicyCatalogMeta");
+    if (!tbody || !tableMeta) return;
+
+    const selected = getSelectedMailbox();
+    const fullCatalog = state.retentionPolicies.length > 0 ? state.retentionPolicies : buildRetentionPolicyCatalogFromMailboxes(state.currentMailboxes);
+    const filtered = selected
+        ? fullCatalog.filter(policy => String(policy.name || "").toLowerCase() === String(selected.retention.retentionPolicy || "").toLowerCase())
+        : fullCatalog;
+
+    state.tableData.retentionPolicyCatalogTable = filtered;
+    const pg = state.pagination.retentionPolicyCatalogTable;
+    const totalPages = Math.max(1, Math.ceil(filtered.length / pg.pageSize));
+    pg.page = Math.max(1, Math.min(pg.page, totalPages));
+    const pageRows = filtered.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
+
+    tableMeta.textContent = selected
+        ? `Catalog details for selected mailbox policy (${selected.retention.retentionPolicy || "Unassigned"}).`
+        : `${formatNumber(filtered.length)} retention policy catalog entr${filtered.length === 1 ? "y" : "ies"}.`;
+
+    renderPaginationBar("retentionPolicyCatalogPagination", "retentionPolicyCatalogTable");
+
+    if (pageRows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-state">No retention policy metadata is available for this view.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = pageRows.map(policy => `
+        <tr>
+            <td>${escapeHtml(policy.name)}</td>
+            <td>${formatNumber(policy.mailboxCount)}</td>
+            <td>${policy.isDefaultPolicy === true ? "Yes" : "No"}</td>
+            <td>${formatNumber(policy.tagCount)}</td>
+            <td>${escapeHtml(formatRetentionPolicyProperties(policy))}</td>
+        </tr>
+    `).join("");
+}
+
+function drawSingleMailboxPolicyChangeChart(selected) {
+    const canvasId = "singleMailboxPolicyChangeChart";
+    if (!document.getElementById(canvasId)) return;
+    if (!selected) {
+        drawEmptyCanvasMessage(canvasId, "Select a mailbox to inspect retention-policy change timing.");
+        return;
+    }
+
+    const changes = selected.retentionPolicyChangeHistory || [];
+    if (changes.length < 2) {
+        drawEmptyCanvasMessage(canvasId, "Policy change history requires at least two snapshots.");
+        return;
+    }
+
+    const rows = [];
+    for (let index = 1; index < changes.length; index += 1) {
+        const previous = new Date(changes[index - 1].timestampUtc);
+        const current = new Date(changes[index].timestampUtc);
+        const days = Number.isFinite(current.getTime()) && Number.isFinite(previous.getTime())
+            ? Math.max(0, Math.round((current - previous) / 86400000))
+            : 0;
+        rows.push({
+            label: truncateLabel(changes[index].retentionPolicy || "Policy", 24),
+            value: days
+        });
+    }
+
+    drawVerticalBarChart(canvasId, rows, "days");
 }
 
 function renderPermissionsTable() {
@@ -783,6 +1085,9 @@ function updateTopCards(mailboxes) {
     const totalArchiveEl = document.getElementById("totalArchiveStorage");
     const thresholdEl = document.getElementById("thresholdCount");
     const largestEl = document.getElementById("largestMailbox");
+    const staleCleanupEl = document.getElementById("staleCleanupCount");
+    const neverCleanedEl = document.getElementById("neverCleanedCount");
+    const licenseGapEl = document.getElementById("licenseGapCount");
 
     const largest = mailboxes.reduce((winner, mailbox) => {
         if (!winner) return mailbox;
@@ -794,6 +1099,15 @@ function updateTopCards(mailboxes) {
     if (totalArchiveEl) totalArchiveEl.textContent = `${formatGB(sumMailboxes(mailboxes, mailbox => mailbox.current.archiveSizeGB))} GB`;
     if (thresholdEl) thresholdEl.textContent = formatNumber(mailboxes.filter(mailbox => (mailbox.current.usagePercent || 0) >= WARNING_THRESHOLD).length);
     if (largestEl) largestEl.textContent = largest ? `${largest.displayName} (${formatGB(largest.current.totalGB)} GB)` : "N/A";
+    if (staleCleanupEl) {
+        staleCleanupEl.textContent = formatNumber(mailboxes.filter(mailbox => isCleanupStale(mailbox)).length);
+    }
+    if (neverCleanedEl) {
+        neverCleanedEl.textContent = formatNumber(mailboxes.filter(mailbox => isNeverCleaned(mailbox)).length);
+    }
+    if (licenseGapEl) {
+        licenseGapEl.textContent = formatNumber(mailboxes.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense !== true).length);
+    }
 }
 
 function drawUsageDonutChart(mailboxes) {
@@ -1123,6 +1437,21 @@ function mergeMailbox(existing, incoming) {
             archiveSizeGB: pickValue(incoming.current.archiveSizeGB, existing.current.archiveSizeGB),
             archiveItemCount: pickValue(incoming.current.archiveItemCount, existing.current.archiveItemCount)
         },
+        retention: {
+            ...existing.retention,
+            ...incoming.retention
+        },
+        licensing: {
+            ...existing.licensing,
+            ...incoming.licensing
+        },
+        mailboxMaintenance: {
+            ...existing.mailboxMaintenance,
+            ...incoming.mailboxMaintenance
+        },
+        cleanupStatus: incoming.cleanupStatus || existing.cleanupStatus,
+        lastCleanupSuccessUtc: incoming.lastCleanupSuccessUtc || existing.lastCleanupSuccessUtc,
+        daysSinceSuccessfulCleanup: pickValue(incoming.daysSinceSuccessfulCleanup, existing.daysSinceSuccessfulCleanup),
         permissions: incoming.permissions.length >= existing.permissions.length ? incoming.permissions : existing.permissions
     };
 }
@@ -1138,6 +1467,57 @@ function createEmptyHistoryData() {
         byGuid: {},
         bySmtp: {}
     };
+}
+
+function normaliseRetentionPolicyCatalog(payload) {
+    const catalogSource = payload?.RetentionPolicies ?? payload?.retentionPolicies;
+    if (!Array.isArray(catalogSource)) return [];
+
+    return catalogSource
+        .filter(policy => policy && typeof policy === "object")
+        .map(policy => {
+            const tagLinks = policy.RetentionPolicyTagLinks ?? policy.retentionPolicyTagLinks;
+            return {
+                name: String(policy.Name ?? policy.name ?? "").trim(),
+                isKnownPolicy: getBoolean(policy, ["IsKnownPolicy", "isKnownPolicy"]),
+                mailboxCount: getNumber(policy, ["MailboxCount", "mailboxCount"]) ?? 0,
+                isDefaultPolicy: getBoolean(policy, ["IsDefaultPolicy", "isDefaultPolicy"]),
+                retentionId: policy.RetentionId ?? policy.retentionId ?? null,
+                retentionPolicyTagLinks: Array.isArray(tagLinks) ? tagLinks.map(item => String(item || "")).filter(Boolean) : [],
+                tagCount: getNumber(policy, ["TagCount", "tagCount"]) ?? 0,
+                comment: policy.Comment ?? policy.comment ?? null
+            };
+        })
+        .filter(policy => policy.name.length > 0)
+        .sort((left, right) => (right.mailboxCount || 0) - (left.mailboxCount || 0) || left.name.localeCompare(right.name));
+}
+
+function buildRetentionPolicyCatalogFromMailboxes(mailboxes) {
+    const policyIndex = new Map();
+    mailboxes.forEach(mailbox => {
+        const name = String(mailbox?.retention?.retentionPolicy || "").trim();
+        if (!name) return;
+
+        const key = name.toLowerCase();
+        if (!policyIndex.has(key)) {
+            policyIndex.set(key, {
+                name,
+                isKnownPolicy: getBoolean(mailbox?.retention?.retentionPolicyDetails || {}, ["isKnownPolicy", "IsKnownPolicy"]),
+                mailboxCount: 0,
+                isDefaultPolicy: getBoolean(mailbox?.retention?.retentionPolicyDetails || {}, ["isDefaultPolicy", "IsDefaultPolicy"]),
+                retentionId: mailbox?.retention?.retentionPolicyDetails?.retentionId ?? mailbox?.retention?.retentionPolicyDetails?.RetentionId ?? null,
+                retentionPolicyTagLinks: [],
+                tagCount: getNumber(mailbox?.retention?.retentionPolicyDetails || {}, ["tagCount", "TagCount"]) ?? 0,
+                comment: mailbox?.retention?.retentionPolicyDetails?.comment ?? mailbox?.retention?.retentionPolicyDetails?.Comment ?? null
+            });
+        }
+
+        const policy = policyIndex.get(key);
+        policy.mailboxCount += 1;
+    });
+
+    return Array.from(policyIndex.values())
+        .sort((left, right) => right.mailboxCount - left.mailboxCount || left.name.localeCompare(right.name));
 }
 
 function extractMailboxArray(payload) {
@@ -1249,6 +1629,12 @@ function normaliseMailbox(source) {
         getNumber(currentSource, ["UsagePercent", "usagePercent"]) ??
         (quotaGB > 0 ? (totalGB / quotaGB) * 100 : 0);
 
+    const retention = normaliseRetentionProfile(source);
+    const licensing = normaliseLicensingProfile(source);
+    const mailboxMaintenance = normaliseMaintenanceProfile(source);
+    const retentionPolicyChangeHistory = normaliseRetentionPolicyChangeHistory(source);
+    const licenseAssignmentHistory = normaliseLicenseAssignmentHistory(source);
+
     return {
         exchangeGuid: String(source?.ExchangeGuid ?? source?.exchangeGuid ?? ""),
         displayName: String(displayName || primarySmtpAddress || source?.ExchangeGuid || "Unknown mailbox"),
@@ -1275,7 +1661,122 @@ function normaliseMailbox(source) {
                 getNumber(archiveSource, ["ItemCount", "itemCount"]) ??
                 0
         },
+        retention,
+        licensing,
+        mailboxMaintenance,
+        retentionPolicyChangeHistory,
+        licenseAssignmentHistory,
+        cleanupStatus: mailboxMaintenance.cleanupStatus,
+        lastCleanupSuccessUtc: mailboxMaintenance.lastCleanupSuccessUtc,
+        daysSinceSuccessfulCleanup: mailboxMaintenance.daysSinceSuccessfulCleanup,
         permissions
+    };
+}
+
+function normaliseRetentionPolicyChangeHistory(source) {
+    const history = source?.RetentionPolicyChangeHistory ?? source?.retentionPolicyChangeHistory;
+    if (!Array.isArray(history)) return [];
+    return history
+        .filter(item => item && typeof item === "object")
+        .map(item => ({
+            timestampUtc: item.TimestampUtc ?? item.timestampUtc ?? null,
+            retentionPolicy: item.RetentionPolicy ?? item.retentionPolicy ?? null
+        }))
+        .filter(item => item.timestampUtc)
+        .sort((left, right) => new Date(left.timestampUtc) - new Date(right.timestampUtc));
+}
+
+function normaliseLicenseAssignmentHistory(source) {
+    const history = source?.LicenseAssignmentHistory ?? source?.licenseAssignmentHistory;
+    if (!Array.isArray(history)) return [];
+    return history
+        .filter(item => item && typeof item === "object")
+        .map(item => ({
+            timestampUtc: item.TimestampUtc ?? item.timestampUtc ?? null,
+            hasLicense: getBoolean(item, ["HasLicense", "hasLicense"]),
+            licenseRequired: getBoolean(item, ["LicenseRequired", "licenseRequired"]),
+            licenseType: item.LicenseType ?? item.licenseType ?? null
+        }))
+        .filter(item => item.timestampUtc)
+        .sort((left, right) => new Date(left.timestampUtc) - new Date(right.timestampUtc));
+}
+
+function normaliseRetentionProfile(source) {
+    const retentionSource = source?.retention ?? source?.Retention ?? {};
+    const inPlaceHolds = retentionSource.InPlaceHolds ?? retentionSource.inPlaceHolds;
+    const retentionPolicyDetailsSource = retentionSource.RetentionPolicyDetails ?? retentionSource.retentionPolicyDetails ?? {};
+    return {
+        retentionPolicy: retentionSource.RetentionPolicy ?? retentionSource.retentionPolicy ?? source?.RetentionPolicy ?? source?.retentionPolicy ?? null,
+        retentionHoldEnabled: getBoolean(retentionSource, ["RetentionHoldEnabled", "retentionHoldEnabled"]) ?? getBoolean(source, ["RetentionHoldEnabled", "retentionHoldEnabled"]),
+        litigationHoldEnabled: getBoolean(retentionSource, ["LitigationHoldEnabled", "litigationHoldEnabled"]) ?? getBoolean(source, ["LitigationHoldEnabled", "litigationHoldEnabled"]),
+        litigationHoldDurationDays: getNumber(retentionSource, ["LitigationHoldDurationDays", "litigationHoldDurationDays"]) ?? getNumber(source, ["LitigationHoldDurationDays", "litigationHoldDurationDays"]),
+        inPlaceHolds: Array.isArray(inPlaceHolds) ? inPlaceHolds.map(item => String(item || "")).filter(Boolean) : [],
+        singleItemRecoveryEnabled: getBoolean(retentionSource, ["SingleItemRecoveryEnabled", "singleItemRecoveryEnabled"]) ?? getBoolean(source, ["SingleItemRecoveryEnabled", "singleItemRecoveryEnabled"]),
+        retainDeletedItemsFor: retentionSource.RetainDeletedItemsFor ?? retentionSource.retainDeletedItemsFor ?? null,
+        retentionPolicyDetails: {
+            name: retentionPolicyDetailsSource.Name ?? retentionPolicyDetailsSource.name ?? null,
+            isKnownPolicy: getBoolean(retentionPolicyDetailsSource, ["IsKnownPolicy", "isKnownPolicy"]),
+            mailboxCount: getNumber(retentionPolicyDetailsSource, ["MailboxCount", "mailboxCount"]),
+            isDefaultPolicy: getBoolean(retentionPolicyDetailsSource, ["IsDefaultPolicy", "isDefaultPolicy"]),
+            retentionId: retentionPolicyDetailsSource.RetentionId ?? retentionPolicyDetailsSource.retentionId ?? null,
+            tagCount: getNumber(retentionPolicyDetailsSource, ["TagCount", "tagCount"]),
+            comment: retentionPolicyDetailsSource.Comment ?? retentionPolicyDetailsSource.comment ?? null
+        }
+    };
+}
+
+function normaliseLicensingProfile(source) {
+    const licensingSource = source?.licensing ?? source?.Licensing ?? {};
+    const capabilities = licensingSource.PersistedCapabilities ?? licensingSource.persistedCapabilities;
+    const recipientTypeDetails = licensingSource.RecipientTypeDetails ??
+        licensingSource.recipientTypeDetails ??
+        source?.RecipientTypeDetails ??
+        source?.recipientTypeDetails ??
+        null;
+
+    const inferredLicenseRequired = inferLicenseRequired(recipientTypeDetails, getBoolean(licensingSource, ["IsInactiveMailbox", "isInactiveMailbox"]));
+    const hasLicenseFromSource = getBoolean(licensingSource, ["HasLicense", "hasLicense"]);
+    const inferredHasLicense = hasLicenseFromSource ?? (getBoolean(licensingSource, ["SKUAssigned", "skuAssigned"]) === true || (Array.isArray(capabilities) && capabilities.length > 0));
+    const licenseTypes = Array.isArray(licensingSource.LicenseTypes ?? licensingSource.licenseTypes)
+        ? (licensingSource.LicenseTypes ?? licensingSource.licenseTypes).map(item => String(item || "")).filter(Boolean)
+        : (Array.isArray(capabilities) ? capabilities.map(item => String(item || "")).filter(Boolean) : []);
+
+    return {
+        recipientTypeDetails,
+        isSharedMailbox: getBoolean(licensingSource, ["IsSharedMailbox", "isSharedMailbox"]) ?? (recipientTypeDetails === "SharedMailbox"),
+        skuAssigned: getBoolean(licensingSource, ["SKUAssigned", "skuAssigned"]),
+        persistedCapabilities: Array.isArray(capabilities) ? capabilities.map(item => String(item || "")).filter(Boolean) : [],
+        archiveStatus: licensingSource.ArchiveStatus ?? licensingSource.archiveStatus ?? null,
+        isInactiveMailbox: getBoolean(licensingSource, ["IsInactiveMailbox", "isInactiveMailbox"]),
+        licenseRequired: getBoolean(licensingSource, ["LicenseRequired", "licenseRequired"]) ?? inferredLicenseRequired,
+        hasLicense: inferredHasLicense,
+        licenseTypes,
+        licenseType: licensingSource.LicenseType ?? licensingSource.licenseType ?? (licenseTypes.length > 0 ? licenseTypes.join(", ") : null),
+        isLicenseCompliant: getBoolean(licensingSource, ["IsLicenseCompliant", "isLicenseCompliant"]) ?? ((inferredLicenseRequired !== true) || inferredHasLicense === true),
+        licenseRequirementReason: licensingSource.LicenseRequirementReason ?? licensingSource.licenseRequirementReason ?? getDefaultLicenseRequirementReason(recipientTypeDetails, inferredLicenseRequired)
+    };
+}
+
+function normaliseMaintenanceProfile(source) {
+    const maintenanceSource = source?.mailboxMaintenance ?? source?.MailboxMaintenance ?? {};
+    return {
+        lastCleanupAttemptUtc: maintenanceSource.LastCleanupAttemptUtc ?? maintenanceSource.lastCleanupAttemptUtc ?? null,
+        lastCleanupSuccessUtc: maintenanceSource.LastCleanupSuccessUtc ??
+            maintenanceSource.lastCleanupSuccessUtc ??
+            source?.LastCleanupSuccessUtc ??
+            source?.lastCleanupSuccessUtc ??
+            null,
+        cleanupStatus: maintenanceSource.CleanupStatus ??
+            maintenanceSource.cleanupStatus ??
+            source?.CleanupStatus ??
+            source?.cleanupStatus ??
+            "Unknown",
+        daysSinceSuccessfulCleanup: getNumber(maintenanceSource, ["DaysSinceSuccessfulCleanup", "daysSinceSuccessfulCleanup"]) ??
+            getNumber(source, ["DaysSinceSuccessfulCleanup", "daysSinceSuccessfulCleanup"]),
+        cleanupVersion: maintenanceSource.CleanupVersion ?? maintenanceSource.cleanupVersion ?? null,
+        lastProcessedBy: maintenanceSource.LastProcessedBy ?? maintenanceSource.lastProcessedBy ?? null,
+        correlationId: maintenanceSource.CorrelationId ?? maintenanceSource.correlationId ?? null,
+        notes: maintenanceSource.Notes ?? maintenanceSource.notes ?? null
     };
 }
 
@@ -1449,6 +1950,26 @@ function getNumber(record, propertyNames) {
     return null;
 }
 
+function getBoolean(record, propertyNames) {
+    for (const propertyName of propertyNames) {
+        const value = record?.[propertyName];
+        if (value === undefined || value === null || value === "") {
+            continue;
+        }
+        if (typeof value === "boolean") {
+            return value;
+        }
+        const text = String(value).trim().toLowerCase();
+        if (text === "true") {
+            return true;
+        }
+        if (text === "false") {
+            return false;
+        }
+    }
+    return null;
+}
+
 function parseStorageValueInGb(value) {
     if (value == null || value === "") return null;
 
@@ -1511,11 +2032,147 @@ function formatShortDate(value) {
     return Number.isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString();
 }
 
+function getChangeAgeLabel(changeHistory) {
+    if (!Array.isArray(changeHistory) || changeHistory.length === 0) return "Unknown";
+    const latest = changeHistory[changeHistory.length - 1];
+    const changedUtc = latest?.timestampUtc;
+    if (!changedUtc) return "Unknown";
+    const changedDate = new Date(changedUtc);
+    if (Number.isNaN(changedDate.getTime())) return "Unknown";
+    const days = Math.max(0, Math.floor((Date.now() - changedDate.getTime()) / 86400000));
+    return `${days} day${days === 1 ? "" : "s"} ago`;
+}
+
+function inferLicenseRequired(recipientTypeDetails, isInactiveMailbox) {
+    if (isInactiveMailbox === true) {
+        return false;
+    }
+
+    const unlicensedTypes = new Set([
+        "sharedmailbox",
+        "roommailbox",
+        "equipmentmailbox",
+        "discoverymailbox",
+        "publicfoldermailbox",
+        "groupmailbox",
+        "schedulingmailbox",
+        "teammailbox",
+        "auditlogmailbox",
+        "arbitrationmailbox"
+    ]);
+
+    const normalizedType = String(recipientTypeDetails || "").trim().toLowerCase();
+    if (!normalizedType) return true;
+    return !unlicensedTypes.has(normalizedType);
+}
+
+function getDefaultLicenseRequirementReason(recipientTypeDetails, licenseRequired) {
+    if (licenseRequired === false) {
+        return recipientTypeDetails
+            ? `Recipient type '${recipientTypeDetails}' is typically unlicensed.`
+            : "Recipient type is typically unlicensed.";
+    }
+    return recipientTypeDetails
+        ? `Recipient type '${recipientTypeDetails}' is expected to require mailbox licensing.`
+        : "Mailbox licensing is expected to be required.";
+}
+
+function getLicenseStatusLabel(mailbox) {
+    if (!mailbox) return "Unknown";
+    const required = mailbox.licensing.licenseRequired;
+    const hasLicense = mailbox.licensing.hasLicense;
+    const type = mailbox.licensing.licenseType;
+
+    if (required === true && hasLicense === true) {
+        return type ? `Assigned (${type})` : "Assigned";
+    }
+    if (required === true && hasLicense !== true) {
+        return "Missing required license";
+    }
+    if (required === false && hasLicense === true) {
+        return type ? `Optional (${type})` : "Optional";
+    }
+    if (required === false) {
+        return "Not required";
+    }
+    return hasLicense === true ? "Assigned" : "Unknown";
+}
+
+function licenseBadge(mailbox) {
+    const label = getLicenseStatusLabel(mailbox);
+    if (label === "Missing required license") {
+        return `<span class="badge danger">${escapeHtml(label)}</span>`;
+    }
+    if (label === "Not required" || label.startsWith("Optional")) {
+        return `<span class="badge">${escapeHtml(label)}</span>`;
+    }
+    if (label === "Assigned" || label.startsWith("Assigned")) {
+        return `<span class="badge success">${escapeHtml(label)}</span>`;
+    }
+    return `<span class="badge warning">${escapeHtml(label)}</span>`;
+}
+
+function formatRetentionPolicyProperties(policy) {
+    if (!policy) return "";
+    const parts = [];
+    if (policy.retentionId) parts.push(`ID: ${policy.retentionId}`);
+    if (Array.isArray(policy.retentionPolicyTagLinks) && policy.retentionPolicyTagLinks.length > 0) {
+        parts.push(`Tags: ${policy.retentionPolicyTagLinks.join(", ")}`);
+    }
+    if (policy.comment) parts.push(policy.comment);
+    if (parts.length === 0) {
+        return policy.isKnownPolicy === false ? "Discovered from mailbox assignment only." : "No additional properties returned.";
+    }
+    return parts.join(" | ");
+}
+
 function usageBadge(percent) {
     const value = Number(percent || 0);
     if (value >= CRITICAL_THRESHOLD) return `<span class="badge danger">${formatPercent(value)}</span>`;
     if (value >= WARNING_THRESHOLD) return `<span class="badge warning">${formatPercent(value)}</span>`;
     return formatPercent(value);
+}
+
+function formatBooleanState(value) {
+    if (value === true) return "Enabled";
+    if (value === false) return "Disabled";
+    return "Unknown";
+}
+
+function isNeverCleaned(mailbox) {
+    return !mailbox?.mailboxMaintenance?.lastCleanupSuccessUtc;
+}
+
+function isCleanupStale(mailbox) {
+    const days = Number(mailbox?.mailboxMaintenance?.daysSinceSuccessfulCleanup);
+    return Number.isFinite(days) && days > CLEANUP_WARNING_DAYS;
+}
+
+function getCleanupStatusLabel(mailbox) {
+    if (!mailbox) return "Unknown";
+    const status = String(mailbox.mailboxMaintenance?.cleanupStatus || mailbox.cleanupStatus || "Unknown");
+    const days = Number(mailbox.mailboxMaintenance?.daysSinceSuccessfulCleanup ?? mailbox.daysSinceSuccessfulCleanup);
+    if (!mailbox.mailboxMaintenance?.lastCleanupSuccessUtc) {
+        return "Never Cleaned";
+    }
+    if (Number.isFinite(days) && days > CLEANUP_WARNING_DAYS) {
+        return `Cleanup > ${CLEANUP_WARNING_DAYS} Days`;
+    }
+    return status;
+}
+
+function cleanupBadge(mailbox) {
+    const label = getCleanupStatusLabel(mailbox);
+    if (label === "Never Cleaned") {
+        return `<span class="badge warning">${escapeHtml(label)}</span>`;
+    }
+    if (label === "Cleanup Failed" || label.toLowerCase() === "failed") {
+        return `<span class="badge danger">${escapeHtml(label)}</span>`;
+    }
+    if (label.startsWith("Cleanup >")) {
+        return `<span class="badge warning">${escapeHtml(label)}</span>`;
+    }
+    return `<span class="badge success">${escapeHtml(label)}</span>`;
 }
 
 function getCssVariable(name) {

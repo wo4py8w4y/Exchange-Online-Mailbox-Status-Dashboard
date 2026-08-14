@@ -10,5 +10,20 @@
   "CsvPath": "..\\Mailboxes\\mailboxes.csv",
   "MailboxesCsvPath": "..\\Mailboxes\\mailboxes.csv",
   "HistoryJsonPath": "..\\Web\\history.json",
-  "HotDataJsonPath": "..\\Web\\data.json"
+  "HotDataJsonPath": "..\\Web\\data.json",
+  "WebRootPath": "..\\Web",
+  "DashboardUrl": "http://localhost:8080/",
+  "LogRootPath": ".\\Logs",
+  "LogFilePath": "",
+  "MaxHistorySamples": 365,
+  "WarningThresholdPercent": 85,
+  "CriticalThresholdPercent": 94,
+  "IncludeArchive": false,
+  "IncludeSendAs": false,
+  "IncludeFolderPermissions": false,
+  "CollectorScheduleMinutes": 30,
+  "WebRefreshSeconds": 60,
+  "SkipConfigValidation": false,
+  "RegisterScheduledTask": false,
+  "ScheduledTaskName": "Exchange Online Mailbox Dashboard Collector"
 }

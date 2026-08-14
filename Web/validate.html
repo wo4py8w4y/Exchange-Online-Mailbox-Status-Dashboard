@@ -24,18 +24,18 @@
     <main>
         <div id="valSummary" class="val-summary" hidden>
             <div class="val-summary-item">
-                <span class="val-count" id="countPass" style="color:var(--chart-success)">0</span>
+                <span class="val-count val-count-pass" id="countPass">0</span>
                 <span>Passed</span>
             </div>
             <div class="val-summary-item">
-                <span class="val-count" id="countFail" style="color:var(--chart-danger)">0</span>
+                <span class="val-count val-count-fail" id="countFail">0</span>
                 <span>Failed</span>
             </div>
             <div class="val-summary-item">
-                <span class="val-count" id="countWarn" style="color:var(--chart-warning)">0</span>
+                <span class="val-count val-count-warn" id="countWarn">0</span>
                 <span>Warnings</span>
             </div>
-            <div class="val-summary-item" id="summaryTotal" style="color:var(--text-secondary)"></div>
+            <div class="val-summary-item" id="summaryTotal"></div>
         </div>
 
         <section class="panel val-section">
@@ -59,6 +59,11 @@
         </section>
 
         <section class="panel val-section">
+            <h2>Calculation checks</h2>
+            <div id="checksCalcs"></div>
+        </section>
+
+        <section class="panel val-section">
             <h2>Collector configuration</h2>
             <div id="checksConfig"></div>
         </section>
@@ -73,6 +78,8 @@
         { name: "History (history.html)",    url: "history.html" },
         { name: "Permissions (permissions.html)", url: "permissions.html" },
         { name: "Thresholds (thresholds.html)",   url: "thresholds.html" },
+        { name: "Licensing (licensing.html)", url: "licensing.html" },
+        { name: "Retention Policy (retentionpolicy.html)", url: "retentionpolicy.html" },
         { name: "Styles (styles.css)",       url: "styles.css" },
         { name: "Dashboard JS (dashboard.js)", url: "dashboard.js" },
     ];
@@ -82,12 +89,14 @@
         { name: "history.json", url: "history.json" },
     ];
 
+    const SCHEMA_FILE = { name: "dashboard.schema.json", url: "dashboard.schema.json" };
+
     const THEME_FILES = [
-        "theme/dark.jsonc",
-        "theme/neon-punk.jsonc",
-        "theme/undershaddows.jsonc",
-        "theme/splendid.jsonc",
-        "theme/eyes-wide-open.jsonc",
+        "theme/aurora-night.jsonc",
+        "theme/nerv.jsonc",
+        "theme/graphite-ocean.jsonc",
+        "theme/summit-light.jsonc",
+        "theme/dusk-rose.jsonc",
     ];
 
     const CONFIG_URLS = [
@@ -95,6 +104,7 @@
     ];
 
     let results = [];
+    let dashboardSchema = null;
 
     function getMailboxArray(json) {
         return Array.isArray(json?.Mailboxes) ? json.Mailboxes :
@@ -206,6 +216,22 @@
             const genUtc = json.GeneratedUtc || json.generatedUtc;
             addResult("checksSchema", "data.json — GeneratedUtc", genUtc ? "pass" : "warn",
                 genUtc ? `Generated: ${new Date(genUtc).toLocaleString()}` : "GeneratedUtc field missing");
+
+            const hasLicensingAssessment = mailboxes.slice(0, 3).every(m => {
+                const licensing = m.licensing || m.Licensing || {};
+                return hasAnyProperty(licensing, ["LicenseRequired", "licenseRequired", "HasLicense", "hasLicense"]);
+            });
+            addResult("checksSchema", "data.json — licensing assessment", hasLicensingAssessment ? "pass" : "warn",
+                hasLicensingAssessment ? "License requirement/assignment fields present in sampled records." : "Licensing assessment fields missing in sampled records.");
+
+            const hasRetentionCatalog = Array.isArray(json?.RetentionPolicies) || Array.isArray(json?.retentionPolicies);
+            addResult("checksSchema", "data.json — retention policy catalog", hasRetentionCatalog ? "pass" : "warn",
+                hasRetentionCatalog ? "RetentionPolicies catalog is present." : "RetentionPolicies catalog is missing.");
+
+            if (dashboardSchema) {
+                const schemaOk = validateAgainstDashboardSchema(json, "Mailboxes");
+                addResult("checksSchema", "data.json — schema required fields", schemaOk.ok ? "pass" : "fail", schemaOk.detail);
+            }
         } catch (e) {
             addResult("checksSchema", "data.json — parse", "fail", e.message);
         }
@@ -225,9 +251,78 @@
                 addResult("checksSchema", "history.json — Samples arrays", samplesOk ? "pass" : "warn",
                     samplesOk ? "Samples arrays present in sampled entries" : "Samples arrays missing or empty in first 3 entries");
             }
+
+            if (dashboardSchema) {
+                const schemaOk = validateAgainstDashboardSchema(json, "MailboxHistory");
+                addResult("checksSchema", "history.json — schema required fields", schemaOk.ok ? "pass" : "fail", schemaOk.detail);
+            }
+
+            const hasRetentionCatalog = Array.isArray(json?.RetentionPolicies) || Array.isArray(json?.retentionPolicies);
+            addResult("checksSchema", "history.json — retention policy catalog", hasRetentionCatalog ? "pass" : "warn",
+                hasRetentionCatalog ? "RetentionPolicies catalog is present." : "RetentionPolicies catalog is missing.");
         } catch (e) {
             addResult("checksSchema", "history.json — parse", "fail", e.message);
         }
+    }
+
+    async function checkPublishedSchemaFile() {
+        const response = await fetchCheck("checksSchema", `${SCHEMA_FILE.name} — HTTP`, SCHEMA_FILE.url);
+        if (!response) {
+            return;
+        }
+
+        try {
+            dashboardSchema = await response.json();
+            const requiredRoot = Array.isArray(dashboardSchema.required) ? dashboardSchema.required : [];
+            const hasGeneratedUtc = requiredRoot.includes("GeneratedUtc");
+            const hasDefs = dashboardSchema.$defs && typeof dashboardSchema.$defs === "object";
+            addResult(
+                "checksSchema",
+                `${SCHEMA_FILE.name} — parse`,
+                hasGeneratedUtc && hasDefs ? "pass" : "fail",
+                hasGeneratedUtc && hasDefs
+                    ? "Schema parsed and contains required root/definitions."
+                    : "Schema parsed but missing expected root requirements."
+            );
+        } catch (e) {
+            dashboardSchema = null;
+            addResult("checksSchema", `${SCHEMA_FILE.name} — parse`, "fail", e.message);
+        }
+    }
+
+    function validateAgainstDashboardSchema(payload, collectionName) {
+        const hasGenerated = payload && (payload.GeneratedUtc !== undefined && payload.GeneratedUtc !== null);
+        if (!hasGenerated) {
+            return { ok: false, detail: "Missing GeneratedUtc." };
+        }
+
+        const collection = payload ? payload[collectionName] : null;
+        if (!Array.isArray(collection)) {
+            return { ok: false, detail: `Missing ${collectionName} array.` };
+        }
+
+        const first = collection[0];
+        if (!first || typeof first !== "object") {
+            return { ok: true, detail: `${collectionName} is valid but currently empty.` };
+        }
+
+        if (collectionName === "Mailboxes") {
+            const hasRequired = first.ExchangeGuid && first.PrimarySmtpAddress && first.DisplayName && first.current;
+            return {
+                ok: Boolean(hasRequired),
+                detail: hasRequired
+                    ? "Mailbox records include required identity/current fields."
+                    : "Mailbox records are missing one or more required fields (ExchangeGuid, PrimarySmtpAddress, DisplayName, current)."
+            };
+        }
+
+        const hasRequired = first.ExchangeGuid && first.PrimarySmtpAddress && first.DisplayName && Array.isArray(first.Samples);
+        return {
+            ok: Boolean(hasRequired),
+            detail: hasRequired
+                ? "History records include required identity/samples fields."
+                : "History records are missing one or more required fields (ExchangeGuid, PrimarySmtpAddress, DisplayName, Samples)."
+        };
     }
 
     async function checkThemeFile(url) {
@@ -303,6 +398,112 @@
             statusEl.textContent = `All ${p} checks passed ✓`;
             statusEl.style.color = "var(--chart-success)";
         }
+
+        function calculateThresholdCount(mailboxes, thresholdPercent) {
+            return mailboxes.filter(mailbox => {
+                const current = getCurrentRecord(mailbox);
+                const usage = Number(current.usagePercent ?? current.UsagePercent ?? mailbox.usagePercent ?? mailbox.UsagePercent ?? 0);
+                return Number.isFinite(usage) && usage >= thresholdPercent;
+            }).length;
+        }
+
+        function calculateLicenseGapCount(mailboxes) {
+            return mailboxes.filter(mailbox => {
+                const licensing = mailbox.licensing || mailbox.Licensing || {};
+                const required = licensing.LicenseRequired ?? licensing.licenseRequired;
+                const hasLicense = licensing.HasLicense ?? licensing.hasLicense;
+                return required === true && hasLicense !== true;
+            }).length;
+        }
+
+        function calculateRetentionCatalogCounts(mailboxes) {
+            const map = new Map();
+            mailboxes.forEach(mailbox => {
+                const retention = mailbox.retention || mailbox.Retention || {};
+                const policy = String(retention.RetentionPolicy ?? retention.retentionPolicy ?? "Unassigned").trim() || "Unassigned";
+                map.set(policy, (map.get(policy) || 0) + 1);
+            });
+            return map;
+        }
+
+        function runKnownValueCalculationChecks() {
+            const syntheticMailbox = {
+                current: { totalGB: 25, quotaGB: 50, usagePercent: 50 },
+                licensing: { licenseRequired: true, hasLicense: false },
+                retention: { retentionPolicy: "Policy-A" }
+            };
+
+            const thresholdCount = calculateThresholdCount([syntheticMailbox], 50);
+            addResult("checksCalcs", "Known-value threshold calculation", thresholdCount === 1 ? "pass" : "fail",
+                thresholdCount === 1 ? "Expected threshold count 1 confirmed (50% >= 50)." : `Expected 1 but got ${thresholdCount}.`);
+
+            const licenseGapCount = calculateLicenseGapCount([syntheticMailbox]);
+            addResult("checksCalcs", "Known-value license-gap calculation", licenseGapCount === 1 ? "pass" : "fail",
+                licenseGapCount === 1 ? "Expected license-gap count 1 confirmed." : `Expected 1 but got ${licenseGapCount}.`);
+
+            const retentionCounts = calculateRetentionCatalogCounts([syntheticMailbox]);
+            const policyCount = retentionCounts.get("Policy-A") || 0;
+            addResult("checksCalcs", "Known-value retention catalog count", policyCount === 1 ? "pass" : "fail",
+                policyCount === 1 ? "Expected Policy-A mailbox count 1 confirmed." : `Expected 1 but got ${policyCount}.`);
+        }
+
+        async function checkDataDrivenCalculationConsistency() {
+            try {
+                const response = await fetch("data.json?v=" + Date.now(), { cache: "no-store" });
+                if (!response.ok) {
+                    addResult("checksCalcs", "data.json calculation consistency", "warn", `Unable to load data.json (HTTP ${response.status}).`);
+                    return;
+                }
+
+                const json = await response.json();
+                const mailboxes = getMailboxArray(json);
+                if (mailboxes.length === 0) {
+                    addResult("checksCalcs", "data.json calculation consistency", "warn", "No mailbox records available for calculation checks.");
+                    return;
+                }
+
+                const thresholdBasis = Number(json.CriticalThresholdPercent ?? json.WarningThresholdPercent ?? 94);
+                const calculatedThresholdCount = calculateThresholdCount(mailboxes, thresholdBasis);
+                const declaredThresholdCount = Number(json.ThresholdCount);
+                if (Number.isFinite(declaredThresholdCount)) {
+                    addResult(
+                        "checksCalcs",
+                        "Threshold count consistency",
+                        calculatedThresholdCount === declaredThresholdCount ? "pass" : "fail",
+                        `Calculated ${calculatedThresholdCount}, declared ${declaredThresholdCount} (threshold ${thresholdBasis}%).`
+                    );
+                } else {
+                    addResult("checksCalcs", "Threshold count consistency", "warn", "ThresholdCount is not present in data.json.");
+                }
+
+                const calculatedLicenseGaps = calculateLicenseGapCount(mailboxes);
+                addResult("checksCalcs", "License gap calculation", "pass", `Calculated ${calculatedLicenseGaps} required-license gap(s).`);
+
+                const dataCatalog = Array.isArray(json.RetentionPolicies) ? json.RetentionPolicies : [];
+                if (dataCatalog.length > 0) {
+                    const derivedCounts = calculateRetentionCatalogCounts(mailboxes);
+                    const mismatches = dataCatalog.filter(entry => {
+                        const policyName = String(entry.Name ?? entry.name ?? "").trim();
+                        if (!policyName) return false;
+                        const derived = derivedCounts.get(policyName) || 0;
+                        const declared = Number(entry.MailboxCount ?? entry.mailboxCount ?? 0);
+                        return derived !== declared;
+                    });
+                    addResult(
+                        "checksCalcs",
+                        "Retention policy catalog count consistency",
+                        mismatches.length === 0 ? "pass" : "fail",
+                        mismatches.length === 0
+                            ? "Catalog mailbox counts match mailbox assignments."
+                            : `${mismatches.length} retention policy count mismatch(es) detected.`
+                    );
+                } else {
+                    addResult("checksCalcs", "Retention policy catalog count consistency", "warn", "No RetentionPolicies catalog to cross-check.");
+                }
+            } catch (error) {
+                addResult("checksCalcs", "data.json calculation consistency", "fail", error.message);
+            }
+        }
     }
 
     async function checkJsDashboard() {
@@ -328,7 +529,7 @@
         document.getElementById("runBtn").disabled = true;
         document.getElementById("runStatus").textContent = "Running…";
         document.getElementById("runStatus").style.color = "";
-        ["checksPages","checksData","checksSchema","checksThemes","checksConfig"].forEach(id => {
+        ["checksPages","checksData","checksSchema","checksThemes","checksCalcs","checksConfig"].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.innerHTML = "";
         });
@@ -338,6 +539,7 @@
         await Promise.all(PAGES.map(p => fetchCheck("checksPages", p.name, p.url)));
 
         // Data files (schema checks happen inside)
+        await checkPublishedSchemaFile();
         await checkDataJson("data.json");
         await checkHistoryJson("history.json");
 
@@ -346,6 +548,10 @@
 
         // Theme files
         await Promise.all(THEME_FILES.map(f => checkThemeFile(f)));
+
+        // Calculation checks
+        runKnownValueCalculationChecks();
+        await checkDataDrivenCalculationConsistency();
 
         // Config
         await Promise.all(CONFIG_URLS.map(c => checkConfig(c.name, c.url)));

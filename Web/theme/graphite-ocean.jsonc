@@ -1,0 +1,24 @@
+{
+  "$schema": "vscode://schemas/color-theme",
+  "type": "dark",
+  "colors": {
+    "editor.background": "#101419",
+    "panel.background": "#1a222c",
+    "list.hoverBackground": "#253241",
+    "editor.foreground": "#ecf0f6",
+    "descriptionForeground": "#9aa9bb",
+    "panel.border": "#314354",
+    "activityBar.foreground": "#d7e5f8",
+    "textLink.foreground": "#75c7ff",
+    "button.hoverBackground": "#2c4f73",
+    "button.background": "#244563",
+    "badge.background": "#3fa7ff",
+    "terminal.ansiBlue": "#75c7ff",
+    "gitDecoration.addedResourceForeground": "#56d39b",
+    "debugConsole.warningForeground": "#ffd166",
+    "errorForeground": "#ff7b7b",
+    "editorLineNumber.foreground": "#5e7084",
+    "titleBar.activeBackground": "#1b2a38",
+    "statusBar.background": "#121e2a"
+  }
+}
