@@ -96,6 +96,19 @@
 
     let results = [];
 
+    function getMailboxArray(json) {
+        return Array.isArray(json?.Mailboxes) ? json.Mailboxes :
+            (Array.isArray(json?.mailboxes) ? json.mailboxes : []);
+    }
+
+    function getCurrentRecord(mailbox) {
+        return mailbox?.current ?? mailbox?.Current ?? mailbox ?? {};
+    }
+
+    function hasAnyProperty(record, propertyNames) {
+        return propertyNames.some(propertyName => record && record[propertyName] !== undefined && record[propertyName] !== null);
+    }
+
     function addResult(sectionId, name, status, detail) {
         results.push({ status });
         const container = document.getElementById(sectionId);
@@ -139,23 +152,56 @@
         if (!r) return;
         try {
             const json = await r.json();
-            const count = (json.Mailboxes || json.mailboxes || []).length;
-            if (!Array.isArray(json.Mailboxes || json.mailboxes)) {
+            const hasMailboxArray = Array.isArray(json?.Mailboxes) || Array.isArray(json?.mailboxes);
+            const mailboxes = getMailboxArray(json);
+            const count = mailboxes.length;
+            if (!hasMailboxArray) {
                 addResult("checksSchema", "data.json — Mailboxes array", "fail", "Missing Mailboxes array");
             } else {
                 addResult("checksSchema", "data.json — Mailboxes array", "pass", `${count.toLocaleString()} mailbox records`);
             }
-            const hasGuid = (json.Mailboxes || json.mailboxes || []).slice(0, 3).every(m =>
+            const hasGuid = mailboxes.slice(0, 3).every(m =>
                 (m.ExchangeGuid || m.exchangeGuid) && (m.PrimarySmtpAddress || m.primarySmtpAddress)
             );
             addResult("checksSchema", "data.json — Mailbox fields", hasGuid ? "pass" : "warn",
                 hasGuid ? "ExchangeGuid + PrimarySmtpAddress present on sampled records" : "Missing ExchangeGuid or PrimarySmtpAddress in first 3 records");
 
-            const hasCurrent = (json.Mailboxes || json.mailboxes || []).slice(0, 3).every(m =>
-                m.current && (m.current.totalGB !== undefined || m.current.SizeGB !== undefined)
-            );
+            const hasCurrent = mailboxes.slice(0, 3).every(m => {
+                const current = getCurrentRecord(m);
+                return hasAnyProperty(current, ["totalGB", "TotalGB", "SizeGB", "sizeGB"]);
+            });
             addResult("checksSchema", "data.json — current metrics", hasCurrent ? "pass" : "warn",
-                hasCurrent ? "current.totalGB present" : "current.totalGB missing in sampled records");
+                hasCurrent ? "Current storage metrics present in sampled records" : "Current storage metrics missing in sampled records");
+
+            const hasQuota = mailboxes.slice(0, 3).every(m => {
+                const current = getCurrentRecord(m);
+                return hasAnyProperty(current, ["quotaGB", "QuotaGB", "ProhibitSendReceiveQuota"]) ||
+                    hasAnyProperty(m, ["quotaGB", "QuotaGB", "ProhibitSendReceiveQuota"]);
+            });
+            addResult("checksSchema", "data.json — quota metrics", hasQuota ? "pass" : "warn",
+                hasQuota ? "Quota metrics present in sampled records" : "Quota metrics missing in sampled records");
+
+            const hasArchive = mailboxes.slice(0, 3).every(m => {
+                const current = getCurrentRecord(m);
+                return hasAnyProperty(current, ["archiveSizeGB", "ArchiveSizeGB", "Archive"]) ||
+                    hasAnyProperty(m, ["archiveSizeGB", "ArchiveSizeGB", "Archive"]);
+            });
+            addResult("checksSchema", "data.json — archive metrics", hasArchive ? "pass" : "warn",
+                hasArchive ? "Archive metrics present in sampled records" : "Archive metrics missing in sampled records");
+
+            const hasUsage = mailboxes.slice(0, 3).every(m => {
+                const current = getCurrentRecord(m);
+                return hasAnyProperty(current, ["usagePercent", "UsagePercent"]);
+            });
+            addResult("checksSchema", "data.json — usage metrics", hasUsage ? "pass" : "warn",
+                hasUsage ? "Usage metrics present in sampled records" : "Usage metrics missing in sampled records");
+
+            const hasCurrentContainer = mailboxes.slice(0, 3).every(m =>
+                m.current || m.Current ||
+                hasAnyProperty(m, ["TotalGB", "totalGB", "SizeGB", "QuotaGB", "UsagePercent"])
+            );
+            addResult("checksSchema", "data.json — current container", hasCurrentContainer ? "pass" : "warn",
+                hasCurrentContainer ? "Current mailbox payload shape is supported" : "Current mailbox payload shape looks incomplete");
 
             const genUtc = json.GeneratedUtc || json.generatedUtc;
             addResult("checksSchema", "data.json — GeneratedUtc", genUtc ? "pass" : "warn",
@@ -259,21 +305,22 @@
         }
     }
 
-    function checkJsDashboard() {
+    async function checkJsDashboard() {
         // validate.html deliberately does NOT load dashboard.js — check syntax via fetch instead
-        fetch("dashboard.js?v=" + Date.now(), { cache: "no-store" })
-            .then(r => r.text())
-            .then(src => {
-                try {
-                    new Function(src);
-                    const fnCount = (src.match(/^function /gm) || []).length;
-                    addResult("checksData", "dashboard.js — syntax check", "pass",
-                        `No syntax errors detected. ${fnCount} top-level functions found.`);
-                } catch(e) {
-                    addResult("checksData", "dashboard.js — syntax check", "fail", e.message);
-                }
-            })
-            .catch(e => addResult("checksData", "dashboard.js — syntax check", "fail", e.message));
+        try {
+            const r = await fetch("dashboard.js?v=" + Date.now(), { cache: "no-store" });
+            const src = await r.text();
+            try {
+                new Function(src);
+                const fnCount = (src.match(/^function /gm) || []).length;
+                addResult("checksData", "dashboard.js — syntax check", "pass",
+                    `No syntax errors detected. ${fnCount} top-level functions found.`);
+            } catch (e) {
+                addResult("checksData", "dashboard.js — syntax check", "fail", e.message);
+            }
+        } catch (e) {
+            addResult("checksData", "dashboard.js — syntax check", "fail", e.message);
+        }
     }
 
     async function runAllChecks() {
@@ -295,7 +342,7 @@
         await checkHistoryJson("history.json");
 
         // JS runtime check
-        checkJsDashboard();
+        await checkJsDashboard();
 
         // Theme files
         await Promise.all(THEME_FILES.map(f => checkThemeFile(f)));

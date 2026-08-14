@@ -289,14 +289,55 @@ function Write-JsonFileAtomic {
     return $false
 }
 
-function Get-HistoryMap {
+function Get-HistoryLookup {
     param($HistoryData)
-    $map = @{}
-    if ($null -eq $HistoryData -or $null -eq $HistoryData.MailboxHistory) { return $map }
-    foreach ($entry in $HistoryData.MailboxHistory) {
-        if ($entry.PrimarySmtpAddress) { $map[[string]$entry.PrimarySmtpAddress] = @($entry.Samples) }
+
+    $lookup = [pscustomobject]@{
+        ByGuid  = @{}
+        BySmtp  = @{}
+        Entries = [System.Collections.Generic.List[object]]::new()
     }
-    return $map
+
+    if ($null -eq $HistoryData -or $null -eq $HistoryData.MailboxHistory) {
+        return $lookup
+    }
+
+    foreach ($entry in @($HistoryData.MailboxHistory)) {
+        if ($null -eq $entry) {
+            continue
+        }
+
+        $lookup.Entries.Add($entry)
+
+        if (-not [string]::IsNullOrWhiteSpace([string]$entry.ExchangeGuid)) {
+            $lookup.ByGuid[[string]$entry.ExchangeGuid] = $entry
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace([string]$entry.PrimarySmtpAddress)) {
+            $lookup.BySmtp[([string]$entry.PrimarySmtpAddress).ToLowerInvariant()] = $entry
+        }
+    }
+
+    return $lookup
+}
+
+function Get-HistoryEntry {
+    param(
+        [Parameter(Mandatory)] $HistoryLookup,
+        [string]$ExchangeGuid,
+        [string]$PrimarySmtpAddress
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($ExchangeGuid) -and $HistoryLookup.ByGuid.ContainsKey($ExchangeGuid)) {
+        return $HistoryLookup.ByGuid[$ExchangeGuid]
+    }
+
+    $smtpKey = if ([string]::IsNullOrWhiteSpace($PrimarySmtpAddress)) { $null } else { $PrimarySmtpAddress.ToLowerInvariant() }
+    if ($smtpKey -and $HistoryLookup.BySmtp.ContainsKey($smtpKey)) {
+        return $HistoryLookup.BySmtp[$smtpKey]
+    }
+
+    return $null
 }
 
 function Connect-ToExchangeOnline {
@@ -332,10 +373,13 @@ Critical threshold:          $CriticalThresholdPercent%
 }
 
 function Get-MailboxDashboardRecord {
-    param([Parameter(Mandatory)] [string]$Identity, [Parameter(Mandatory)] [hashtable]$HistoryMap, [Parameter(Mandatory)] [datetime]$SnapshotTimeUtc)
-    
-    $mailbox = Get-EXOMailbox -Identity $Identity -Properties DisplayName,PrimarySmtpAddress,RecipientTypeDetails,ProhibitSendQuota,ProhibitSendReceiveQuota,IssueWarningQuota,GrantSendOnBehalfTo
+    param([Parameter(Mandatory)] [string]$Identity, [Parameter(Mandatory)] $HistoryLookup, [Parameter(Mandatory)] [datetime]$SnapshotTimeUtc)
+
+    $mailbox = Get-EXOMailbox -Identity $Identity -Properties DisplayName,PrimarySmtpAddress,RecipientTypeDetails,ExchangeGuid,ArchiveGuid,ArchiveStatus,ProhibitSendQuota,ProhibitSendReceiveQuota,IssueWarningQuota,GrantSendOnBehalfTo
     $stats = Get-EXOMailboxStatistics -Identity $Identity
+    $exchangeGuid = [string]$mailbox.ExchangeGuid
+    $historyEntry = Get-HistoryEntry -HistoryLookup $HistoryLookup -ExchangeGuid $exchangeGuid -PrimarySmtpAddress ([string]$mailbox.PrimarySmtpAddress)
+    $latestHistorySample = if ($null -ne $historyEntry -and @($historyEntry.Samples).Count -gt 0) { @($historyEntry.Samples)[-1] } else { $null }
 
     $totalBytes = Convert-ExoSizeToBytes -SizeObject $stats.TotalItemSize
     $totalGB = Convert-BytesToGB -Bytes $totalBytes
@@ -381,19 +425,40 @@ function Get-MailboxDashboardRecord {
     }
 
     $permissions = @($fullAccessPermissions + $sendAsPermissions + $sendOnBehalf + $folderPermissions)
-    $archive = $null
-    if ($IncludeArchive) {
+    $archiveEnabled = ($null -ne $mailbox.ArchiveGuid -and $mailbox.ArchiveGuid -ne [Guid]::Empty) -or
+        ($mailbox.ArchiveStatus -and $mailbox.ArchiveStatus -ne "None")
+
+    $archiveSizeGB = if ($null -ne $latestHistorySample -and $latestHistorySample.PSObject.Properties.Name -contains "ArchiveSizeGB" -and $null -ne $latestHistorySample.ArchiveSizeGB) {
+        [double]$latestHistorySample.ArchiveSizeGB
+    }
+    else {
+        0.0
+    }
+    $archiveItemCount = if ($null -ne $latestHistorySample -and $latestHistorySample.PSObject.Properties.Name -contains "ArchiveItemCount" -and $null -ne $latestHistorySample.ArchiveItemCount) {
+        [int64]$latestHistorySample.ArchiveItemCount
+    }
+    else {
+        0
+    }
+
+    if (-not $archiveEnabled -and $null -ne $latestHistorySample -and $latestHistorySample.PSObject.Properties.Name -contains "ArchiveEnabled") {
+        $archiveEnabled = [bool]$latestHistorySample.ArchiveEnabled
+    }
+
+    if ($IncludeArchive -and $archiveEnabled) {
         try {
             $archiveStats = Get-EXOMailboxStatistics -Identity $Identity -Archive
             $archiveBytes = Convert-ExoSizeToBytes -SizeObject $archiveStats.TotalItemSize
-            $archive = [pscustomobject]@{ TotalBytes = $archiveBytes; TotalGB = Convert-BytesToGB -Bytes $archiveBytes; ItemCount = [int64]$archiveStats.ItemCount }
-        } catch { $archive = [pscustomobject]@{ Error = "Archive unavailable." } }
+            $archiveSizeGB = Convert-BytesToGB -Bytes $archiveBytes
+            $archiveItemCount = [int64]$archiveStats.ItemCount
+        } catch { Write-Warning "Could not query archive statistics for $Identity. Preserving the most recent known archive values." }
     }
 
     $thresholdState = if ($usagePercent -ge $CriticalThresholdPercent) { "critical" } elseif ($usagePercent -ge $WarningThresholdPercent) { "warning" } else { "ok" }
 
     return [pscustomobject]@{
         Current = [pscustomobject]@{
+            ExchangeGuid             = $exchangeGuid
             DisplayName              = [string]$mailbox.DisplayName
             PrimarySmtpAddress       = [string]$mailbox.PrimarySmtpAddress
             RecipientTypeDetails     = [string]$mailbox.RecipientTypeDetails
@@ -405,7 +470,16 @@ function Get-MailboxDashboardRecord {
             QuotaGB                  = $quotaGB
             UsagePercent             = $usagePercent
             ThresholdState           = $thresholdState
-            Archive                  = $archive
+            ArchiveEnabled           = $archiveEnabled
+            ArchiveSizeGB            = $archiveSizeGB
+            ArchiveItemCount         = $archiveItemCount
+            Archive                  = if ($archiveEnabled) {
+                [pscustomobject]@{
+                    TotalBytes = $null
+                    TotalGB    = $archiveSizeGB
+                    ItemCount  = $archiveItemCount
+                }
+            } else { $null }
             Permissions              = $permissions
         }
         History = [pscustomobject]@{
@@ -417,6 +491,9 @@ function Get-MailboxDashboardRecord {
             ItemCount       = [int64]$stats.ItemCount
             DeletedItems    = [int64]$stats.DeletedItemCount
             PermissionCount = $permissions.Count
+            ArchiveEnabled  = $archiveEnabled
+            ArchiveSizeGB   = $archiveSizeGB
+            ArchiveItemCount = $archiveItemCount
             ThresholdState  = $thresholdState
         }
     }
@@ -483,23 +560,48 @@ try {
 
     $snapshotTimeUtc = (Get-Date).ToUniversalTime()
     $existingHistoryData = Read-JsonFile -Path $HistoryJsonPath
-    $historyMap = Get-HistoryMap -HistoryData $existingHistoryData
+    $historyLookup = Get-HistoryLookup -HistoryData $existingHistoryData
 
     $currentRecords = @()
-    $newHistorySamples = @()
 
     foreach ($row in $mailboxRows) {
         if ([string]::IsNullOrWhiteSpace($row.Mailbox)) { continue }
         $mailboxIdentity = $row.Mailbox.Trim()
         
         try {
-            $result = Get-MailboxDashboardRecord -Identity $mailboxIdentity -HistoryMap $historyMap -SnapshotTimeUtc $snapshotTimeUtc
+            $result = Get-MailboxDashboardRecord -Identity $mailboxIdentity -HistoryLookup $historyLookup -SnapshotTimeUtc $snapshotTimeUtc
             $currentRecords += $result.Current
-            $newHistorySamples += [pscustomobject]@{
-                PrimarySmtpAddress = $result.Current.PrimarySmtpAddress
-                DisplayName        = $result.Current.DisplayName
-                Sample             = $result.History
+
+            $historyEntry = Get-HistoryEntry -HistoryLookup $historyLookup -ExchangeGuid ([string]$result.Current.ExchangeGuid) -PrimarySmtpAddress ([string]$result.Current.PrimarySmtpAddress)
+            if ($null -ne $historyEntry) {
+                $samples = @(
+                    @($historyEntry.Samples) | ForEach-Object { $_ }
+                    @($result.History) | ForEach-Object { $_ }
+                ) | Select-Object -Last $MaxHistorySamples
+                $historyEntry.ExchangeGuid = [string]$result.Current.ExchangeGuid
+                $historyEntry.PrimarySmtpAddress = [string]$result.Current.PrimarySmtpAddress
+                $historyEntry.DisplayName = [string]$result.Current.DisplayName
+                $historyEntry.Samples = $samples
             }
+            else {
+                $historyEntry = [pscustomobject]@{
+                    ExchangeGuid       = [string]$result.Current.ExchangeGuid
+                    PrimarySmtpAddress = [string]$result.Current.PrimarySmtpAddress
+                    DisplayName        = [string]$result.Current.DisplayName
+                    Samples            = @($result.History)
+                }
+
+                $historyLookup.Entries.Add($historyEntry)
+            }
+
+            if (-not [string]::IsNullOrWhiteSpace([string]$historyEntry.ExchangeGuid)) {
+                $historyLookup.ByGuid[[string]$historyEntry.ExchangeGuid] = $historyEntry
+            }
+
+            if (-not [string]::IsNullOrWhiteSpace([string]$historyEntry.PrimarySmtpAddress)) {
+                $historyLookup.BySmtp[([string]$historyEntry.PrimarySmtpAddress).ToLowerInvariant()] = $historyEntry
+            }
+
             Write-Log -Tag "QUERY" -Level "SUCCESS" -Message "Data synchronized for mapping target address [$($result.Current.PrimarySmtpAddress)]."
         }
         catch {
@@ -526,27 +628,8 @@ try {
         ThresholdMailboxes       = $thresholdMailboxes
     }
 
-    $updatedHistoryEntries = @()
-    foreach ($record in $currentRecords) {
-        $smtp = [string]$record.PrimarySmtpAddress
-        $existingSamples = if ($historyMap.ContainsKey($smtp)) { @($historyMap[$smtp]) } else { @() }
-        $newSample = @($newHistorySamples | Where-Object { $_.PrimarySmtpAddress -eq $smtp } | Select-Object -ExpandProperty Sample)
-        
-        # FIX: Concat collections via streaming subexpression to prevent [PSObject] operator bugs
-        $samples = @(
-            $existingSamples | ForEach-Object { $_ }
-            $newSample | ForEach-Object { $_ }
-        ) | Select-Object -Last $MaxHistorySamples
-
-        $updatedHistoryEntries += [pscustomobject]@{
-            PrimarySmtpAddress = $smtp
-            DisplayName        = [string]$record.DisplayName
-            Samples            = $samples
-        }
-    }
-
     $historyOutput = [pscustomobject]@{
-        MailboxHistory    = $updatedHistoryEntries
+        MailboxHistory    = @($historyLookup.Entries)
         GeneratedUtc      = $snapshotTimeUtc.ToString("o")
         MaxHistorySamples = $MaxHistorySamples
     }

@@ -1,23 +1,57 @@
-# MailboxDashboard Collector Setup Walkthrough
+# MailboxDashboard
 
-This guide sets up the collector for delegated Exchange Online auth with a reusable local app registration.
+Exchange Online mailbox monitoring with a PowerShell collector pipeline and a static web dashboard.
 
-## What this uses
+## Overview
 
-- [Register-EntraApp.ps1](Collector\Register-EntraApp.ps1)
-- [Start-HistoryCollectorThreaded.ps1](Collector\Start-HistoryCollectorThreaded.ps1)
-- [HistoryCollector.ps1](Collector/HistoryCollector.ps1)
-- [Get-ExchangeOnlineAccessToken.ps1](Collector/Get-ExchangeOnlineAccessToken.ps1)
-- [dashboardConfig.json](/Collector/Config/dashboardConfig.json)
+MailboxDashboard collects mailbox usage, quota, archive, and permission data from Exchange Online and publishes two JSON files for the dashboard:
 
-## 1. Prerequisites
+- `Web/history.json` - historical mailbox samples
+- `Web/data.json` - latest mailbox snapshot used by the web UI
 
-- PowerShell 7+
-- Microsoft Graph PowerShell modules
-- ExchangeOnlineManagement module
-- A tenant admin account with permission to create app registrations and grant delegated consent
+Recommended data flow:
 
-Install modules if needed:
+1. Exchange Online
+2. `Collector/Start-HistoryCollectorThreaded.ps1`
+3. `Collector/MergeJSON.ps1`
+4. `Collector/Extract-HotData.ps1`
+5. `Web/history.json`
+6. `Web/data.json`
+7. `Web/*.html` + `Web/dashboard.js`
+
+## Repository layout
+
+- `Collector/` - Exchange Online collection, merge, auth, and configuration scripts
+- `Web/` - static dashboard pages, styles, themes, and local HTTP server
+- `Mailboxes/` - mailbox input CSV
+
+Key files:
+
+- `Collector/Config/dashboardConfig.json`
+- `Collector/Register-EntraApp.ps1`
+- `Collector/Get-ExchangeOnlineAccessToken.ps1`
+- `Collector/HistoryCollector.ps1`
+- `Collector/Start-HistoryCollectorThreaded.ps1`
+- `Collector/MergeJSON.ps1`
+- `Collector/Extract-HotData.ps1`
+- `Collector/Update-MailboxDashboard.ps1`
+- `Web/dashboard.js`
+- `Web/index.html`
+- `Web/mailbox.html`
+- `Web/history.html`
+- `Web/permissions.html`
+- `Web/thresholds.html`
+- `Web/validate.html`
+- `Web/HTTPServer.ps1`
+
+## Prerequisites
+
+- Windows with PowerShell 7+
+- Exchange Online admin access
+- Permission to create or update an Entra app registration
+- IIS or another static web host if deploying beyond local testing
+
+Install required modules:
 
 ```powershell
 Install-Module Microsoft.Graph -Scope CurrentUser
@@ -25,94 +59,246 @@ Install-Module ExchangeOnlineManagement -Scope CurrentUser
 Install-Module Microsoft.PowerShell.ThreadJob -Scope CurrentUser
 ```
 
-## 2. Create or repair the Entra app
-
-Run:
+## 1. Clone the repository
 
 ```powershell
-.\Collector\Register-EntraApp.ps1
+git clone <your-repo-url> C:\Deploy\MailboxDashboard
+Set-Location C:\Deploy\MailboxDashboard
 ```
 
-This will:
+## 2. Configure the collector
 
-- create or update the app registration
-- create a client secret
-- grant the Exchange Online delegated permission
-- update [dashboardConfig.json](Collector/Config/dashboardConfig.json)
+Update `Collector/Config/dashboardConfig.json` with your tenant and path settings.
 
-  - expected output
-
-  ```PowerShell
-  PS C:\TEMP\MailboxDashboard\Collector> . .\Register-EntraApp.ps1 -ConfigPath  .\Config\dashboardConfig.json -AppId 260cd5f4-a25c-4976-b1ca-2aeaf1cc3464 -TenantIdOrDomain ec445a2a-b5ba-46f6-bead-4595e9fbd4a2 -DisplayName 'exchange report'
-
-  Confirm
-  Are you sure you want to perform this action?
-  Performing the operation "Update registration" on target "Entra application 'exchange report'".
-  [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): y
-
-  Confirm
-  Are you sure you want to perform this action?
-  Performing the operation "Grant 'Exchange.Manage'" on target "Delegated permission grant for 'exchange report'".
-  [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): y
-
-  Confirm
-  Are you sure you want to perform this action?
-  Performing the operation "Update dashboard config with AppId and tenant" on target "C:\TEMP\MailboxDashboard\Collector\Config\dashboardConfig.json".
-  [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): y
-
-
-  DisplayName         : exchange report
-  Tenant              : ec445a2a-b5ba-46f6-bead-4595e9fbd4a2
-  AppId               : 260cd5f4-a25c-4976-b1ca-2aeaf1cc3464
-  ApplicationObjectId : e2426414-bde2-430b-bb25-aee927535c2f
-  ServicePrincipalId  : 3edb8884-e33b-4ef9-bc46-6e49d285d776
-  RedirectUri         : http://localhost:8400/
-  ExchangeScope       : Exchange.Manage
-  ConfigUpdated       : True
-  ```
-
-## 3. Verify the config
-
-Check that [dashboardConfig.json](Collector/Config/dashboardConfig.json) contains:
+Required settings:
 
 - `Organization`
 - `AppID`
 - `ClientSecret`
 - `UserPrincipalName`
-- `CsvPath`
 - `MailboxesCsvPath`
 - `HistoryJsonPath`
+- `HotDataJsonPath`
 
-## 4. Run the threaded collector
+Do not commit real secrets back to the repository.
+
+## 3. Prepare the mailbox list
+
+Populate `Mailboxes/mailboxes.csv` with the mailboxes you want to collect.
+
+Required column for the current scripts:
+
+- `PrimarySMTPAddress` for `HistoryCollector.ps1`
+- `Mailbox` for `Update-MailboxDashboard.ps1`
+
+If you standardize on one collector path, keep the CSV header aligned with that script.
+
+## 4. Create or repair the Entra app
+
+Run:
 
 ```powershell
-.\Collector\Start-HistoryCollectorThreaded.ps1 -UserPrincipalName your-admin@yourtenant.onmicrosoft.com
+pwsh -File .\Collector\Register-EntraApp.ps1 -ConfigPath .\Collector\Config\dashboardConfig.json
 ```
 
-The bootstrapper will:
+This updates the local collector configuration and prepares delegated Exchange Online access for the recommended threaded flow.
 
-- read the config
-- open browser sign-in and create a delegated access token automatically
-- split the mailbox CSV into chunks
-- run [HistoryCollector.ps1](Collector/HistoryCollector.ps1) in thread jobs
-- merge the chunk output into `history.json`
+## 5. Recommended full data build
 
-## 5. Run the collector directly
+The recommended production path is the threaded historical collector plus regeneration.
 
-If you want a single-process run:
+### 5.1 Run the threaded collector
 
 ```powershell
-.\Collector\HistoryCollector.ps1
+pwsh -File .\Collector\Start-HistoryCollectorThreaded.ps1 -ConfigPath .\Collector\Config\dashboardConfig.json
 ```
 
-It will connect automatically if Exchange Online is not already connected.
+This will:
 
-If app creation fails, make sure your Graph login has permission to create apps and grant app roles.
+- authenticate to Exchange Online
+- split the mailbox list into batches
+- collect mailbox metrics in parallel
+- write worker output under `Collector/Temp/`
 
-- If token creation fails, re-run [Register-EntraApp.ps1](Collector/Register-EntraApp.ps1) and confirm the delegated Exchange permission, redirect URI, and public client flow settings are present.
-- If paths are wrong, check the relative values in [dashboardConfig.json](Collector/Config/dashboardConfig.json).
+### 5.2 Merge worker output and rebuild hot data
 
-## 7. Notes
+If the threaded launcher does not already complete this step in your environment, run:
 
-- The app secret remains available for future app-only scenarios, but the threaded collector now uses delegated browser sign-in by default.
-- The mailbox CSV should point to [mailboxes.csv](Mailboxes/mailboxes.csv).
+```powershell
+pwsh -File .\Collector\MergeJSON.ps1 -TempDir .\Collector\Temp\ThreadJobs -HistoryPath .\Web\history.json -HotDataPath .\Web\data.json
+pwsh -File .\Collector\Extract-HotData.ps1 -HistoryPath .\Web\history.json -HotDataPath .\Web\data.json
+```
+
+### 5.3 Alternative single-process run
+
+For smaller runs or troubleshooting:
+
+```powershell
+Connect-ExchangeOnline
+pwsh -File .\Collector\HistoryCollector.ps1 -ConfigPath .\Collector\Config\dashboardConfig.json
+```
+
+### 5.4 Legacy all-in-one collector
+
+The repository also contains:
+
+```powershell
+pwsh -File .\Collector\Update-MailboxDashboard.ps1
+```
+
+Use this only when you specifically want the legacy orchestrator path. The threaded history-first pipeline is the preferred deployment flow.
+
+## 6. Deploy the web site
+
+### Option A: Full repo deployment script
+
+Use the deployment helper to copy the repo's deployable content to a target root such as `F:\Website\Qbuild-Mon`.
+
+```powershell
+pwsh -File .\Deploy-MailboxDashboard.ps1
+```
+
+If you already know the target root, you can pass it directly:
+
+```powershell
+pwsh -File .\Deploy-MailboxDashboard.ps1 -DestinationRoot F:\Website\Qbuild-Mon
+```
+
+The script:
+
+- prompts for the deployment root when `-DestinationRoot` is omitted
+- preserves the repository folder structure under the target root
+- copies updated files only
+- best-effort merges live destination `Web\data.json` and `Web\history.json` with the repository copies by mailbox record before writing them
+- excludes `.git`, `.github`, `.vs`, `Collector\Temp`, `Collector\Logs`, and web backup or scratch files
+
+For JSON merge behavior:
+
+- mailbox records are matched by `ExchangeGuid` first and SMTP address second
+- `history.json` samples are merged by timestamp when possible
+- newer payloads are preferred when the repository and destination both contain the same mailbox
+- missing fields are backfilled from the other copy on a best-effort basis
+- if a JSON merge fails, the script warns and falls back to the normal file copy behavior
+
+Use `-WhatIf` for a dry run:
+
+```powershell
+pwsh -File .\Deploy-MailboxDashboard.ps1 -DestinationRoot F:\Website\Qbuild-Mon -WhatIf
+```
+
+### Option B: Local static server
+
+```powershell
+pwsh -File .\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8080/
+```
+
+Open:
+
+- `http://localhost:8080/`
+- `http://localhost:8080/validate.html`
+
+### Option C: IIS deployment
+
+Copy the `Web/` folder contents to your IIS site root, for example:
+
+```powershell
+Copy-Item .\Web\* F:\Website\Qbuild-Mon\Web -Recurse -Force
+```
+
+Confirm the deployed site includes:
+
+- `index.html`
+- `mailbox.html`
+- `history.html`
+- `permissions.html`
+- `thresholds.html`
+- `validate.html`
+- `dashboard.js`
+- `styles.css`
+- `data.json`
+- `history.json`
+- `theme\*.jsonc`
+
+## 7. Validate the deployment
+
+### 7.1 Browser validation
+
+Open `validate.html` on the deployed site and confirm:
+
+- page availability checks pass
+- `data.json` and `history.json` load
+- schema checks pass
+- theme files parse
+- `dashboard.js` syntax check passes
+
+### 7.2 Manual spot checks
+
+Verify that:
+
+- dashboard totals are non-zero for known active mailboxes
+- mailbox detail pages match current storage values
+- history tables show the same latest sample as current cards
+- thresholds show the same usage percentages as mailbox detail pages
+- archive storage values are consistent across overview and mailbox pages
+
+## 8. Typical update workflow from git
+
+On an existing deployment host:
+
+```powershell
+Set-Location C:\Deploy\MailboxDashboard
+git pull
+pwsh -File .\Collector\Start-HistoryCollectorThreaded.ps1 -ConfigPath .\Collector\Config\dashboardConfig.json
+pwsh -File .\Collector\Extract-HotData.ps1 -HistoryPath .\Web\history.json -HotDataPath .\Web\data.json
+pwsh -File .\Deploy-MailboxDashboard.ps1 -DestinationRoot F:\Website\Qbuild-Mon
+```
+
+Then reload:
+
+- the dashboard home page
+- one mailbox details page
+- `validate.html`
+
+## 9. Troubleshooting
+
+### Dashboard shows `0.00 GB`
+
+Check:
+
+- `Web/data.json` contains the expected current values
+- `Web/history.json` contains the latest sample
+- the deployed `Web/dashboard.js` matches the repository version
+- the site was refreshed after deployment
+
+### History looks correct but overview or mailbox pages do not
+
+Check:
+
+- `Extract-HotData.ps1` regenerated `data.json`
+- the deployed `dashboard.js` supports the current payload shape
+
+### Archive values differ across pages
+
+Check:
+
+- latest history samples contain `ArchiveSizeGB`
+- `data.json` contains archive values for the mailbox
+- the collector path being used is not mixing stale deployed files with newly generated JSON
+
+### A mailbox disappeared from history
+
+Check:
+
+- whether the collector run failed for that mailbox
+- whether the mailbox identity changed
+- whether an older `history.json` was copied over the new one
+
+## 10. Recommended operating model
+
+For the most stable results:
+
+1. Keep `ExchangeGuid` as the durable mailbox key
+2. Use the threaded historical collector as the primary ingestion path
+3. Regenerate `data.json` from `history.json`
+4. Deploy both JSON files with the current web assets
+5. Use `validate.html` after every release
