@@ -1219,9 +1219,14 @@ function normaliseHistorySamples(samples) {
 }
 
 function normaliseMailbox(source) {
-    const sample = Array.isArray(source?.Samples) && source.Samples.length > 0
-        ? source.Samples[source.Samples.length - 1]
-        : source?.current || {};
+    const samples = Array.isArray(source?.Samples)
+        ? source.Samples
+        : (Array.isArray(source?.samples) ? source.samples : []);
+    const sample = samples.length > 0
+        ? samples[samples.length - 1]
+        : (source?.current ?? source?.Current ?? {});
+    const currentSource = source?.current ?? source?.Current ?? source ?? {};
+    const archiveSource = sample?.Archive ?? sample?.archive ?? currentSource?.Archive ?? currentSource?.archive ?? {};
 
     const displayName = source?.DisplayName ?? source?.displayName ?? source?.MailboxName ?? source?.Mailbox?.DisplayName ?? source?.primarySmtpAddress ?? source?.PrimarySmtpAddress ?? "";
     const primarySmtpAddress = source?.PrimarySmtpAddress ?? source?.primarySmtpAddress ?? source?.SmtpAddress ?? source?.UserPrincipalName ?? source?.Mailbox?.PrimarySmtpAddress ?? "";
@@ -1233,14 +1238,15 @@ function normaliseMailbox(source) {
         sample?.Permissions
     );
 
-    const totalGB = getNumber(sample, ["SizeGB", "totalGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) ??
-        getNumber(source, ["SizeGB", "totalGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) ??
+    const totalGB = getNumber(sample, ["SizeGB", "sizeGB", "TotalGB", "totalGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) ??
+        getNumber(currentSource, ["SizeGB", "sizeGB", "TotalGB", "totalGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) ??
         0;
     const quotaGB = getNumber(sample, ["QuotaGB", "quotaGB", "ProhibitSendReceiveQuotaGB"]) ??
-        getNumber(source, ["QuotaGB", "quotaGB", "ProhibitSendReceiveQuotaGB"]) ??
+        getNumber(currentSource, ["QuotaGB", "quotaGB", "ProhibitSendReceiveQuotaGB", "ProhibitSendQuotaGB"]) ??
+        parseStorageValueInGb(currentSource?.ProhibitSendReceiveQuota ?? currentSource?.prohibitSendReceiveQuota ?? currentSource?.ProhibitSendQuota ?? currentSource?.prohibitSendQuota) ??
         null;
     const usagePercent = getNumber(sample, ["UsagePercent", "usagePercent"]) ??
-        getNumber(source, ["UsagePercent", "usagePercent"]) ??
+        getNumber(currentSource, ["UsagePercent", "usagePercent"]) ??
         (quotaGB > 0 ? (totalGB / quotaGB) * 100 : 0);
 
     return {
@@ -1249,13 +1255,25 @@ function normaliseMailbox(source) {
         primarySmtpAddress: String(primarySmtpAddress || ""),
         current: {
             totalGB,
-            itemCount: getNumber(sample, ["ItemCount", "itemCount", "Items"]) ?? getNumber(source, ["ItemCount", "itemCount", "Items"]) ?? 0,
+            itemCount: getNumber(sample, ["ItemCount", "itemCount", "Items"]) ?? getNumber(currentSource, ["ItemCount", "itemCount", "Items"]) ?? 0,
             quotaGB,
             usagePercent,
-            lastLogonTime: sample?.LastLogonTime ?? sample?.lastLogonTime ?? source?.LastLogonTime ?? source?.lastLogonTime ?? null,
-            archiveEnabled: Boolean(sample?.ArchiveEnabled ?? sample?.archiveEnabled ?? source?.ArchiveEnabled ?? source?.archiveEnabled),
-            archiveSizeGB: getNumber(sample, ["ArchiveSizeGB", "archiveSizeGB"]) ?? getNumber(source, ["ArchiveSizeGB", "archiveSizeGB"]) ?? 0,
-            archiveItemCount: getNumber(sample, ["ArchiveItemCount", "archiveItemCount"]) ?? getNumber(source, ["ArchiveItemCount", "archiveItemCount"]) ?? 0
+            lastLogonTime: sample?.LastLogonTime ?? sample?.lastLogonTime ?? currentSource?.LastLogonTime ?? currentSource?.lastLogonTime ?? null,
+            archiveEnabled: Boolean(
+                sample?.ArchiveEnabled ??
+                sample?.archiveEnabled ??
+                currentSource?.ArchiveEnabled ??
+                currentSource?.archiveEnabled ??
+                getNumber(archiveSource, ["TotalGB", "totalGB", "ArchiveSizeGB", "archiveSizeGB"])
+            ),
+            archiveSizeGB: getNumber(sample, ["ArchiveSizeGB", "archiveSizeGB"]) ??
+                getNumber(currentSource, ["ArchiveSizeGB", "archiveSizeGB"]) ??
+                getNumber(archiveSource, ["TotalGB", "totalGB", "ArchiveSizeGB", "archiveSizeGB"]) ??
+                0,
+            archiveItemCount: getNumber(sample, ["ArchiveItemCount", "archiveItemCount"]) ??
+                getNumber(currentSource, ["ArchiveItemCount", "archiveItemCount"]) ??
+                getNumber(archiveSource, ["ItemCount", "itemCount"]) ??
+                0
         },
         permissions
     };
@@ -1429,6 +1447,35 @@ function getNumber(record, propertyNames) {
         }
     }
     return null;
+}
+
+function parseStorageValueInGb(value) {
+    if (value == null || value === "") return null;
+
+    const directNumber = Number(value);
+    if (Number.isFinite(directNumber)) return directNumber;
+
+    const text = String(value).trim();
+    const bytesMatch = text.match(/\(([\d,]+)\s+bytes\)/i);
+    if (bytesMatch) {
+        return Number((Number(bytesMatch[1].replace(/,/g, "")) / (1024 ** 3)).toFixed(2));
+    }
+
+    const unitMatch = text.match(/^([\d.]+)\s*(KB|MB|GB|TB)\b/i);
+    if (!unitMatch) return null;
+
+    const amount = Number(unitMatch[1]);
+    if (!Number.isFinite(amount)) return null;
+
+    const unit = unitMatch[2].toUpperCase();
+    const multiplier = {
+        KB: 1 / (1024 ** 2),
+        MB: 1 / 1024,
+        GB: 1,
+        TB: 1024
+    }[unit];
+
+    return multiplier == null ? null : Number((amount * multiplier).toFixed(2));
 }
 
 function truncateLabel(text, maxLength) {

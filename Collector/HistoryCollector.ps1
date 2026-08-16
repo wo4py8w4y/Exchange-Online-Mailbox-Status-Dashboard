@@ -213,9 +213,27 @@ function Convert-ToGigabytes {
     }
 
     $text = [string]$SizeObject
+    # Canonical EXO string format: "4.993 GB (5,362,556,928 bytes)"
     if ($text -match "\(([\d,]+)\s+bytes\)") {
         $bytes = [int64]($matches[1] -replace ",", "")
         return [Math]::Round($bytes / 1GB, 2)
+    }
+
+    # Unit-only fallback: "4.993 GB" (no bytes parenthetical)
+    if ($text -match "([\d\.]+)\s*(KB|MB|GB|TB)") {
+        $value = [double]$matches[1]
+        $bytes = switch ($matches[2]) {
+            "KB" { [int64]($value * 1KB) }
+            "MB" { [int64]($value * 1MB) }
+            "GB" { [int64]($value * 1GB) }
+            "TB" { [int64]($value * 1TB) }
+        }
+        return [Math]::Round($bytes / 1GB, 2)
+    }
+
+    # Raw numeric fallback: EXO REST module may return bare byte counts as integers
+    if ($text -match "^\d+$") {
+        return [Math]::Round([int64]$text / 1GB, 2)
     }
 
     return 0.0
