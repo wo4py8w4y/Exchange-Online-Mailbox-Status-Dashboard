@@ -1,0 +1,57 @@
+{
+  "Version": "2.0",
+
+  "Organization": "contoso.onmicrosoft.com",
+  "AppID": "00000000-0000-0000-0000-000000000000",
+  "ClientSecret": "",
+  "Thumbprint": "",
+  "UserPrincipalName": "admin@contoso.onmicrosoft.com",
+
+  "Authentication": {
+    "Mode": "Auto"
+  },
+
+  "Paths": {
+    "MailboxesCsv": "..\\Mailboxes\\mailboxes.csv",
+    "HistoryJson": "..\\Web\\history.json",
+    "DataJson": "..\\Web\\data.json",
+    "DemoDataJson": "..\\Web\\demo-data.json",
+    "DemoHistoryJson": "..\\Web\\demo-history.json",
+    "TempDirectory": ".\\Temp",
+    "ThreadJobsDirectory": ".\\Temp\\ThreadJobs",
+    "LogDirectory": ".\\Logs"
+  },
+
+  "Collection": {
+    "BatchSize": 50,
+    "MaxHistorySamples": 365,
+    "UseThreading": true,
+    "ThreadCount": 10
+  },
+
+  "Thresholds": {
+    "CriticalPercent": 94.0,
+    "WarningPercent": 85.0
+  },
+
+  "Validation": {
+    "PreValidateCsv": true,
+    "PostValidateJson": true,
+    "AutoRepairErrors": false,
+    "CullInvalidRecords": true
+  },
+
+  "Logging": {
+    "Enabled": true,
+    "LogFile": ".\\Logs\\failures.log",
+    "ExportAuditFile": ".\\Logs\\exports.log",
+    "IncludeVariables": true
+  },
+
+  "Console": {
+    "ShowProgress": true,
+    "UseColour": true,
+    "ShowPerItem": true,
+    "ItemInterval": 25
+  }
+}

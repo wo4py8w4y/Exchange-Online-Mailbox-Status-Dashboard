@@ -108,6 +108,11 @@ const state = {
     selectableMailboxes: [],
     mailboxLookup: new Map(),
     selectedMailboxKey: null,
+    scopes: [],
+    activeScopeId: null,
+    scopeCounts: { total: 0, inScope: 0 },
+    filterQuery: "",
+    sort: {},
     pagination: {
         usageTable:              { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
         permsTable:              { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
@@ -122,9 +127,12 @@ const state = {
 window.allMailboxes = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+    readFilterSortFromUrl();
     bindHeaderControls();
     bindSearchControls();
     bindTableControls();
+    bindSortableHeaders();
+    buildFilterBar();
     loadDashboard().catch(showError);
     resetAutoRefreshTimer();
 });
@@ -194,6 +202,8 @@ async function loadDashboard() {
     const dataUrl = `${DATA_URL}?cacheBust=${cacheBust}`;
     const historyUrl = `${HISTORY_URL}?cacheBust=${cacheBust}`;
 
+    await ensureScopesLoaded();
+
     const [dataResponse, historyResponse] = await Promise.all([
         fetch(dataUrl, { cache: "no-store" }),
         fetch(historyUrl, { cache: "no-store" })
@@ -214,11 +224,19 @@ async function loadDashboard() {
 
     const currentFromHistory = state.historyData.mailboxes.filter(isMailboxRenderable);
 
-    state.currentMailboxes = mergeMailboxCollections(currentFromData, currentFromHistory);
-    state.selectableMailboxes = mergeMailboxCollections(state.currentMailboxes, currentFromHistory);
+    const allCurrent = mergeMailboxCollections(currentFromData, currentFromHistory);
+    const allSelectable = mergeMailboxCollections(allCurrent, currentFromHistory);
+
+    const scope = getActiveScope();
+    state.scopeCounts = { total: allCurrent.length, inScope: 0 };
+    state.currentMailboxes = applyScopeFilter(allCurrent, scope);
+    state.selectableMailboxes = applyScopeFilter(allSelectable, scope);
+    state.scopeCounts.inScope = state.currentMailboxes.length;
+
     state.mailboxLookup = new Map(state.selectableMailboxes.map(mailbox => [getMailboxKey(mailbox), mailbox]));
     window.allMailboxes = state.currentMailboxes;
 
+    renderScopeIndicator();
     synchroniseSelection();
     updateSearchInput();
     updateNavLinks();
@@ -311,7 +329,258 @@ function getSelectedMailbox() {
 function getMailboxes() {
     const selected = getSelectedMailbox();
     if (selected) return [selected];
-    return filterMailboxes(state.currentMailboxes, getSearchInputValue());
+    const found = filterMailboxes(state.currentMailboxes, getSearchInputValue());
+    return applyTableFilter(found);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TABLE FILTER AND SORT
+═══════════════════════════════════════════════════════════════ */
+
+// Columns are described here rather than in the HTML so that any copy of a report
+// page picks up sorting automatically. Order must match the <th> order.
+const SORTABLE_COLUMNS = {
+    usageTable: [
+        { key: "displayName",   type: "text",   get: m => m.displayName },
+        { key: "smtp",          type: "text",   get: m => m.primarySmtpAddress },
+        { key: "totalGB",       type: "number", get: m => m.current.totalGB },
+        { key: "itemCount",     type: "number", get: m => m.current.itemCount },
+        { key: "quotaGB",       type: "number", get: m => m.current.quotaGB },
+        { key: "usagePercent",  type: "number", get: m => m.current.usagePercent },
+        { key: "permissions",   type: "number", get: m => m.permissions.length },
+        { key: "lastLogon",     type: "date",   get: m => m.current.lastLogonTime }
+    ],
+    thresholdTable: [
+        { key: "displayName",   type: "text",   get: m => m.displayName },
+        { key: "totalGB",       type: "number", get: m => m.current.totalGB },
+        { key: "quotaGB",       type: "number", get: m => m.current.quotaGB },
+        { key: "usagePercent",  type: "number", get: m => m.current.usagePercent },
+        { key: "status",        type: "number", get: m => m.current.usagePercent }
+    ],
+    permsTable: [
+        { key: "displayName",   type: "text",   get: r => r.mailbox.displayName },
+        { key: "delegate",      type: "text",   get: r => r.permission.User || r.permission.user || r.permission.Delegate || "" },
+        { key: "rights",        type: "text",   get: r => formatAccessRights(r.permission) },
+        { key: "inherited",     type: "number", get: r => (r.permission.IsInherited || r.permission.isInherited) ? 1 : 0 }
+    ]
+};
+
+function formatAccessRights(permission) {
+    const rights = permission.AccessRights || permission.accessRights || permission.Rights;
+    return Array.isArray(rights) ? rights.join(", ") : String(rights || "");
+}
+
+function hasWildcard(text) {
+    return /[*?]/.test(text);
+}
+
+function applyTableFilter(mailboxes) {
+    const query = state.filterQuery.trim();
+    if (!query) return mailboxes;
+    return mailboxes.filter(mailbox => mailboxMatchesFilter(mailbox, query));
+}
+
+// A query containing * or ? is treated as a whole-value wildcard pattern;
+// anything else is a plain substring search, which is what people expect by default.
+function mailboxMatchesFilter(mailbox, query) {
+    const fields = [
+        String(mailbox.displayName || "").toLowerCase(),
+        String(mailbox.primarySmtpAddress || "").toLowerCase(),
+        String(mailbox.exchangeGuid || "").toLowerCase()
+    ];
+
+    const lowered = query.toLowerCase();
+
+    if (hasWildcard(lowered)) {
+        return lowered.split(/\s+/).filter(Boolean).every(term =>
+            fields.some(field => matchesPattern(field, term))
+        );
+    }
+
+    return lowered.split(/\s+/).filter(Boolean).every(term =>
+        fields.some(field => field.includes(term))
+    );
+}
+
+function getSortState(tableId) {
+    if (!state.sort[tableId]) {
+        state.sort[tableId] = { key: null, direction: "asc" };
+    }
+    return state.sort[tableId];
+}
+
+function sortRows(tableId, rows) {
+    const sort = getSortState(tableId);
+    if (!sort.key) return rows;
+
+    const column = (SORTABLE_COLUMNS[tableId] || []).find(c => c.key === sort.key);
+    if (!column) return rows;
+
+    const factor = sort.direction === "desc" ? -1 : 1;
+
+    return [...rows].sort((left, right) => {
+        const a = column.get(left);
+        const b = column.get(right);
+
+        // Missing values always sort last, whichever direction is active.
+        const aMissing = a === null || a === undefined || a === "";
+        const bMissing = b === null || b === undefined || b === "";
+        if (aMissing && bMissing) return 0;
+        if (aMissing) return 1;
+        if (bMissing) return -1;
+
+        if (column.type === "number") return (Number(a) - Number(b)) * factor;
+        if (column.type === "date") return (new Date(a) - new Date(b)) * factor;
+        return String(a).localeCompare(String(b), undefined, { sensitivity: "base" }) * factor;
+    });
+}
+
+function bindSortableHeaders() {
+    document.addEventListener("click", event => {
+        const header = event.target.closest("th[data-sort-key]");
+        if (!header) return;
+
+        const table = header.closest("table");
+        if (!table || !SORTABLE_COLUMNS[table.id]) return;
+
+        const key = header.getAttribute("data-sort-key");
+        const sort = getSortState(table.id);
+
+        if (sort.key === key) {
+            sort.direction = sort.direction === "asc" ? "desc" : "asc";
+        } else {
+            sort.key = key;
+            sort.direction = header.getAttribute("data-sort-type") === "text" ? "asc" : "desc";
+        }
+
+        updateFilterSortQueryParams();
+        applyFilter();
+    });
+}
+
+function decorateSortableHeaders() {
+    Object.entries(SORTABLE_COLUMNS).forEach(([tableId, columns]) => {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+
+        const headers = table.querySelectorAll("thead th");
+        const sort = getSortState(tableId);
+
+        headers.forEach((header, index) => {
+            const column = columns[index];
+            if (!column) return;
+
+            header.setAttribute("data-sort-key", column.key);
+            header.setAttribute("data-sort-type", column.type);
+            header.classList.add("sortable");
+            header.classList.toggle("sorted-asc", sort.key === column.key && sort.direction === "asc");
+            header.classList.toggle("sorted-desc", sort.key === column.key && sort.direction === "desc");
+            header.setAttribute("aria-sort",
+                sort.key !== column.key ? "none" : (sort.direction === "asc" ? "ascending" : "descending"));
+            if (!header.title) header.title = "Sort by this column";
+        });
+    });
+}
+
+function buildFilterBar() {
+    const host = document.querySelector(".table-header");
+    if (!host || document.getElementById("tableFilter")) return;
+    if (!Object.keys(SORTABLE_COLUMNS).some(id => document.getElementById(id))) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "table-filter";
+    wrapper.innerHTML = `
+        <label class="sr-only" for="tableFilter">Filter results</label>
+        <input id="tableFilter" type="search" autocomplete="off"
+               placeholder="Filter results - use * and ? for wildcards"
+               value="${escapeHtml(state.filterQuery)}">
+        <button id="clearTableFilter" class="btn-link" type="button" hidden>Clear</button>
+        <span id="tableFilterMeta" class="table-filter-meta"></span>
+    `;
+
+    const controls = host.querySelector(".table-controls");
+    if (controls) {
+        host.insertBefore(wrapper, controls);
+    } else {
+        host.appendChild(wrapper);
+    }
+
+    const input = wrapper.querySelector("#tableFilter");
+    let debounce = null;
+    input.addEventListener("input", () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+            state.filterQuery = input.value;
+            Object.keys(state.pagination).forEach(k => { state.pagination[k].page = 1; });
+            updateFilterSortQueryParams();
+            applyFilter({ keepPagination: true });
+        }, 200);
+    });
+
+    wrapper.querySelector("#clearTableFilter").addEventListener("click", () => {
+        input.value = "";
+        state.filterQuery = "";
+        updateFilterSortQueryParams();
+        applyFilter();
+        input.focus();
+    });
+}
+
+function renderFilterMeta(shown, total) {
+    const meta = document.getElementById("tableFilterMeta");
+    const clear = document.getElementById("clearTableFilter");
+    if (clear) clear.hidden = !state.filterQuery;
+    if (!meta) return;
+
+    meta.textContent = state.filterQuery
+        ? `${formatNumber(shown)} of ${formatNumber(total)} match`
+        : "";
+}
+
+function readFilterSortFromUrl() {
+    const params = new URL(window.location.href).searchParams;
+
+    state.filterQuery = params.get("q") || "";
+
+    const sortKey = params.get("sort");
+    const direction = params.get("dir") === "desc" ? "desc" : "asc";
+    if (sortKey) {
+        Object.keys(SORTABLE_COLUMNS).forEach(tableId => {
+            if (SORTABLE_COLUMNS[tableId].some(c => c.key === sortKey)) {
+                state.sort[tableId] = { key: sortKey, direction };
+            }
+        });
+    }
+}
+
+function updateFilterSortQueryParams() {
+    const url = new URL(window.location.href);
+
+    if (state.filterQuery) {
+        url.searchParams.set("q", state.filterQuery);
+    } else {
+        url.searchParams.delete("q");
+    }
+
+    const activeSort = getActiveSortForPage();
+    if (activeSort?.key) {
+        url.searchParams.set("sort", activeSort.key);
+        url.searchParams.set("dir", activeSort.direction);
+    } else {
+        url.searchParams.delete("sort");
+        url.searchParams.delete("dir");
+    }
+
+    window.history.replaceState({}, "", `${url.pathname.split("/").pop()}${url.search}`);
+}
+
+function getActiveSortForPage() {
+    for (const tableId of Object.keys(SORTABLE_COLUMNS)) {
+        if (document.getElementById(tableId) && state.sort[tableId]?.key) {
+            return state.sort[tableId];
+        }
+    }
+    return null;
 }
 
 function applyFilter(opts = {}) {
@@ -319,6 +588,7 @@ function applyFilter(opts = {}) {
         Object.keys(state.pagination).forEach(k => { state.pagination[k].page = 1; });
     }
     renderSearchUi();
+    updateNavLinks();
 
     switch (getCurrentPage()) {
         case "overview":
@@ -550,8 +820,14 @@ function renderUsageTable(mailboxes) {
     const tableMeta = document.getElementById("tableMeta");
     if (!tbody) return;
 
-    const sorted = [...mailboxes].sort((a, b) => (b.current.totalGB || 0) - (a.current.totalGB || 0));
+    const sortState = getSortState("usageTable");
+    const sorted = sortState.key
+        ? sortRows("usageTable", mailboxes)
+        : [...mailboxes].sort((a, b) => (b.current.totalGB || 0) - (a.current.totalGB || 0));
+
     state.tableData.usageTable = sorted;
+    renderFilterMeta(sorted.length, state.currentMailboxes.length);
+    decorateSortableHeaders();
 
     const pg = state.pagination.usageTable;
     const totalPages = Math.max(1, Math.ceil(sorted.length / pg.pageSize));
@@ -594,29 +870,46 @@ function renderPermissionsTable() {
     const query = getSearchInputValue().trim().toLowerCase();
     const mailboxes = selected ? [selected] : state.currentMailboxes;
     const rows = [];
+    let totalRows = 0;
 
     mailboxes.forEach(mailbox => {
         mailbox.permissions.forEach(permission => {
+            totalRows++;
+
             const mailboxName = `${mailbox.displayName} ${mailbox.primarySmtpAddress}`.toLowerCase();
             const delegateName = String(permission.User || permission.user || permission.Delegate || "").toLowerCase();
             if (query && !selected && !mailboxName.includes(query) && !delegateName.includes(query)) {
                 return;
             }
+
+            // The wildcard filter also matches the delegate, so a search like *@contoso.com
+            // finds every mailbox that delegate has rights on.
+            if (state.filterQuery && !selected) {
+                const matchesMailbox = mailboxMatchesFilter(mailbox, state.filterQuery);
+                const matchesDelegate = hasWildcard(state.filterQuery)
+                    ? matchesPattern(delegateName, state.filterQuery.toLowerCase())
+                    : delegateName.includes(state.filterQuery.toLowerCase());
+                if (!matchesMailbox && !matchesDelegate) return;
+            }
+
             rows.push({ mailbox, permission });
         });
     });
 
-    state.tableData.permsTable = rows;
+    const sorted = sortRows("permsTable", rows);
+    state.tableData.permsTable = sorted;
+    renderFilterMeta(sorted.length, totalRows);
+    decorateSortableHeaders();
 
     const pg = state.pagination.permsTable;
-    const totalPages = Math.max(1, Math.ceil(rows.length / pg.pageSize));
+    const totalPages = Math.max(1, Math.ceil(sorted.length / pg.pageSize));
     pg.page = Math.max(1, Math.min(pg.page, totalPages));
-    const pageRows = rows.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
+    const pageRows = sorted.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
 
     if (tableMeta) {
         tableMeta.textContent = selected
-            ? `${formatNumber(rows.length)} explicit permission row${rows.length === 1 ? "" : "s"} for the selected mailbox.`
-            : `${formatNumber(rows.length)} explicit permission row${rows.length === 1 ? "" : "s"} in view.`;
+            ? `${formatNumber(sorted.length)} explicit permission row${sorted.length === 1 ? "" : "s"} for the selected mailbox.`
+            : `${formatNumber(sorted.length)} explicit permission row${sorted.length === 1 ? "" : "s"} in view.`;
     }
 
     renderPaginationBar("permsTablePagination", "permsTable");
@@ -641,11 +934,17 @@ function renderThresholdsTable() {
     const tableMeta = document.getElementById("tableMeta");
     if (!tbody) return;
 
-    const sorted = getMailboxes()
-        .filter(mailbox => (mailbox.current.usagePercent || 0) >= WARNING_THRESHOLD)
-        .sort((a, b) => (b.current.usagePercent || 0) - (a.current.usagePercent || 0));
+    const overThreshold = getMailboxes()
+        .filter(mailbox => (mailbox.current.usagePercent || 0) >= WARNING_THRESHOLD);
+
+    const sortState = getSortState("thresholdTable");
+    const sorted = sortState.key
+        ? sortRows("thresholdTable", overThreshold)
+        : [...overThreshold].sort((a, b) => (b.current.usagePercent || 0) - (a.current.usagePercent || 0));
 
     state.tableData.thresholdTable = sorted;
+    renderFilterMeta(sorted.length, overThreshold.length);
+    decorateSortableHeaders();
 
     const pg = state.pagination.thresholdTable;
     const totalPages = Math.max(1, Math.ceil(sorted.length / pg.pageSize));
@@ -1357,8 +1656,9 @@ function isMailboxRenderable(mailbox) {
     return Boolean(mailbox && (mailbox.primarySmtpAddress || mailbox.exchangeGuid || mailbox.displayName));
 }
 
+// ExchangeGuid is the durable identity; SMTP addresses change and must never key a record.
 function getMailboxKey(mailbox) {
-    return String(mailbox.primarySmtpAddress || mailbox.exchangeGuid || mailbox.displayName || "").toLowerCase();
+    return String(mailbox.exchangeGuid || mailbox.primarySmtpAddress || mailbox.displayName || "").toLowerCase();
 }
 
 function getMailboxSearchLabel(mailbox) {
@@ -1368,7 +1668,7 @@ function getMailboxSearchLabel(mailbox) {
 function buildMailboxUrl(pageName, mailbox) {
     const url = new URL(pageName, window.location.href);
     if (mailbox) {
-        url.searchParams.set("mailbox", mailbox.primarySmtpAddress || mailbox.exchangeGuid);
+        url.searchParams.set("mailbox", mailbox.exchangeGuid || mailbox.primarySmtpAddress);
     }
     return `${url.pathname.split("/").pop()}${url.search}`;
 }
@@ -1384,6 +1684,7 @@ function getRequestedMailboxValue() {
 function findMailboxByRequestedValue(value) {
     const needle = String(value || "").trim().toLowerCase();
     if (!needle) return null;
+    // Still matches an SMTP address so links bookmarked before the switch keep working.
     return state.selectableMailboxes.find(mailbox =>
         getMailboxKey(mailbox) === needle ||
         String(mailbox.primarySmtpAddress || "").toLowerCase() === needle ||
@@ -1396,7 +1697,7 @@ function updateMailboxQueryParam(mailboxOrNull, replace) {
     if (!mailboxOrNull) {
         url.searchParams.delete("mailbox");
     } else {
-        url.searchParams.set("mailbox", mailboxOrNull.primarySmtpAddress || mailboxOrNull.exchangeGuid);
+        url.searchParams.set("mailbox", mailboxOrNull.exchangeGuid || mailboxOrNull.primarySmtpAddress);
     }
 
     const method = replace ? "replaceState" : "pushState";
@@ -1405,13 +1706,39 @@ function updateMailboxQueryParam(mailboxOrNull, replace) {
 
 function updateNavLinks() {
     const selected = getSelectedMailbox();
+    const scopeId = state.activeScopeId;
+    const activeSort = getActiveSortForPage();
+
     document.querySelectorAll("nav.view-nav a").forEach(link => {
         const url = new URL(link.getAttribute("href"), window.location.href);
         if (selected) {
-            url.searchParams.set("mailbox", selected.primarySmtpAddress || selected.exchangeGuid);
+            url.searchParams.set("mailbox", selected.exchangeGuid || selected.primarySmtpAddress);
         } else {
             url.searchParams.delete("mailbox");
         }
+
+        // Carry the scope across pages so a scoped report stays scoped.
+        if (scopeId && scopeId !== ALL_SCOPE.id && !isScopePinned()) {
+            url.searchParams.set("scope", scopeId);
+        } else {
+            url.searchParams.delete("scope");
+        }
+
+        // Carry the filter and sort so a narrowed result set survives navigation.
+        if (state.filterQuery) {
+            url.searchParams.set("q", state.filterQuery);
+        } else {
+            url.searchParams.delete("q");
+        }
+
+        if (activeSort?.key) {
+            url.searchParams.set("sort", activeSort.key);
+            url.searchParams.set("dir", activeSort.direction);
+        } else {
+            url.searchParams.delete("sort");
+            url.searchParams.delete("dir");
+        }
+
         link.setAttribute("href", `${url.pathname.split("/").pop()}${url.search}`);
     });
 }
@@ -1544,6 +1871,174 @@ function showError(error) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   MAILBOX SCOPES
+═══════════════════════════════════════════════════════════════ */
+
+const SCOPES_URL = "scopes.json";
+const ALL_SCOPE = { id: "all", name: "All Mailboxes", description: "Every mailbox in the dataset.", rules: {} };
+
+async function ensureScopesLoaded() {
+    if (state.scopes.length) return;
+
+    try {
+        const response = await fetch(SCOPES_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Could not load ${SCOPES_URL}`);
+
+        const config = await response.json();
+        const defined = Array.isArray(config.scopes) ? config.scopes.filter(s => s && s.id) : [];
+
+        state.scopes = defined.length ? defined : [ALL_SCOPE];
+        state.activeScopeId = resolveRequestedScopeId(config.defaultScope);
+    } catch (err) {
+        console.warn("Scope config unavailable, showing all mailboxes:", err.message);
+        state.scopes = [ALL_SCOPE];
+        state.activeScopeId = ALL_SCOPE.id;
+    }
+
+    buildScopeSelector();
+}
+
+// A page can pin its scope with <body data-scope="..."> so a site report needs no query string.
+function resolveRequestedScopeId(configuredDefault) {
+    const pinned = document.body?.dataset?.scope;
+    const requested = new URL(window.location.href).searchParams.get("scope");
+    const candidates = [pinned, requested, configuredDefault, state.scopes[0]?.id];
+
+    for (const candidate of candidates) {
+        if (candidate && state.scopes.some(s => s.id === candidate)) return candidate;
+    }
+    return state.scopes[0]?.id || ALL_SCOPE.id;
+}
+
+function isScopePinned() {
+    return Boolean(document.body?.dataset?.scope);
+}
+
+function getActiveScope() {
+    return state.scopes.find(s => s.id === state.activeScopeId) || ALL_SCOPE;
+}
+
+function applyScopeFilter(mailboxes, scope) {
+    const rules = scope?.rules;
+    if (!rules || !Object.keys(rules).length) return mailboxes;
+    return mailboxes.filter(mailbox => matchesScope(mailbox, rules));
+}
+
+function matchesScope(mailbox, rules) {
+    const smtp = String(mailbox.primarySmtpAddress || "").toLowerCase();
+    const name = String(mailbox.displayName || "").toLowerCase();
+    const guid = String(mailbox.exchangeGuid || "").toLowerCase();
+    const current = mailbox.current || {};
+
+    if (matchesAnyPattern(smtp, rules.excludeSmtp)) return false;
+    if (matchesAnyPattern(name, rules.excludeDisplayName)) return false;
+
+    if (Number.isFinite(rules.minSizeGB) && toNumber(current.totalGB) < rules.minSizeGB) return false;
+    if (Number.isFinite(rules.minUsagePercent) && toNumber(current.usagePercent) < rules.minUsagePercent) return false;
+
+    const hasIncludeRules =
+        (rules.includeGuids?.length || 0) +
+        (rules.includeSmtp?.length || 0) +
+        (rules.includeDisplayName?.length || 0) > 0;
+
+    if (!hasIncludeRules) return true;
+
+    if (rules.includeGuids?.some(g => String(g).toLowerCase() === guid)) return true;
+    if (matchesAnyPattern(smtp, rules.includeSmtp)) return true;
+    if (matchesAnyPattern(name, rules.includeDisplayName)) return true;
+
+    return false;
+}
+
+function matchesAnyPattern(value, patterns) {
+    if (!Array.isArray(patterns) || !patterns.length || !value) return false;
+    return patterns.some(pattern => matchesPattern(value, pattern));
+}
+
+function matchesPattern(value, pattern) {
+    const raw = String(pattern || "");
+    if (!raw) return false;
+
+    if (raw.toLowerCase().startsWith("re:")) {
+        try {
+            return new RegExp(raw.slice(3), "i").test(value);
+        } catch {
+            return false;
+        }
+    }
+
+    const escaped = raw.toLowerCase().replace(/[.+^${}()|[\]\\]/g, "\\$&");
+    const expression = `^${escaped.replace(/\*/g, ".*").replace(/\?/g, ".")}$`;
+    try {
+        return new RegExp(expression).test(value);
+    } catch {
+        return false;
+    }
+}
+
+function toNumber(value) {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function buildScopeSelector() {
+    const host = document.querySelector(".header-actions");
+    if (!host || document.getElementById("scopeSelect")) return;
+    if (state.scopes.length < 2 || isScopePinned()) return;
+
+    const select = document.createElement("select");
+    select.id = "scopeSelect";
+    select.className = "theme-select scope-select";
+    select.title = "Limit this report to a group of mailboxes";
+
+    state.scopes.forEach(scope => {
+        const option = document.createElement("option");
+        option.value = scope.id;
+        option.textContent = scope.name || scope.id;
+        if (scope.description) option.title = scope.description;
+        select.appendChild(option);
+    });
+
+    select.value = state.activeScopeId;
+    select.addEventListener("change", () => {
+        state.activeScopeId = select.value;
+        clearMailboxSelection();
+        updateScopeQueryParam(state.activeScopeId);
+        loadDashboard().catch(showError);
+    });
+
+    host.insertBefore(select, host.firstChild);
+}
+
+function updateScopeQueryParam(scopeId) {
+    const url = new URL(window.location.href);
+    if (!scopeId || scopeId === ALL_SCOPE.id) {
+        url.searchParams.delete("scope");
+    } else {
+        url.searchParams.set("scope", scopeId);
+    }
+    window.history.replaceState({}, "", `${url.pathname.split("/").pop()}${url.search}`);
+}
+
+function renderScopeIndicator() {
+    const banner = document.getElementById("scopeBanner");
+    if (!banner) return;
+
+    const scope = getActiveScope();
+    const { total, inScope } = state.scopeCounts;
+    const isFiltered = inScope !== total;
+
+    banner.hidden = false;
+    banner.innerHTML = `
+        <div class="scope-banner-main">
+            <span class="scope-banner-name">${escapeHtml(scope.name || scope.id)}</span>
+            <span class="scope-banner-count">${inScope.toLocaleString()}${isFiltered ? ` of ${total.toLocaleString()}` : ""} mailboxes</span>
+        </div>
+        ${scope.description ? `<p class="scope-banner-description">${escapeHtml(scope.description)}</p>` : ""}
+    `;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    THEME SYSTEM
 ═══════════════════════════════════════════════════════════════ */
 
@@ -1551,22 +2046,113 @@ function initThemeSelector() {
     const sel = document.getElementById("themeSelect");
     if (!sel) return;
 
-    AVAILABLE_THEMES.forEach(theme => {
-        const opt = document.createElement("option");
-        opt.value = theme.id;
-        opt.textContent = theme.name;
-        sel.appendChild(opt);
-    });
+    renderThemeOptions(sel);
 
     const savedId = localStorage.getItem("dashboardThemeId") || "default-light";
     sel.value = savedId;
     applyThemeById(savedId);
 
     sel.addEventListener("change", () => applyThemeById(sel.value));
+
+    // Themes from themes.json arrive asynchronously; re-render once they land.
+    loadCustomThemes().then(() => {
+        const current = sel.value;
+        renderThemeOptions(sel);
+        sel.value = AVAILABLE_THEMES.some(t => t.id === savedId) ? savedId : current;
+        applyThemeById(sel.value);
+    });
+}
+
+function renderThemeOptions(sel) {
+    sel.innerHTML = "";
+    AVAILABLE_THEMES.forEach(theme => {
+        const opt = document.createElement("option");
+        opt.value = theme.id;
+        opt.textContent = theme.name;
+        sel.appendChild(opt);
+    });
+}
+
+const CUSTOM_THEMES_URL = "theme/themes.json";
+let customThemesPromise = null;
+
+function loadCustomThemes() {
+    if (customThemesPromise) return customThemesPromise;
+
+    customThemesPromise = fetch(CUSTOM_THEMES_URL, { cache: "no-store" })
+        .then(response => {
+            if (!response.ok) throw new Error(`Could not load ${CUSTOM_THEMES_URL}`);
+            return response.json();
+        })
+        .then(config => {
+            const themes = Array.isArray(config.themes) ? config.themes : [];
+            themes.forEach(theme => {
+                if (!theme?.id || !theme.colors) return;
+                if (AVAILABLE_THEMES.some(t => t.id === theme.id)) return;
+                AVAILABLE_THEMES.push({
+                    id: theme.id,
+                    name: theme.name || theme.id,
+                    file: null,
+                    baseTheme: theme.type === "light" ? "light" : "dark",
+                    colors: theme.colors
+                });
+            });
+        })
+        .catch(err => console.warn("Custom themes unavailable:", err.message));
+
+    return customThemesPromise;
+}
+
+// Maps the friendly colour names in themes.json onto the stylesheet variables.
+function applyNativeTheme(theme) {
+    const root = document.documentElement;
+    const c = theme.colors;
+
+    root.setAttribute("data-theme", theme.baseTheme);
+
+    const MAPPING = {
+        "--bg-color": c.bg,
+        "--panel-bg": c.panel,
+        "--panel-alt-bg": c.panelAlt,
+        "--text-primary": c.textPrimary,
+        "--text-secondary": c.textSecondary,
+        "--border-color": c.border,
+        "--header-text": c.headerText,
+        "--nav-link": c.navLink,
+        "--nav-link-hover": c.navLinkHover,
+        "--chart-primary": c.chartPrimary,
+        "--chart-secondary": c.chartSecondary,
+        "--chart-success": c.chartSuccess,
+        "--chart-warning": c.chartWarning,
+        "--chart-danger": c.chartDanger,
+        "--chart-muted": c.chartMuted
+    };
+
+    Object.entries(MAPPING).forEach(([cssVar, value]) => {
+        if (value) root.style.setProperty(cssVar, value);
+    });
+
+    const from = c.headerFrom || c.panel;
+    const to = c.headerTo || from;
+    if (from) {
+        root.style.setProperty("--header-bg", from === to ? from : `linear-gradient(135deg, ${from}, ${to})`);
+    }
+
+    root.style.setProperty("--shadow", theme.baseTheme === "dark"
+        ? "0 18px 42px rgba(0,0,0,0.45)"
+        : "0 18px 42px rgba(14,40,74,0.1)");
 }
 
 async function applyThemeById(themeId) {
     const theme = AVAILABLE_THEMES.find(t => t.id === themeId) || AVAILABLE_THEMES[0];
+
+    if (theme.colors) {
+        clearAppliedThemeVars();
+        applyNativeTheme(theme);
+        localStorage.setItem("dashboardThemeId", theme.id);
+        localStorage.setItem("dashboardTheme", theme.baseTheme);
+        return;
+    }
 
     if (!theme.file) {
         clearAppliedThemeVars();

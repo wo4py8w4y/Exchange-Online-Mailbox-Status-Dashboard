@@ -1,0 +1,35 @@
+# Local configuration - holds tenant IDs and secrets.
+# Commit Collector/Config/dashboardConfig.example.json instead.
+Collector/Config/dashboardConfig.json
+
+# Collected and generated data
+Web/history.json
+Web/data.json
+Web/demo-data.json
+Web/demo-history.json
+Web/demo-mailboxes.csv
+
+# Mailbox input list (may contain the full address book)
+Mailboxes/mailboxes.csv
+Mailboxes/mailboxes.json
+
+# Runtime output
+Collector/Logs/
+Collector/Temp/ThreadJobs/
+Collector/Temp/*.json
+Web/logs/
+Web/.tmp
+
+# Backups and scratch files
+*.bak
+*.realbak
+*.old.*
+*.orig
+*.orgig.*
+*- Copy.*
+*.log
+
+# Editor and OS noise
+.vscode/settings.json
+Thumbs.db
+.DS_Store

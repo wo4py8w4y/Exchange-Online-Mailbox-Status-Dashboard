@@ -1,0 +1,84 @@
+{
+  "$comment": [
+    "Mailbox scopes. A scope is a saved filter over the same dataset, so different teams",
+    "or sites can be given a report showing only their own mailboxes.",
+    "",
+    "To add a scope, copy a block below and give it a unique id. To hand someone a page",
+    "showing only that scope, send them  scope.html?scope=<id>  - or copy scope.html to a",
+    "new file and set  data-scope=\"<id>\"  on its <body> tag for a clean URL.",
+    "",
+    "Matching rules (all optional - omit anything you do not need):",
+    "  includeGuids        exact ExchangeGuid values, the most durable way to pin a list",
+    "  includeSmtp         SMTP patterns, '*' and '?' wildcards, or 're:' for a regex",
+    "  includeDisplayName  display-name patterns, same wildcard rules",
+    "  excludeSmtp         removed after includes are applied",
+    "  excludeDisplayName  removed after includes are applied",
+    "  minSizeGB           only mailboxes at or above this primary size",
+    "  minUsagePercent     only mailboxes at or above this quota usage",
+    "",
+    "A scope with no include rules matches every mailbox. Excludes always win.",
+    "Matching is case-insensitive."
+  ],
+
+  "defaultScope": "all",
+
+  "scopes": [
+    {
+      "id": "all",
+      "name": "All Mailboxes",
+      "description": "Every mailbox in the dataset.",
+      "rules": {}
+    },
+    {
+      "id": "over-threshold",
+      "name": "Attention Required",
+      "description": "Mailboxes at or above the warning threshold.",
+      "rules": {
+        "minUsagePercent": 85
+      }
+    },
+    {
+      "id": "large-mailboxes",
+      "name": "Large Mailboxes",
+      "description": "Mailboxes holding 25 GB or more in the primary store.",
+      "rules": {
+        "minSizeGB": 25
+      }
+    },
+    {
+      "id": "hpw",
+      "name": "HPW",
+      "description": "Mailboxes in the hpw.qld.gov.au domain.",
+      "rules": {
+        "includeSmtp": ["*@hpw.qld.gov.au"]
+      }
+    },
+    {
+      "id": "chde",
+      "name": "CHDE",
+      "description": "Mailboxes in the chde.qld.gov.au domain.",
+      "rules": {
+        "includeSmtp": ["*@chde.qld.gov.au"]
+      }
+    },
+    {
+      "id": "shared-and-admin",
+      "name": "Shared & Admin",
+      "description": "Shared, service, and administrative mailboxes matched by name.",
+      "rules": {
+        "includeDisplayName": ["*admin*", "*shared*", "*service*", "*support*", "*helpdesk*"],
+        "excludeSmtp": ["*test*"]
+      }
+    },
+    {
+      "id": "example-site",
+      "name": "Example Site",
+      "description": "Template - replace the GUIDs and patterns with a real site's mailboxes.",
+      "rules": {
+        "includeGuids": [],
+        "includeSmtp": ["1williamst.*@*"],
+        "excludeSmtp": []
+      }
+    }
+  ]
+}

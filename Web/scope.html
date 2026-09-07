@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Scoped Mailbox Report</title>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        const savedTheme = localStorage.getItem('dashboardTheme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<!--
+    Scoped report.
+
+    By default this page reads its scope from the URL:  scope.html?scope=hpw
+    To hand a team a permanent report with a clean URL, copy this file (for example
+    to  site-brisbane.html ) and pin the scope on the <body> tag below:
+
+        <body data-page="overview" data-scope="hpw">
+
+    A pinned page hides the scope picker so the recipient only ever sees their own
+    mailboxes. Scopes themselves are defined in scopes.json.
+-->
+<body data-page="overview">
+    <header class="app-header">
+        <div>
+            <h1>Scoped Mailbox Report</h1>
+            <p id="lastUpdated">Loading...</p>
+        </div>
+        <div class="header-actions">
+            <select id="themeSelect" class="theme-select" title="Change theme"></select>
+            <button id="refreshButton" class="btn-primary">Refresh now</button>
+        </div>
+    </header>
+
+    <nav class="panel view-nav" aria-label="Views">
+        <strong>Views:</strong>
+        <a href="index.html">Dashboard</a> |
+        <a href="scope.html">Scoped report</a> |
+        <a href="mailbox.html">Mailbox</a> |
+        <a href="history.html">History</a> |
+        <a href="permissions.html">Permissions</a> |
+        <a href="thresholds.html">Thresholds</a>
+    </nav>
+
+    <main>
+        <section id="scopeBanner" class="scope-banner" hidden></section>
+
+        <section class="panel search-panel">
+            <div class="search-panel-head">
+                <div>
+                    <h2>Mailbox finder</h2>
+                    <p id="searchStatus" class="panel-subtitle">Loading mailbox index...</p>
+                </div>
+                <button id="clearSearchBtn" class="btn-secondary">Clear</button>
+            </div>
+            <div class="search-shell">
+                <label class="sr-only" for="mailboxSearch">Find Mailbox</label>
+                <input id="mailboxSearch" autocomplete="off" placeholder="Search mailboxes in this scope">
+                <button id="openMailboxBtn" class="btn-primary" type="button">Open mailbox view</button>
+            </div>
+            <div id="selectedMailboxSummary" class="selected-mailbox-summary" hidden></div>
+            <section id="searchResultsPanel" class="search-results-panel" hidden>
+                <div class="search-results-head">
+                    <strong id="searchResultsTitle">Matches</strong>
+                    <span id="searchResultsMeta"></span>
+                </div>
+                <div id="searchResults" class="search-results"></div>
+            </section>
+        </section>
+
+        <section class="cards">
+            <article><span class="label">Mailboxes</span><strong id="mailboxCount">0</strong></article>
+            <article><span class="label">Primary storage</span><strong id="totalStorage">0 GB</strong></article>
+            <article><span class="label">Archive storage</span><strong id="totalArchiveStorage">0 GB</strong></article>
+            <article><span class="label">Threshold alerts</span><strong id="thresholdCount">0</strong></article>
+            <article><span class="label">Largest mailbox</span><strong id="largestMailbox">N/A</strong></article>
+        </section>
+
+        <section id="selectedMailboxPanel" class="panel selected-mailbox-panel" hidden></section>
+
+        <section class="chart-grid chart-grid-overview">
+            <article class="panel">
+                <h2>Mailbox health</h2>
+                <canvas id="usageDonutChart" width="520" height="360"></canvas>
+            </article>
+            <article class="panel">
+                <h2>Top storage consumers</h2>
+                <canvas id="topStorageChart" width="760" height="420"></canvas>
+            </article>
+            <article class="panel">
+                <h2>Usage distribution</h2>
+                <canvas id="usageHistogramChart" width="520" height="360"></canvas>
+            </article>
+            <article class="panel">
+                <h2>Quota pressure</h2>
+                <canvas id="alertStatusChart" width="520" height="360"></canvas>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="table-header">
+                <div>
+                    <h2 id="tableTitle">Current usage</h2>
+                    <p id="tableMeta" class="panel-subtitle"></p>
+                </div>
+                <div class="table-controls">
+                    <label class="page-size-label">Show
+                        <select class="page-size-select" data-pagination-key="usageTable">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                        </select> per page
+                    </label>
+                    <div class="export-group">
+                        <span>Export:</span>
+                        <button class="btn-export" data-export="usageTable" data-format="json">JSON</button>
+                        <button class="btn-export" data-export="usageTable" data-format="csv">CSV</button>
+                        <button class="btn-export" data-export="usageTable" data-format="pdf">PDF</button>
+                    </div>
+                </div>
+            </div>
+            <div id="usageTablePagination" class="pagination-bar"></div>
+            <div class="table-wrap">
+                <table id="usageTable">
+                    <thead>
+                        <tr>
+                            <th>Mailbox</th>
+                            <th>SMTP Address</th>
+                            <th>Storage GB</th>
+                            <th>Items</th>
+                            <th>Quota GB</th>
+                            <th>Usage %</th>
+                            <th>Permissions</th>
+                            <th>Last logon</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+    <script defer src="dashboard.js"></script>
+</body>
+</html>
