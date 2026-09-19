@@ -29,7 +29,10 @@ function New-EmptyHotData {
     )
 
     return [pscustomobject]@{
+        '$schema' = "./dashboard.schema.json"
+        SchemaVersion = "2026-08-14"
         GeneratedUtc = $GeneratedUtc
+        RetentionPolicies = @()
         Mailboxes    = @()
     }
 }
@@ -73,6 +76,7 @@ $historyPayload = Get-Content -LiteralPath $resolvedHistoryPath -Raw | ConvertFr
 $mailboxHistory = @($historyPayload.MailboxHistory)
 
 $hotDataPayload = New-EmptyHotData -GeneratedUtc ([string]$historyPayload.GeneratedUtc)
+$hotDataPayload.RetentionPolicies = if ($historyPayload.PSObject.Properties.Name -contains "RetentionPolicies") { @($historyPayload.RetentionPolicies) } else { @() }
 $mailboxes = [System.Collections.Generic.List[object]]::new()
 
 foreach ($entry in $mailboxHistory) {
@@ -110,6 +114,12 @@ foreach ($entry in $mailboxHistory) {
             archiveSizeGB   = if ($null -ne $latestSample.ArchiveSizeGB) { [double]$latestSample.ArchiveSizeGB } else { 0.0 }
             archiveItemCount = if ($null -ne $latestSample.ArchiveItemCount) { [int64]$latestSample.ArchiveItemCount } else { 0 }
         }
+        retention          = if ($entry.PSObject.Properties.Name -contains "Retention") { $entry.Retention } else { $null }
+        licensing          = if ($entry.PSObject.Properties.Name -contains "Licensing") { $entry.Licensing } else { $null }
+        mailboxMaintenance = if ($entry.PSObject.Properties.Name -contains "MailboxMaintenance") { $entry.MailboxMaintenance } else { $null }
+        lastCleanupSuccessUtc = if ($entry.PSObject.Properties.Name -contains "LastCleanupSuccessUtc") { $entry.LastCleanupSuccessUtc } elseif ($entry.PSObject.Properties.Name -contains "MailboxMaintenance" -and $entry.MailboxMaintenance.PSObject.Properties.Name -contains "LastCleanupSuccessUtc") { $entry.MailboxMaintenance.LastCleanupSuccessUtc } else { $null }
+        cleanupStatus = if ($entry.PSObject.Properties.Name -contains "CleanupStatus") { $entry.CleanupStatus } elseif ($entry.PSObject.Properties.Name -contains "MailboxMaintenance" -and $entry.MailboxMaintenance.PSObject.Properties.Name -contains "CleanupStatus") { $entry.MailboxMaintenance.CleanupStatus } else { $null }
+        daysSinceSuccessfulCleanup = if ($entry.PSObject.Properties.Name -contains "DaysSinceSuccessfulCleanup") { $entry.DaysSinceSuccessfulCleanup } elseif ($entry.PSObject.Properties.Name -contains "MailboxMaintenance" -and $entry.MailboxMaintenance.PSObject.Properties.Name -contains "DaysSinceSuccessfulCleanup") { $entry.MailboxMaintenance.DaysSinceSuccessfulCleanup } else { $null }
         permissions        = $permissions
     })
 }

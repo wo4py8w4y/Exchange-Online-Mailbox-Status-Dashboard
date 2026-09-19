@@ -1,0 +1,612 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dashboard.schema.json",
+  "title": "Mailbox Dashboard Data Schema",
+  "type": "object",
+  "required": [
+    "GeneratedUtc"
+  ],
+  "oneOf": [
+    {
+      "required": [
+        "Mailboxes"
+      ]
+    },
+    {
+      "required": [
+        "MailboxHistory"
+      ]
+    }
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "SchemaVersion": {
+      "type": "string"
+    },
+    "GeneratedUtc": {
+      "type": "string"
+    },
+    "Mailboxes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/mailbox"
+      }
+    },
+    "RetentionPolicies": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/retentionPolicyCatalogEntry"
+      }
+    },
+    "MailboxHistory": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/historyMailbox"
+      }
+    }
+  },
+  "$defs": {
+    "permission": {
+      "type": "object",
+      "properties": {
+        "User": {
+          "type": "string"
+        },
+        "AccessRights": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "IsInherited": {
+          "type": "boolean"
+        },
+        "Deny": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": true
+    },
+    "currentMetrics": {
+      "type": "object",
+      "required": [
+        "totalGB",
+        "itemCount",
+        "archiveEnabled",
+        "archiveSizeGB",
+        "archiveItemCount"
+      ],
+      "properties": {
+        "totalGB": {
+          "type": "number"
+        },
+        "itemCount": {
+          "type": "number"
+        },
+        "quotaGB": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "usagePercent": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "lastLogonTime": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "archiveEnabled": {
+          "type": "boolean"
+        },
+        "archiveSizeGB": {
+          "type": "number"
+        },
+        "archiveItemCount": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "retention": {
+      "type": "object",
+      "properties": {
+        "RetentionPolicy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "RetentionHoldEnabled": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "LitigationHoldEnabled": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "LitigationHoldDurationDays": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "InPlaceHolds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "SingleItemRecoveryEnabled": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "RetainDeletedItemsFor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "RetentionPolicyDetails": {
+          "$ref": "#/$defs/retentionPolicyMailboxDetails"
+        }
+      },
+      "additionalProperties": true
+    },
+    "retentionPolicyMailboxDetails": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "IsKnownPolicy": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "MailboxCount": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "IsDefaultPolicy": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "RetentionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "TagCount": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "Comment": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "retentionPolicyCatalogEntry": {
+      "type": "object",
+      "required": [
+        "Name",
+        "MailboxCount"
+      ],
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "IsKnownPolicy": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "MailboxCount": {
+          "type": "number"
+        },
+        "IsDefaultPolicy": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "RetentionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "RetentionPolicyTagLinks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "TagCount": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "Comment": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "retentionPolicyChangeEntry": {
+      "type": "object",
+      "properties": {
+        "TimestampUtc": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "RetentionPolicy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "licenseAssignmentChangeEntry": {
+      "type": "object",
+      "properties": {
+        "TimestampUtc": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "HasLicense": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "LicenseRequired": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "LicenseType": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "licensing": {
+      "type": "object",
+      "properties": {
+        "RecipientTypeDetails": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "IsSharedMailbox": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "SKUAssigned": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "PersistedCapabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ArchiveStatus": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "IsInactiveMailbox": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "LicenseRequired": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "HasLicense": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "LicenseTypes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "LicenseType": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "IsLicenseCompliant": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "LicenseRequirementReason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "maintenance": {
+      "type": "object",
+      "properties": {
+        "LastCleanupAttemptUtc": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "LastCleanupSuccessUtc": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CleanupStatus": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "DaysSinceSuccessfulCleanup": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "CleanupVersion": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "LastProcessedBy": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "CorrelationId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Notes": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": true
+    },
+    "mailbox": {
+      "type": "object",
+      "required": [
+        "ExchangeGuid",
+        "PrimarySmtpAddress",
+        "DisplayName",
+        "current"
+      ],
+      "properties": {
+        "ExchangeGuid": {
+          "type": "string"
+        },
+        "PrimarySmtpAddress": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        },
+        "current": {
+          "$ref": "#/$defs/currentMetrics"
+        },
+        "permissions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/permission"
+          }
+        },
+        "retention": {
+          "$ref": "#/$defs/retention"
+        },
+        "licensing": {
+          "$ref": "#/$defs/licensing"
+        },
+        "mailboxMaintenance": {
+          "$ref": "#/$defs/maintenance"
+        },
+        "RetentionPolicyChangeHistory": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/retentionPolicyChangeEntry"
+          }
+        },
+        "LicenseAssignmentHistory": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/licenseAssignmentChangeEntry"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "sample": {
+      "type": "object",
+      "required": [
+        "TimestampUtc",
+        "SizeGB",
+        "ItemCount"
+      ],
+      "properties": {
+        "TimestampUtc": {
+          "type": "string"
+        },
+        "SizeGB": {
+          "type": "number"
+        },
+        "ItemCount": {
+          "type": "number"
+        },
+        "PermissionCount": {
+          "type": "number"
+        },
+        "QuotaGB": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "UsagePercent": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "LastLogonTime": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ArchiveEnabled": {
+          "type": "boolean"
+        },
+        "ArchiveSizeGB": {
+          "type": "number"
+        },
+        "ArchiveItemCount": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": true
+    },
+    "historyMailbox": {
+      "type": "object",
+      "required": [
+        "ExchangeGuid",
+        "PrimarySmtpAddress",
+        "DisplayName",
+        "Samples"
+      ],
+      "properties": {
+        "ExchangeGuid": {
+          "type": "string"
+        },
+        "PrimarySmtpAddress": {
+          "type": "string"
+        },
+        "DisplayName": {
+          "type": "string"
+        },
+        "Permissions": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/permission"
+          }
+        },
+        "Retention": {
+          "$ref": "#/$defs/retention"
+        },
+        "Licensing": {
+          "$ref": "#/$defs/licensing"
+        },
+        "MailboxMaintenance": {
+          "$ref": "#/$defs/maintenance"
+        },
+        "RetentionPolicyChangeHistory": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/retentionPolicyChangeEntry"
+          }
+        },
+        "LicenseAssignmentHistory": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/licenseAssignmentChangeEntry"
+          }
+        },
+        "Samples": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sample"
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}
