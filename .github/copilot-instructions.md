@@ -14,7 +14,6 @@ MailboxDashboard is an Exchange Online mailbox monitoring app with a PowerShell 
 ### Root
 
 - `Project MailboxDashboard.md` - project summary and architecture notes. **Important**, but not runtime-critical.
-- `Install-PrivateRepoAPI.ps1` - environment/bootstrap helper. **Optional**.
 - `.hintrc` - hint/lint config. **Optional**.
 - `.github/copilot-instructions.md` - this file. **Important**.
 
@@ -63,13 +62,19 @@ MailboxDashboard is an Exchange Online mailbox monitoring app with a PowerShell 
 ## PowerShell conventions
 
 - Keep scripts compatible with the repo’s PowerShell runtime.
-- Avoid relying on PS7-only syntax when a PS5-compatible equivalent exists.
+- Focus on PS7-only syntax when writing collector code.
 - Prefer explicit null checks over `??` when writing collector code that must run broadly.
 - Keep the collector flow consistent:
   - `Register-EntraApp.ps1` for app setup
+  - `MergeJSON.ps1` or `Extract-HotData.ps1` for regeneration
+  - Use the style and examples outlined in 'https://github.com/alflokken/PSGraphToolbox' which uses delta queries to efficiently track changes in the graph data.
   - `Get-ExchangeOnlineAccessToken.ps1` for auth
   - `Start-HistoryCollectorThreaded.ps1` / `HistoryCollector.ps1` for collection
   - `MergeJSON.ps1` or `Extract-HotData.ps1` for regeneration
+  - supply a user interface and menu system that can be navigated using up and down arrows and highlight key options and objects with color and formatting.
+  - update user help and setup documentation when changes cause the collector behavior or interface to change.
+  - make code changes easy to delete and wrap in modular functions.
+  - logging to the console is important but for a log file start-transcript is likely sufficient.
 
 ## Web UI conventions
 
@@ -79,6 +84,7 @@ MailboxDashboard is an Exchange Online mailbox monitoring app with a PowerShell 
 - Search is designed for large mailbox sets; keep ranking, selection, and drill-down behavior intact.
 - Table pages use shared pagination and export controls; keep the 10/20/50/100 page-size pattern consistent.
 - `Web/theme/*.jsonc` are runtime dashboard themes, not editor themes. Load them as app data and map theme tokens to CSS variables.
+
 
 ## Useful parameters
 
@@ -177,4 +183,4 @@ pwsh -File .\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8080/
 
 - Prefer the smallest targeted validation that covers the changed area.
 - For JSON or collector changes, verify the generated file and then check the dashboard page that consumes it.
-- For web changes, validate in the browser against `http://localhost:8080/` rather than assuming a file-only edit is enough.
+- For web changes, validate in the browser against `http://localhost:8888/` rather than assuming a file-only edit is enough.

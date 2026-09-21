@@ -125,20 +125,56 @@ function Get-PropertyOrNull {
 function ConvertTo-NumberOrNull {
 <#
 .SYNOPSIS
-    Coerces a value to a double, accepting numeric strings. Returns $null if impossible.
+    Coerces a value to a double, accepting numeric strings and common Exchange Online
+    displays such as "4.993 GB", "82.4%", and "1.5 GB (1,610,612,736 bytes)".
 #>
     param($Value)
 
     if ($null -eq $Value) { return $null }
     if ($Value -is [double] -or $Value -is [int] -or $Value -is [long] -or $Value -is [decimal]) {
-        return [double]$Value
+        $asDouble = [double]$Value
+        if ([math]::Abs($asDouble) -ge 1000000) {
+            return $asDouble / 1GB
+        }
+
+        return $asDouble
     }
 
     $text = ([string]$Value).Trim()
     if ([string]::IsNullOrWhiteSpace($text)) { return $null }
+    if ($text -match '^(unlimited|n/a|not available|null|none)$') { return $null }
+
+    $text = $text -replace ',(?=\d{3}(?:\D|$))', ''
+
+    $numberMatch = [regex]::Match($text, '^(?<number>[-+]?\d+(?:\.\d+)?)\s*(?<unit>%|KB|MB|GB|TB|B|bytes?)?\s*(?:\(.*\))?$','IgnoreCase')
+    if ($numberMatch.Success) {
+        $amount = [double]$numberMatch.Groups['number'].Value
+        $unit = $numberMatch.Groups['unit'].Value
+
+        if ([string]::IsNullOrWhiteSpace($unit)) {
+            return $amount
+        }
+
+        switch ($unit.ToUpperInvariant()) {
+            '%'  { return $amount }
+            'B'  { return $amount / 1GB }
+            'BYTES' { return $amount / 1GB }
+            'KB' { return ($amount / 1024.0) / 1024.0 }
+            'MB' { return $amount / 1024.0 }
+            'GB' { return $amount }
+            'TB' { return $amount * 1024.0 }
+            default { return $amount }
+        }
+    }
 
     $parsed = 0.0
-    if ([double]::TryParse($text, [ref]$parsed)) { return $parsed }
+    if ([double]::TryParse($text, [ref]$parsed)) {
+        if ([math]::Abs($parsed) -ge 1000000) {
+            return $parsed / 1GB
+        }
+
+        return $parsed
+    }
 
     return $null
 }

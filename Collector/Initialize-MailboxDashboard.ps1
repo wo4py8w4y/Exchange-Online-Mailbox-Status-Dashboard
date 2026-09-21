@@ -310,7 +310,7 @@ Write-Stage "Next steps"
 Write-Detail "1. Put your mailboxes in $csvPath"
 Write-Detail "2. Preview without Exchange:  .\Collector\Invoke-MailboxDashboardCollection.ps1 -TestData"
 Write-Detail "3. Collect for real:          .\Collector\Invoke-MailboxDashboardCollection.ps1"
-Write-Detail "4. Browse the dashboard:      .\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8080/"
+Write-Detail "4. Browse the dashboard:      .\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8888/"
 Write-Success "Setup complete."
 
 [pscustomobject]@{

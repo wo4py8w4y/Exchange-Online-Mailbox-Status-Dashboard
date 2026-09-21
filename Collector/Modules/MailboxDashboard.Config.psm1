@@ -383,6 +383,36 @@ function Test-MailboxDashboardConfig {
         }
     }
 
+    foreach ($pathName in @('MailboxesCsv', 'HistoryJson', 'DataJson')) {
+        $resolvedPath = $Config.ResolvedPaths.PSObject.Properties[$pathName]?.Value
+
+        if ([string]::IsNullOrWhiteSpace([string]$resolvedPath)) {
+            $problems.Add("Paths.$pathName is required.")
+            continue
+        }
+
+        if ($pathName -eq 'MailboxesCsv' -and -not (Test-Path -LiteralPath $resolvedPath)) {
+            $problems.Add("Mailbox CSV path '$resolvedPath' does not exist.")
+            continue
+        }
+
+        $parentDirectory = Split-Path -Path $resolvedPath -Parent
+        if (-not [string]::IsNullOrWhiteSpace($parentDirectory) -and -not (Test-Path -LiteralPath $parentDirectory)) {
+            $problems.Add("Paths.$pathName parent directory '$parentDirectory' does not exist.")
+        }
+    }
+
+    foreach ($pathName in @('TempDirectory', 'ThreadJobsDirectory', 'LogDirectory')) {
+        $resolvedPath = $Config.ResolvedPaths.PSObject.Properties[$pathName]?.Value
+        if ([string]::IsNullOrWhiteSpace([string]$resolvedPath)) {
+            continue
+        }
+
+        if (-not (Test-Path -LiteralPath $resolvedPath)) {
+            $problems.Add("Paths.$pathName directory '$resolvedPath' does not exist.")
+        }
+    }
+
     $criticalPercent = [double]$Config.Thresholds.CriticalPercent
     $warningPercent = [double]$Config.Thresholds.WarningPercent
 

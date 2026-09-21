@@ -72,7 +72,7 @@ Set-Location C:\Deploy\MailboxDashboard
 .\Collector\Invoke-MailboxDashboardCollection.ps1 -TestData
 
 # 3. Browse it
-.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8080/
+.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8888/
 
 # 4. When you are ready, collect for real
 .\Collector\Invoke-MailboxDashboardCollection.ps1

@@ -490,3 +490,828 @@
 2026-08-14T12:43:41.5268335Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1786711421366 status=- duration=- bytes=- msg=Incoming request.
 2026-08-14T12:43:41.5592861Z [WARN] ip=::1 method=GET path=/history.json?cacheBust=1786711421366 status=404 duration=32 ms bytes=10 B msg=Request complete.
 2026-08-14T12:44:41.9600392Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=HTTP server stopped.
+2026-09-21T05:06:16.5298522Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=Server startup complete.
+2026-09-21T05:06:33.5779791Z [REQ] ip=::1 method=GET path=/index.html status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:06:33.6735787Z [OK] ip=::1 method=GET path=/index.html status=200 duration=94 ms bytes=7741 B msg=Request complete.
+2026-09-21T05:06:33.6967255Z [REQ] ip=::1 method=GET path=/dashboard.js status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:06:33.7180807Z [OK] ip=::1 method=GET path=/dashboard.js status=200 duration=21 ms bytes=138971 B msg=Request complete.
+2026-09-21T05:06:33.7293986Z [REQ] ip=::1 method=GET path=/styles.css status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:06:33.7525166Z [OK] ip=::1 method=GET path=/styles.css status=200 duration=23 ms bytes=18814 B msg=Request complete.
+2026-09-21T05:06:33.8437587Z [REQ] ip=::1 method=GET path=/theme/themes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:06:33.8732150Z [OK] ip=::1 method=GET path=/theme/themes.json status=200 duration=30 ms bytes=10444 B msg=Request complete.
+2026-09-21T05:06:33.8894431Z [REQ] ip=::1 method=GET path=/scopes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:06:33.9225202Z [OK] ip=::1 method=GET path=/scopes.json status=200 duration=33 ms bytes=2841 B msg=Request complete.
+2026-09-21T05:06:33.9393742Z [REQ] ip=::1 method=GET path=/favicon.ico status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:06:33.9616220Z [WARN] ip=::1 method=GET path=/favicon.ico status=404 duration=23 ms bytes=10 B msg=Request complete.
+2026-09-21T05:06:33.9857836Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967193842 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:06:34.0079920Z [WARN] ip=::1 method=GET path=/data.json?cacheBust=1789967193842 status=404 duration=22 ms bytes=10 B msg=Request complete.
+2026-09-21T05:06:34.0251053Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967193842 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:06:34.0417491Z [WARN] ip=::1 method=GET path=/history.json?cacheBust=1789967193842 status=404 duration=16 ms bytes=10 B msg=Request complete.
+2026-09-21T05:07:33.8536912Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967253850 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:07:33.8756700Z [WARN] ip=::1 method=GET path=/data.json?cacheBust=1789967253850 status=404 duration=23 ms bytes=10 B msg=Request complete.
+2026-09-21T05:07:33.8958330Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967253850 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:07:33.9138629Z [WARN] ip=::1 method=GET path=/history.json?cacheBust=1789967253850 status=404 duration=18 ms bytes=10 B msg=Request complete.
+2026-09-21T05:08:33.8520735Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967313849 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:08:33.8747454Z [WARN] ip=::1 method=GET path=/data.json?cacheBust=1789967313849 status=404 duration=23 ms bytes=10 B msg=Request complete.
+2026-09-21T05:08:33.8957066Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967313849 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:08:33.9100069Z [WARN] ip=::1 method=GET path=/history.json?cacheBust=1789967313849 status=404 duration=14 ms bytes=10 B msg=Request complete.
+2026-09-21T05:09:33.8530194Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967373849 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:09:33.8674323Z [WARN] ip=::1 method=GET path=/data.json?cacheBust=1789967373849 status=404 duration=15 ms bytes=10 B msg=Request complete.
+2026-09-21T05:09:33.8866167Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967373849 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:09:33.9068572Z [WARN] ip=::1 method=GET path=/history.json?cacheBust=1789967373849 status=404 duration=20 ms bytes=10 B msg=Request complete.
+2026-09-21T05:10:33.8497544Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967433847 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:10:33.8716524Z [WARN] ip=::1 method=GET path=/data.json?cacheBust=1789967433847 status=404 duration=22 ms bytes=10 B msg=Request complete.
+2026-09-21T05:10:33.8947535Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967433847 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:10:33.9102754Z [WARN] ip=::1 method=GET path=/history.json?cacheBust=1789967433847 status=404 duration=15 ms bytes=10 B msg=Request complete.
+2026-09-21T05:11:25.3343642Z [REQ] ip=::1 method=GET path=/index.html status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:25.3554318Z [OK] ip=::1 method=GET path=/index.html status=200 duration=22 ms bytes=7741 B msg=Request complete.
+2026-09-21T05:11:25.4222709Z [REQ] ip=::1 method=GET path=/styles.css status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:25.4434755Z [OK] ip=::1 method=GET path=/styles.css status=200 duration=21 ms bytes=18814 B msg=Request complete.
+2026-09-21T05:11:25.4618757Z [REQ] ip=::1 method=GET path=/dashboard.js status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:25.4806366Z [OK] ip=::1 method=GET path=/dashboard.js status=200 duration=19 ms bytes=138971 B msg=Request complete.
+2026-09-21T05:11:25.5092212Z [REQ] ip=::1 method=GET path=/theme/themes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:25.5217080Z [OK] ip=::1 method=GET path=/theme/themes.json status=200 duration=12 ms bytes=10444 B msg=Request complete.
+2026-09-21T05:11:25.5353676Z [REQ] ip=::1 method=GET path=/scopes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:25.5497061Z [OK] ip=::1 method=GET path=/scopes.json status=200 duration=14 ms bytes=2841 B msg=Request complete.
+2026-09-21T05:11:25.5628463Z [REQ] ip=::1 method=GET path=/favicon.ico status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:25.5853310Z [WARN] ip=::1 method=GET path=/favicon.ico status=404 duration=22 ms bytes=10 B msg=Request complete.
+2026-09-21T05:11:25.6011592Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967485508 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:25.6411288Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967485508 status=200 duration=40 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:11:25.6505820Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967485508 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:25.6677776Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967485508 status=200 duration=17 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:11:34.2502775Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967494247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:34.2744618Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967494247 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:11:34.2853556Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967494247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:34.3037112Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967494247 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:11:36.1144303Z [REQ] ip=::1 method=GET path=/index.html status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:36.1396893Z [OK] ip=::1 method=GET path=/index.html status=200 duration=25 ms bytes=7741 B msg=Request complete.
+2026-09-21T05:11:36.1590506Z [REQ] ip=::1 method=GET path=/styles.css status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:36.1771605Z [OK] ip=::1 method=GET path=/styles.css status=200 duration=18 ms bytes=18814 B msg=Request complete.
+2026-09-21T05:11:36.1927589Z [REQ] ip=::1 method=GET path=/dashboard.js status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:36.2119179Z [OK] ip=::1 method=GET path=/dashboard.js status=200 duration=19 ms bytes=138971 B msg=Request complete.
+2026-09-21T05:11:36.2270683Z [REQ] ip=::1 method=GET path=/theme/themes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:36.2428374Z [OK] ip=::1 method=GET path=/theme/themes.json status=200 duration=16 ms bytes=10444 B msg=Request complete.
+2026-09-21T05:11:36.2615688Z [REQ] ip=::1 method=GET path=/scopes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:36.2804889Z [OK] ip=::1 method=GET path=/scopes.json status=200 duration=19 ms bytes=2841 B msg=Request complete.
+2026-09-21T05:11:36.2977143Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967496218 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:36.3144266Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967496218 status=200 duration=17 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:11:36.3256399Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967496218 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:36.4172630Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967496218 status=200 duration=92 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:11:56.1543006Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967516152 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:11:56.1852299Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967516152 status=200 duration=31 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:12:34.2511555Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967554247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:12:34.2762769Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967554247 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:12:34.2862273Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967554247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:12:34.3048345Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967554247 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:12:36.2333804Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967556231 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:12:36.2550273Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967556231 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:12:36.2642838Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967556231 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:12:36.2848679Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967556231 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:13:34.2506222Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967614248 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:13:34.3004986Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967614248 status=200 duration=50 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:13:34.3101266Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967614248 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:13:34.3375263Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967614248 status=200 duration=27 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:13:36.2343548Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967616232 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:13:36.2546937Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967616232 status=200 duration=20 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:13:36.2641986Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967616232 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:13:36.2837457Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967616232 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:14:12.3536241Z [REQ] ip=::1 method=GET path=/history.html status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:12.4128947Z [OK] ip=::1 method=GET path=/history.html status=200 duration=59 ms bytes=5216 B msg=Request complete.
+2026-09-21T05:14:12.4471564Z [REQ] ip=::1 method=GET path=/styles.css status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:12.4890719Z [OK] ip=::1 method=GET path=/styles.css status=200 duration=42 ms bytes=18814 B msg=Request complete.
+2026-09-21T05:14:12.5058253Z [REQ] ip=::1 method=GET path=/dashboard.js status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:12.5269479Z [OK] ip=::1 method=GET path=/dashboard.js status=200 duration=21 ms bytes=139121 B msg=Request complete.
+2026-09-21T05:14:12.5498862Z [REQ] ip=::1 method=GET path=/theme/themes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:12.5880035Z [OK] ip=::1 method=GET path=/theme/themes.json status=200 duration=38 ms bytes=10444 B msg=Request complete.
+2026-09-21T05:14:12.6139339Z [REQ] ip=::1 method=GET path=/scopes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:12.6654175Z [OK] ip=::1 method=GET path=/scopes.json status=200 duration=52 ms bytes=2841 B msg=Request complete.
+2026-09-21T05:14:12.6906857Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967652540 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:12.7168856Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967652540 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:14:12.7323739Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967652540 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:12.7596088Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967652540 status=200 duration=27 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:14:16.0804686Z [REQ] ip=::1 method=GET path=/index.html?cacheBust= status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:16.1113245Z [OK] ip=::1 method=GET path=/index.html?cacheBust= status=200 duration=31 ms bytes=7741 B msg=Request complete.
+2026-09-21T05:14:16.1928026Z [REQ] ip=::1 method=GET path=/styles.css status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:16.2200318Z [OK] ip=::1 method=GET path=/styles.css status=200 duration=27 ms bytes=18814 B msg=Request complete.
+2026-09-21T05:14:16.2422734Z [REQ] ip=::1 method=GET path=/dashboard.js status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:16.2674005Z [OK] ip=::1 method=GET path=/dashboard.js status=200 duration=25 ms bytes=139121 B msg=Request complete.
+2026-09-21T05:14:16.3487536Z [REQ] ip=::1 method=GET path=/theme/themes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:16.3699783Z [OK] ip=::1 method=GET path=/theme/themes.json status=200 duration=21 ms bytes=10444 B msg=Request complete.
+2026-09-21T05:14:16.3905357Z [REQ] ip=::1 method=GET path=/scopes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:16.4152957Z [OK] ip=::1 method=GET path=/scopes.json status=200 duration=25 ms bytes=2841 B msg=Request complete.
+2026-09-21T05:14:16.4353151Z [REQ] ip=::1 method=GET path=/favicon.ico status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:16.4606899Z [WARN] ip=::1 method=GET path=/favicon.ico status=404 duration=25 ms bytes=10 B msg=Request complete.
+2026-09-21T05:14:16.4837660Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967656347 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:16.5124163Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967656347 status=200 duration=29 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:14:16.5278558Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967656347 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:16.5568227Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967656347 status=200 duration=29 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:14:17.6515895Z [REQ] ip=::1 method=GET path=/permissions.html status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:17.7086583Z [OK] ip=::1 method=GET path=/permissions.html status=200 duration=57 ms bytes=4768 B msg=Request complete.
+2026-09-21T05:14:17.7404247Z [REQ] ip=::1 method=GET path=/styles.css status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:17.7659505Z [OK] ip=::1 method=GET path=/styles.css status=200 duration=26 ms bytes=18814 B msg=Request complete.
+2026-09-21T05:14:17.7841029Z [REQ] ip=::1 method=GET path=/dashboard.js status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:17.8065987Z [OK] ip=::1 method=GET path=/dashboard.js status=200 duration=23 ms bytes=139121 B msg=Request complete.
+2026-09-21T05:14:17.8242255Z [REQ] ip=::1 method=GET path=/theme/themes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:17.8426197Z [OK] ip=::1 method=GET path=/theme/themes.json status=200 duration=18 ms bytes=10444 B msg=Request complete.
+2026-09-21T05:14:17.8651168Z [REQ] ip=::1 method=GET path=/scopes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:17.8871274Z [OK] ip=::1 method=GET path=/scopes.json status=200 duration=22 ms bytes=2841 B msg=Request complete.
+2026-09-21T05:14:17.9071706Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967657813 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:17.9496529Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967657813 status=200 duration=42 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:14:17.9621513Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967657813 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:17.9966895Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967657813 status=200 duration=34 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:14:19.3449905Z [REQ] ip=::1 method=GET path=/thresholds.html status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:19.4042649Z [OK] ip=::1 method=GET path=/thresholds.html status=200 duration=59 ms bytes=4861 B msg=Request complete.
+2026-09-21T05:14:19.4301333Z [REQ] ip=::1 method=GET path=/styles.css status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:19.4548630Z [OK] ip=::1 method=GET path=/styles.css status=200 duration=25 ms bytes=18814 B msg=Request complete.
+2026-09-21T05:14:19.4736233Z [REQ] ip=::1 method=GET path=/dashboard.js status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:19.4964611Z [OK] ip=::1 method=GET path=/dashboard.js status=200 duration=23 ms bytes=139121 B msg=Request complete.
+2026-09-21T05:14:19.5149663Z [REQ] ip=::1 method=GET path=/theme/themes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:19.5349250Z [OK] ip=::1 method=GET path=/theme/themes.json status=200 duration=20 ms bytes=10444 B msg=Request complete.
+2026-09-21T05:14:19.5540001Z [REQ] ip=::1 method=GET path=/scopes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:19.5749032Z [OK] ip=::1 method=GET path=/scopes.json status=200 duration=21 ms bytes=2841 B msg=Request complete.
+2026-09-21T05:14:19.5962984Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967659502 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:19.6354162Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967659502 status=200 duration=39 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:14:19.6531127Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967659502 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:19.6794944Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967659502 status=200 duration=27 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:14:25.3167632Z [REQ] ip=::1 method=GET path=/scope.html status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:25.3761960Z [OK] ip=::1 method=GET path=/scope.html status=200 duration=60 ms bytes=6684 B msg=Request complete.
+2026-09-21T05:14:25.3924694Z [REQ] ip=::1 method=GET path=/styles.css status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:25.4106610Z [OK] ip=::1 method=GET path=/styles.css status=200 duration=18 ms bytes=18814 B msg=Request complete.
+2026-09-21T05:14:25.4305801Z [REQ] ip=::1 method=GET path=/dashboard.js status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:25.4479999Z [OK] ip=::1 method=GET path=/dashboard.js status=200 duration=18 ms bytes=139121 B msg=Request complete.
+2026-09-21T05:14:25.4570273Z [REQ] ip=::1 method=GET path=/theme/themes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:25.4689624Z [OK] ip=::1 method=GET path=/theme/themes.json status=200 duration=12 ms bytes=10444 B msg=Request complete.
+2026-09-21T05:14:25.4817150Z [REQ] ip=::1 method=GET path=/scopes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:25.4933701Z [OK] ip=::1 method=GET path=/scopes.json status=200 duration=12 ms bytes=2841 B msg=Request complete.
+2026-09-21T05:14:25.5032751Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967665453 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:25.5176889Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967665453 status=200 duration=14 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:14:25.5302659Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967665453 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:25.5509902Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967665453 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:14:35.2496615Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967675247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:35.2729934Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967675247 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:14:35.2830031Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967675247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:35.3006113Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967675247 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:14:41.1497984Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967681148 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:41.1873005Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967681148 status=200 duration=37 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:14:58.4959407Z [REQ] ip=::1 method=GET path=/theme/aurora-night.jsonc status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:58.5365848Z [OK] ip=::1 method=GET path=/theme/aurora-night.jsonc status=200 duration=41 ms bytes=820 B msg=Request complete.
+2026-09-21T05:14:59.8800211Z [REQ] ip=::1 method=GET path=/theme/graphite-ocean.jsonc status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:14:59.8954422Z [OK] ip=::1 method=GET path=/theme/graphite-ocean.jsonc status=200 duration=16 ms bytes=820 B msg=Request complete.
+2026-09-21T05:15:13.2469296Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967713244 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:15:13.2709773Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967713244 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:15:13.2794118Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967713244 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:15:13.2989541Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967713244 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:15:25.4577572Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967725455 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:15:25.4824602Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967725455 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:15:25.4903290Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967725455 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:15:25.5068555Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967725455 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:15:36.2423865Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967736240 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:15:36.2670362Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967736240 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:15:36.2750560Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967736240 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:15:36.2919680Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967736240 status=200 duration=17 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:16:13.2521772Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967773249 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:16:13.2941485Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967773249 status=200 duration=42 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:16:13.3023721Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967773249 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:16:13.3244411Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967773249 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:16:25.4698851Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967785467 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:16:25.4921628Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967785467 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:16:25.5000603Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967785467 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:16:25.5179078Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967785467 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:16:37.2496329Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967797246 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:16:37.2753602Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967797246 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:16:37.2847791Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967797246 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:16:37.3012832Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967797246 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:17:13.2473364Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967833244 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:13.2702735Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967833244 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:17:13.2794860Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967833244 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:13.2992979Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967833244 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:17:26.2578562Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967846254 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:26.2858215Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967846254 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:17:26.2951070Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967846254 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:26.3089471Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967846254 status=200 duration=14 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:17:38.2504023Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967858247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:38.2761503Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967858247 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:17:38.2841934Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967858247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:38.3062157Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967858247 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:17:46.4278147Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=Server startup complete.
+2026-09-21T05:17:54.5307507Z [REQ] ip=::1 method=GET path=/index.html status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:54.6098288Z [OK] ip=::1 method=GET path=/index.html status=200 duration=81 ms bytes=7741 B msg=Request complete.
+2026-09-21T05:17:54.6320555Z [REQ] ip=::1 method=GET path=/dashboard.js status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:54.6534968Z [OK] ip=::1 method=GET path=/dashboard.js status=200 duration=22 ms bytes=139121 B msg=Request complete.
+2026-09-21T05:17:54.6663740Z [REQ] ip=::1 method=GET path=/styles.css status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:54.6887197Z [OK] ip=::1 method=GET path=/styles.css status=200 duration=23 ms bytes=18814 B msg=Request complete.
+2026-09-21T05:17:54.7199317Z [REQ] ip=::1 method=GET path=/theme/themes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:54.7414029Z [OK] ip=::1 method=GET path=/theme/themes.json status=200 duration=28 ms bytes=10444 B msg=Request complete.
+2026-09-21T05:17:54.7640235Z [REQ] ip=::1 method=GET path=/scopes.json status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:54.7862895Z [OK] ip=::1 method=GET path=/scopes.json status=200 duration=23 ms bytes=2841 B msg=Request complete.
+2026-09-21T05:17:54.8081875Z [REQ] ip=::1 method=GET path=/favicon.ico status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:17:54.8324570Z [WARN] ip=::1 method=GET path=/favicon.ico status=404 duration=25 ms bytes=10 B msg=Request complete.
+2026-09-21T05:17:54.8502867Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967874712 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:18:13.2459997Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967893243 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:18:13.2650273Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967893243 status=200 duration=19 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:18:13.2744279Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967893243 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:18:13.2957894Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967893243 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:18:26.2448352Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967906242 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:18:26.2665156Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967906242 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:18:26.2802043Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967906242 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:18:26.2983884Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967906242 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:18:39.2494864Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967919247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:18:39.2719595Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967919247 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:18:39.2798944Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967919247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:18:39.2995128Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967919247 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:19:13.2467307Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967953243 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:19:13.2716515Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967953243 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:19:13.2812468Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967953243 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:19:13.2991883Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967953243 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:19:26.2559582Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967966252 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:19:26.2780798Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967966252 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:19:26.2872230Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967966252 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:19:26.3081626Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967966252 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:19:40.2511336Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789967980249 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:19:40.2746229Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789967980249 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:19:40.2829242Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789967980249 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:19:40.3011954Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789967980249 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:20:13.2451733Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968013241 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:20:13.2664038Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968013241 status=200 duration=21 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:20:13.2751947Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968013241 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:20:13.2967624Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968013241 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:20:26.2577019Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968026253 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:20:26.3044768Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968026253 status=200 duration=47 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:20:26.3138508Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968026253 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:20:26.3311191Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968026253 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:20:41.2479041Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968041244 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:20:41.2689773Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968041244 status=200 duration=21 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:20:41.2780506Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968041244 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:20:41.2976189Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968041244 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:21:13.2490561Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968073247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:21:13.2711031Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968073247 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:21:13.2807540Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968073247 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:21:13.2971618Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968073247 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:21:26.2504143Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968086245 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:21:26.2691118Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968086245 status=200 duration=19 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:21:26.2794519Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968086245 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:21:26.3586436Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968086245 status=200 duration=79 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:21:42.2518935Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968102249 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:21:42.2762679Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968102249 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:21:42.2856427Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968102249 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:21:42.3081040Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968102249 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:22:14.2509985Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968134249 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:22:14.2698923Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968134249 status=200 duration=19 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:22:14.2772927Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968134249 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:22:14.2981659Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968134249 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:22:27.2619401Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968147259 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:22:27.2843282Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968147259 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:22:27.2927235Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968147259 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:22:27.3164999Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968147259 status=200 duration=24 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:22:43.2602296Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968163258 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:22:43.3068060Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968163258 status=200 duration=47 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:22:43.3164339Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968163258 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:22:43.3369348Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968163258 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:23:15.2524001Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968195250 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:23:15.2860232Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968195250 status=200 duration=34 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:23:15.2938519Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968195250 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:23:15.3116710Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968195250 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:23:27.2636973Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968207259 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:23:27.2898416Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968207259 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:23:27.2991826Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968207259 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:23:27.3156343Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968207259 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:23:44.2565057Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968224253 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:23:44.2813750Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968224253 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:23:44.2900089Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968224253 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:23:44.3057271Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968224253 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:24:16.2565832Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968256254 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:24:16.2889481Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968256254 status=200 duration=32 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:24:16.2992571Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968256254 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:24:16.3206135Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968256254 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:24:27.2670257Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968267262 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:24:27.2893792Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968267262 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:24:27.2985339Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968267262 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:24:27.3174158Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968267262 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:24:45.2695512Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968285267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:24:45.2947787Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968285267 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:24:45.3039464Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968285267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:24:45.3220501Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968285267 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:25:17.2711414Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968317268 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:25:17.2984300Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968317268 status=200 duration=27 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:25:17.3074257Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968317268 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:25:17.3261064Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968317268 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:25:27.2656523Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968327261 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:25:27.2879845Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968327261 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:25:27.2957208Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968327261 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:25:27.3157191Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968327261 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:25:46.2673755Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968346265 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:25:46.2890226Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968346265 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:25:46.2974288Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968346265 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:25:46.3192743Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968346265 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:26:18.2608556Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968378257 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:26:18.2834625Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968378257 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:26:18.2914790Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968378257 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:26:18.3117545Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968378257 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:26:27.2686466Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968387264 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:26:27.2911724Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968387264 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:26:27.2997660Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968387264 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:26:27.3219368Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968387264 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:26:47.2703706Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968407267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:26:47.2918628Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968407267 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:26:47.2995453Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968407267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:26:47.3139775Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968407267 status=200 duration=14 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:27:19.2643634Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968439262 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:27:19.2887869Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968439262 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:27:19.2964065Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968439262 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:27:19.3153389Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968439262 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:27:27.2677402Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968447263 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:27:27.2816455Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968447263 status=200 duration=14 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:27:27.2905911Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968447263 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:27:27.3107173Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968447263 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:27:48.2730112Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968468270 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:27:48.2973024Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968468270 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:27:48.3069401Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968468270 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:27:48.3216018Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968468270 status=200 duration=15 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:28:20.2622084Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968500260 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:28:20.2834827Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968500260 status=200 duration=21 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:28:20.2944644Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968500260 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:28:20.3361526Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968500260 status=200 duration=42 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:28:27.2709008Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968507267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:28:27.2929680Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968507267 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:28:27.3051607Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968507267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:28:27.3248695Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968507267 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:28:49.2759598Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968529272 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:28:49.2975964Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968529272 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:28:49.3071376Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968529272 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:28:49.3264588Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968529272 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:29:21.2695691Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968561267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:29:21.2946612Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968561267 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:29:21.3062501Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968561267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:29:21.3220681Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968561267 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:29:27.2734399Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968567269 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:29:27.3052518Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968567269 status=200 duration=32 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:29:27.3148169Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968567269 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:29:27.3306673Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968567269 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:29:50.2754650Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968590273 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:29:50.2999910Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968590273 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:29:50.3082519Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968590273 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:29:50.3277916Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968590273 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:30:22.2698640Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968622267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:30:22.2928467Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968622267 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:30:22.3017690Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968622267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:30:22.3212190Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968622267 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:30:27.2760411Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968627272 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:30:27.2962841Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968627272 status=200 duration=20 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:30:27.3037253Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968627272 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:30:27.3237356Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968627272 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:30:51.2764909Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968651274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:30:51.3007206Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968651274 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:30:51.3106769Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968651274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:30:51.3300420Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968651274 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:31:23.2708974Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968683267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:31:23.2956916Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968683267 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:31:23.3063767Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968683267 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:31:23.3535015Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968683267 status=200 duration=47 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:31:27.2754627Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968687272 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:31:27.2860044Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968687272 status=200 duration=11 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:31:27.2990288Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968687272 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:31:27.3248846Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968687272 status=200 duration=26 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:31:52.2789483Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968712276 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:31:52.3029891Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968712276 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:31:52.3138118Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968712276 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:31:52.3330274Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968712276 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:32:24.2732175Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968744271 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:32:24.2998272Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968744271 status=200 duration=27 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:32:24.3089259Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968744271 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:32:24.3276927Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968744271 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:32:27.2750506Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968747271 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:32:27.3004223Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968747271 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:32:27.3099183Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968747271 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:32:27.3294272Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968747271 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:32:53.2782023Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968773276 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:32:53.3005703Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968773276 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:32:53.3087760Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968773276 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:32:53.3303775Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968773276 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:33:25.2751006Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968805273 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:33:25.2986142Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968805273 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:33:25.3106095Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968805273 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:33:25.3315949Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968805273 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:33:27.2758576Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968807272 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:33:27.3038273Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968807272 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:33:27.3174542Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968807272 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:33:27.3403513Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968807272 status=200 duration=23 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:33:54.2803230Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968834277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:33:54.3090640Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968834277 status=200 duration=29 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:33:54.3184805Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968834277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:33:54.3332397Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968834277 status=200 duration=15 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:34:26.2763437Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968866274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:34:26.3072085Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968866274 status=200 duration=31 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:34:26.3168208Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968866274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:34:26.3363353Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968866274 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:34:27.2867290Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968867283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:34:27.3081292Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968867283 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:34:27.3174125Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968867283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:34:27.3365358Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968867283 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:34:55.2832270Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968895281 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:34:55.3067929Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968895281 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:34:55.3153127Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968895281 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:34:55.3357585Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968895281 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:35:27.2770637Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968927273 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:35:27.3052256Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968927273 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:35:27.3190104Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968927274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:35:27.3314184Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968927274 status=200 duration=12 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:35:27.3414511Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968927273 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:35:27.3883609Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968927273 status=200 duration=47 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:35:27.4004126Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968927274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:35:27.4416579Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968927274 status=200 duration=41 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:35:56.2848362Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968956282 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:35:56.3117692Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968956282 status=200 duration=27 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:35:56.3216701Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968956282 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:35:56.3378040Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968956282 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:36:27.2769197Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968987274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:36:27.3080297Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968987274 status=200 duration=31 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:36:27.3171383Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789968987274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:36:27.3275370Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789968987274 status=200 duration=10 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:36:27.3365978Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968987274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:36:27.3594589Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968987274 status=200 duration=23 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:36:27.3702597Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789968987274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:36:27.3902316Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789968987274 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:36:57.2857668Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969017283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:36:57.3106391Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969017283 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:36:57.3206272Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969017283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:36:57.3401600Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969017283 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:37:27.2782146Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969047275 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:37:27.3040265Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969047275 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:37:27.3129565Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969047274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:37:27.3217649Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969047274 status=200 duration=9 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:37:27.3314661Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969047275 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:37:27.3471761Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969047275 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:37:27.3555946Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969047274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:37:27.3803790Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969047274 status=200 duration=25 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:37:58.2870418Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969078284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:37:58.3353082Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969078284 status=200 duration=48 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:37:58.3442198Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969078284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:37:58.3599012Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969078284 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:38:27.2784934Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969107275 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:38:27.3081232Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969107275 status=200 duration=30 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:38:27.3184393Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969107275 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:38:27.3344827Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969107275 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:38:27.3434006Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969107275 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:38:27.3543114Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969107275 status=200 duration=11 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:38:27.3652310Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969107275 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:38:27.3900036Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969107275 status=200 duration=25 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:38:59.2890890Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969139285 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:38:59.3146058Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969139285 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:38:59.3241027Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969139285 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:38:59.3397135Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969139285 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:39:27.2807938Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969167278 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:39:27.3086942Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969167278 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:39:27.3178194Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969167278 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:39:27.3390486Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969167278 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:39:27.3469771Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969167277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:39:27.3561944Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969167277 status=200 duration=9 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:39:27.3654403Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969167277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:39:27.3825298Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969167277 status=200 duration=17 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:40:00.2903753Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969200287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:40:00.3108205Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969200287 status=200 duration=21 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:40:00.3194651Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969200287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:40:00.3392548Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969200287 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:40:27.2799429Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969227277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:40:27.3133433Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969227277 status=200 duration=34 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:40:27.3223414Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969227277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:40:27.3456461Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969227277 status=200 duration=23 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:40:27.3538966Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969227277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:40:27.3651187Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969227277 status=200 duration=11 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:40:27.3736847Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969227277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:40:27.3951725Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969227277 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:41:01.2777280Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969261274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:41:01.3027032Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969261274 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:41:01.3118255Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969261274 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:41:01.3275098Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969261274 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:41:27.2794091Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969287275 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:41:27.3088371Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969287275 status=200 duration=30 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:41:27.3189675Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969287275 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:41:27.3282763Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969287275 status=200 duration=9 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:41:27.3366053Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969287275 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:41:27.3564597Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969287275 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:41:27.3665702Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969287275 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:41:27.3812725Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969287275 status=200 duration=15 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:42:02.2923352Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969322289 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:42:02.3131840Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969322289 status=200 duration=21 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:42:02.3217040Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969322289 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:42:02.3432539Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969322289 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:42:27.2799368Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969347277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:42:27.3092576Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969347277 status=200 duration=29 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:42:27.3179310Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969347277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:42:27.3441291Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969347277 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:42:27.3526173Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969347277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:42:27.3736377Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969347277 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:42:27.3824256Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969347277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:42:27.4039987Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969347277 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:43:03.2813251Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969383279 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:43:03.3069392Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969383279 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:43:03.3166721Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969383279 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:43:03.3351049Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969383279 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:43:27.2793540Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969407276 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:43:27.3092380Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969407276 status=200 duration=30 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:43:27.3190810Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969407276 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:43:27.3373264Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969407276 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:43:27.3466293Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969407277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:43:27.3568439Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969407277 status=200 duration=10 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:43:27.3682684Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969407277 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:43:27.3846213Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969407277 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:44:04.2799916Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969444278 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:44:04.3052522Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969444278 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:44:04.3139821Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969444278 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:44:04.3357438Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969444278 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:44:27.2877941Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969467284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:44:27.3232979Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969467284 status=200 duration=35 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:44:27.3323925Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969467284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:44:27.3416427Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969467284 status=200 duration=9 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:44:27.3505453Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969467284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:44:27.3664405Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969467284 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:44:27.3758172Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969467284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:44:27.3970289Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969467284 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:45:05.2937806Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969505291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:45:05.3217445Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969505291 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:45:05.3311315Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969505291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:45:05.3498649Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969505291 status=200 duration=17 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:45:27.2960255Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969527293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:45:27.3188572Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969527293 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:45:27.3277206Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969527293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:45:27.3385931Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969527293 status=200 duration=11 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:45:27.3488015Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969527293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:45:27.3682980Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969527293 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:45:27.3765955Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969527293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:45:27.3984393Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969527293 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:46:06.2853068Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969566283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:46:06.3085340Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969566283 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:46:06.3182462Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969566283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:46:06.3384717Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969566283 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:46:27.2838351Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969587281 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:46:27.3360522Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969587281 status=200 duration=52 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:46:27.3446182Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969587281 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:46:27.3619430Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969587281 status=200 duration=17 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:46:27.3700429Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969587281 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:46:27.3893716Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969587281 status=200 duration=19 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:46:27.3989307Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969587281 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:46:27.4149122Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969587281 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:47:07.2803845Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969627278 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:47:07.3055711Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969627278 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:47:07.3163138Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969627278 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:47:07.3349277Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969627278 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:47:27.2961175Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969647293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:47:27.3213408Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969647293 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:47:27.3319898Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969647293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:47:27.3411010Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969647293 status=200 duration=9 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:47:27.3522994Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969647293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:47:27.3733469Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969647293 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:47:27.3836088Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969647293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:47:27.4163460Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969647293 status=200 duration=33 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:48:08.2971598Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969688294 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:48:08.3231166Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969688294 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:48:08.3332932Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969688294 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:48:08.3488494Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969688294 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:48:27.2966460Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969707294 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:48:27.3213538Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969707294 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:48:27.3316624Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969707294 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:48:27.3526673Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969707294 status=200 duration=21 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:48:27.3613952Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969707294 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:48:27.3807490Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969707294 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:48:27.3890212Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969707294 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:48:27.4104447Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969707294 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:49:09.2821093Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969749279 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:49:09.3052850Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969749279 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:49:09.3156925Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969749279 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:49:09.3341108Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969749279 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:49:27.2954991Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969767293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:49:27.3203021Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969767293 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:49:27.3291706Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969767293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:49:27.3625978Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969767293 status=200 duration=33 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:49:27.3717429Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969767293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:49:27.3838199Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969767293 status=200 duration=12 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:49:27.3923599Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969767293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:49:27.4131171Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969767293 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:50:10.2838781Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969810282 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:50:10.3087727Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969810282 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:50:10.3167727Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969810282 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:50:10.3333601Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969810282 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:50:27.2958504Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969827292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:50:27.3261896Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969827292 status=200 duration=31 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:50:27.3360973Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969827292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:50:27.3456164Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969827292 status=200 duration=10 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:50:27.3546571Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969827292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:50:27.3736698Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969827292 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:50:27.3833591Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969827292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:50:27.3994487Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969827292 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:51:11.3001749Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969871296 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:51:11.3268344Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969871296 status=200 duration=27 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:51:11.3364600Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969871296 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:51:11.3516208Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969871296 status=200 duration=15 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:51:27.2855189Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969887283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:51:27.3135790Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969887283 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:51:27.3222196Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969887283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:51:27.3321890Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969887283 status=200 duration=10 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:51:27.3403346Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969887283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:51:27.3604957Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969887283 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:51:27.3695061Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969887283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:51:27.3917849Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969887283 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:52:12.2850486Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969932282 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:52:12.3164917Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969932282 status=200 duration=32 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:52:12.3291127Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969932282 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:52:12.3684178Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969932282 status=200 duration=39 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:52:27.2946691Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969947292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:52:27.3282779Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969947292 status=200 duration=34 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:52:27.3378207Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969947292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:52:27.3591848Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969947292 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:52:27.3699124Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969947293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:52:27.3817307Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969947293 status=200 duration=12 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:52:27.3915576Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969947293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:52:27.4310697Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969947293 status=200 duration=40 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:53:13.2892950Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789969993286 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:53:13.3174442Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789969993286 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:53:13.3263025Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789969993286 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:53:13.3440800Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789969993286 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:53:27.2945767Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970007292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:53:27.3202984Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970007292 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:53:27.3283735Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970007292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:53:27.3389203Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970007292 status=200 duration=11 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:53:27.3471776Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970007292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:53:27.3625396Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970007292 status=200 duration=15 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:53:27.3728925Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970007292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:53:27.3939635Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970007292 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:54:14.2857645Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970054283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:54:14.3320138Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970054283 status=200 duration=46 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:54:14.3431082Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970054283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:54:14.3647076Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970054283 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:54:27.2868653Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970067283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:54:27.3143952Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970067283 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:54:27.3319222Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970067283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:54:27.3656890Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970067283 status=200 duration=34 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:54:27.3849377Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970067283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:54:27.4088630Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970067283 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:54:27.4313202Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970067283 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:54:27.4668896Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970067283 status=200 duration=36 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:55:15.2838267Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970115281 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:55:15.3050187Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970115281 status=200 duration=21 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:55:15.3138843Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970115281 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:55:15.3332986Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970115281 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:55:27.2946869Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970127291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:55:27.3237038Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970127291 status=200 duration=30 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:55:27.3340464Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970127291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:55:27.3427620Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970127291 status=200 duration=9 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:55:27.3521238Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970127291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:55:27.3732214Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970127291 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:55:27.3840525Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970127291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:55:27.4104143Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970127291 status=200 duration=26 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:56:16.2948240Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970176292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:56:16.3178510Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970176292 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:56:16.3267506Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970176292 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:56:16.3481784Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970176292 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:56:27.2924413Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970187290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:56:27.3207675Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970187290 status=200 duration=29 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:56:27.3283674Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970187290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:56:27.3488493Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970187290 status=200 duration=20 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:56:27.3569154Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970187290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:56:27.3672870Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970187290 status=200 duration=10 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:56:27.3759624Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970187290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:56:27.3944718Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970187290 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:57:17.2995714Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970237297 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:57:17.3230512Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970237297 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:57:17.3310641Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970237297 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:57:17.3527104Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970237297 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:57:27.2926891Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970247290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:57:27.3166571Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970247290 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:57:27.3247590Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970247290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:57:27.3345763Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970247290 status=200 duration=10 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:57:27.3446489Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970247290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:57:27.3626589Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970247290 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:57:27.3710169Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970247290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:57:27.3936175Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970247290 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:58:18.2860727Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970298284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:58:18.3084402Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970298284 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:58:18.3161439Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970298284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:58:18.3373986Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970298284 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:58:27.2904265Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970307288 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:58:27.3158870Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970307288 status=200 duration=26 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:58:27.3246451Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970307288 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:58:27.3349458Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970307288 status=200 duration=10 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:58:27.3439295Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970307288 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:58:27.3624153Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970307288 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:58:27.3727906Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970307288 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:58:27.3943782Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970307288 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:59:19.2867259Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970359284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:59:19.3103840Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970359284 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:59:19.3209894Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970359284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:59:19.3389366Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970359284 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:59:27.2931379Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970367291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:59:27.3211883Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970367291 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:59:27.3311503Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970367290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:59:27.3403550Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970367290 status=200 duration=9 ms bytes=331361 B msg=Request complete.
+2026-09-21T05:59:27.3503702Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970367291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:59:27.3661189Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970367291 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T05:59:27.3741049Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970367290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T05:59:27.3914831Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970367290 status=200 duration=17 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:00:20.2881619Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970420285 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:00:20.3112252Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970420285 status=200 duration=23 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:00:20.3197550Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970420285 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:00:20.3391644Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970420285 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:00:27.2928449Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970427290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:00:27.3208698Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970427290 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:00:27.3370399Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970427290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:00:27.3562625Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970427290 status=200 duration=19 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:00:27.3688239Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970427290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:00:27.3919292Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970427290 status=200 duration=23 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:00:27.4035485Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970427290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:00:27.4337629Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970427290 status=200 duration=30 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:01:21.2877420Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970481285 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:01:21.3228382Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970481285 status=200 duration=36 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:01:21.3314953Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970481285 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:01:21.3485207Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970481285 status=200 duration=17 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:01:27.2973163Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970487293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:01:27.3168455Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970487293 status=200 duration=20 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:01:27.3262965Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970487293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:01:27.3366656Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970487293 status=200 duration=10 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:01:27.3451898Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970487293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:01:27.3612366Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970487293 status=200 duration=16 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:01:27.3703440Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970487293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:01:27.4164783Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970487293 status=200 duration=46 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:02:22.2952963Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970542293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:02:22.3229196Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970542293 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:02:22.3328159Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970542293 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:02:22.3600404Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970542293 status=200 duration=27 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:02:27.2915129Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970547288 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:02:27.3112575Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970547288 status=200 duration=20 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:02:27.3195333Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970547289 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:02:27.3316736Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970547289 status=200 duration=12 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:02:27.3403335Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970547288 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:02:27.3611148Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970547288 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:02:27.3705294Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970547289 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:02:27.3935475Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970547289 status=200 duration=23 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:03:23.2898782Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970603287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:03:23.3177805Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970603287 status=200 duration=28 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:03:23.3274636Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970603287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:03:23.3465843Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970603287 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:03:27.2933232Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970607291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:03:27.3228447Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970607291 status=200 duration=30 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:03:27.3320199Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970607291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:03:27.3423476Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970607291 status=200 duration=10 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:03:27.3513364Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970607291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:03:27.3725892Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970607291 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:03:27.3821479Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970607291 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:03:27.4046125Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970607291 status=200 duration=22 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:04:24.2891343Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970664287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:04:24.3240945Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970664287 status=200 duration=35 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:04:24.3324683Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970664287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:04:24.3538007Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970664287 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:04:27.2935853Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970667290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:04:27.3180214Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970667290 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:04:27.3297065Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970667290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:04:27.3480118Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970667290 status=200 duration=18 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:04:27.3584454Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970667290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:04:27.3684440Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970667290 status=200 duration=10 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:04:27.3790520Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970667290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:04:27.4142465Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970667290 status=200 duration=35 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:05:25.2866388Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970725284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:05:25.3108758Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970725284 status=200 duration=24 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:05:25.3223413Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970725284 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:05:25.3512136Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970725284 status=200 duration=29 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:05:27.2926807Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970727289 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:05:27.3179888Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970727289 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:05:27.3301384Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970727290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:05:27.3472096Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970727290 status=200 duration=17 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:05:27.3647474Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970727289 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:05:27.3925875Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970727289 status=200 duration=28 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:05:27.4097000Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970727290 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:05:27.4625492Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970727290 status=200 duration=53 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:06:26.2909402Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970786287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:06:26.3159942Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970786287 status=200 duration=25 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:06:26.3258056Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970786287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:06:26.3446568Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970786287 status=200 duration=19 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:06:27.2904007Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970787288 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:06:27.3126662Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970787288 status=200 duration=22 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:06:27.3210924Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970787287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:06:27.3318234Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970787287 status=200 duration=11 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:06:27.3409715Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970787287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:06:27.3615567Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970787287 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:06:27.3704191Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970787288 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:06:27.3914271Z [OK] ip=::1 method=GET path=/history.json?cacheBust=1789970787288 status=200 duration=21 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:07:27.2914944Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=1789970847287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:07:27.3215060Z [OK] ip=::1 method=GET path=/data.json?cacheBust=1789970847287 status=200 duration=30 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:07:27.3303386Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1789970847287 status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:14:17.1639903Z [ERROR] ip=::1 method=GET path=/history.json?cacheBust=1789967874712 status=500 duration=3382313 ms bytes=114 B msg=Request complete.
+2026-09-21T06:14:17.1865806Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=HTTP server stopped.
+2026-09-21T06:14:51.8550100Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=Server startup complete.
+2026-09-21T06:14:54.3865286Z [ERROR] ip=::1 method=GET path=/history.json?cacheBust=1789970847287 status=500 duration=447056 ms bytes=114 B msg=Request complete.
+2026-09-21T06:14:54.4168499Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=verification status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:14:55.2898492Z [ERROR] ip=::1 method=GET path=/history.json?cacheBust=verification status=500 duration=- bytes=- msg=Request failed: Cannot find an overload for "Open" and the argument count: "6".
+2026-09-21T06:14:55.3373077Z [ERROR] ip=::1 method=GET path=/history.json?cacheBust=verification status=500 duration=923 ms bytes=77 B msg=Request complete.
+2026-09-21T06:15:12.7193956Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=Server startup complete.
+2026-09-21T06:15:15.1665559Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=verification status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:15:16.7270200Z [OK] ip=::1 method=GET path=/history.json?cacheBust=verification status=200 duration=1556 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:15:21.0095069Z [REQ] ip=::1 method=GET path=/quit status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:15:21.0442267Z [OK] ip=::1 method=GET path=/quit status=200 duration=36 ms bytes=21 B msg=Request complete.
+2026-09-21T06:15:21.0780485Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=HTTP server stopped.
+2026-09-21T06:30:27.2917055Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=Server startup complete.
+2026-09-21T06:30:32.5686449Z [REQ] ip=::1 method=GET path=/data.json?cacheBust=final status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:30:32.7784025Z [OK] ip=::1 method=GET path=/data.json?cacheBust=final status=200 duration=210 ms bytes=331361 B msg=Request complete.
+2026-09-21T06:30:32.8036252Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=final status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:30:34.0803401Z [OK] ip=::1 method=GET path=/history.json?cacheBust=final status=200 duration=1276 ms bytes=3230930 B msg=Request complete.
+2026-09-21T06:30:38.1505309Z [REQ] ip=::1 method=GET path=/quit status=- duration=- bytes=- msg=Incoming request.
+2026-09-21T06:30:38.1801106Z [OK] ip=::1 method=GET path=/quit status=200 duration=30 ms bytes=21 B msg=Request complete.
+2026-09-21T06:30:38.2060026Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=HTTP server stopped.

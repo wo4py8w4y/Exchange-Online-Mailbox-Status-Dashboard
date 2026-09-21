@@ -80,7 +80,7 @@ function Test-ConfigHasNonEmptyStringValue {
     return $false
 }
 
-function Validate-DashboardConfig {
+function Test-DashboardConfig {
     param(
         [Parameter(Mandatory)] $ConfigObject,
         [Parameter(Mandatory)] [string]$ResolvedConfigPath,
@@ -172,7 +172,7 @@ $config = Get-Content -LiteralPath $resolvedConfigPath -Raw | ConvertFrom-Json
 $skipConfigValidationFromConfig = if ($config.PSObject.Properties.Name -contains "SkipConfigValidation") { [bool]$config.SkipConfigValidation } else { $false }
 $effectiveSkipConfigValidation = if ($PSBoundParameters.ContainsKey("SkipConfigValidation")) { [bool]$SkipConfigValidation } else { $skipConfigValidationFromConfig }
 if (-not $effectiveSkipConfigValidation) {
-    Validate-DashboardConfig -ConfigObject $config -ResolvedConfigPath $resolvedConfigPath -IsInteractiveMode ([bool]$Interactive)
+    Test-DashboardConfig -ConfigObject $config -ResolvedConfigPath $resolvedConfigPath -IsInteractiveMode ([bool]$Interactive)
 }
 $configDirectory = Split-Path -Path $resolvedConfigPath -Parent
 $configBaseDirectory = Split-Path -Path $configDirectory -Parent
@@ -362,26 +362,68 @@ function Get-CsvFileFromPicker {
 function Convert-ExoSizeToBytes {
     param([Parameter(Mandatory)] $SizeObject)
     if ($null -eq $SizeObject) { return [int64]0 }
+
+    if ($SizeObject -is [int] -or $SizeObject -is [long] -or $SizeObject -is [double] -or $SizeObject -is [decimal]) {
+        return [int64]$SizeObject
+    }
+
+    $toBytesMethod = $SizeObject.PSObject.Methods | Where-Object { $_.Name -eq "ToBytes" }
+    if ($null -ne $toBytesMethod) {
+        try {
+            return [int64]$SizeObject.ToBytes()
+        }
+        catch {
+            # Fall through to string parsing.
+        }
+    }
+
     try {
         if ($SizeObject.PSObject.Properties.Name -contains "Value" -and $SizeObject.Value -and $SizeObject.Value.PSObject.Methods.Name -contains "ToBytes") {
             return [int64]$SizeObject.Value.ToBytes()
         }
-    } catch {}
+    }
+    catch {}
+
     $text = [string]$SizeObject
+    $trimmed = $text.Trim()
+    if ([string]::IsNullOrWhiteSpace($trimmed)) { return [int64]0 }
+
+    if ($trimmed -match '^(?:unlimited|n/a|not available|null|none)$') {
+        return [int64]0
+    }
+
     # Canonical EXO string format: "4.993 GB (5,362,556,928 bytes)"
-    if ($text -match "\(([\d,]+)\s+bytes\)") { return [int64]($matches[1] -replace ",", "") }
+    if ($trimmed -match '\(([\d,]+)\s*(?:bytes?|B)\)') {
+        return [int64]($matches[1] -replace ',', '')
+    }
+
+    if ($trimmed -match '^(?:[\d,]+(?:\.\d+)?)\s*(?:bytes?|B)\s*$') {
+        $value = [double]($trimmed -replace '[^\d\.]', '')
+        return [int64]$value
+    }
+
     # Unit-only fallback: "4.993 GB" (no bytes parenthetical)
-    if ($text -match "([\d\.]+)\s*(KB|MB|GB|TB)") {
-        $value = [double]$matches[1]
-        switch ($matches[2]) {
-            "KB" { return [int64]($value * 1KB) }
-            "MB" { return [int64]($value * 1MB) }
-            "GB" { return [int64]($value * 1GB) }
-            "TB" { return [int64]($value * 1TB) }
+    if ($trimmed -match '^([\d,]+(?:\.\d+)?)\s*(KB|MB|GB|TB|B)\s*$') {
+        $value = [double]($matches[1] -replace ',', '')
+        switch ($matches[2].ToUpperInvariant()) {
+            'B'  { return [int64]$value }
+            'KB' { return [int64]($value * 1KB) }
+            'MB' { return [int64]($value * 1MB) }
+            'GB' { return [int64]($value * 1GB) }
+            'TB' { return [int64]($value * 1TB) }
         }
     }
+
     # Raw numeric fallback: EXO REST module may return bare byte counts as integers
-    if ($text -match "^\d+$") { return [int64]$text }
+    if ($trimmed -match '^([\d,]+(?:\.\d+)?)\s*$') {
+        $numericValue = [double]($matches[1] -replace ',', '')
+        if ([math]::Abs($numericValue) -ge 1000000) {
+            return [int64]$numericValue
+        }
+
+        return [int64]$numericValue
+    }
+
     return [int64]0
 }
 
@@ -412,7 +454,7 @@ function Convert-StringArray {
     )
 }
 
-function Try-ConvertToBoolean {
+function ConvertTo-Boolean {
     param([Parameter()] $InputObject)
     if ($null -eq $InputObject) { return $null }
     try { return [bool]$InputObject } catch { return $null }
@@ -471,7 +513,7 @@ function Get-RetentionPolicyCatalog {
             Name                    = $policyName
             IsKnownPolicy           = $true
             MailboxCount            = 0
-            IsDefaultPolicy         = if ($policy.PSObject.Properties.Name -contains "IsDefault") { Try-ConvertToBoolean -InputObject $policy.IsDefault } else { $null }
+            IsDefaultPolicy         = if ($policy.PSObject.Properties.Name -contains "IsDefault") { ConvertTo-Boolean -InputObject $policy.IsDefault } else { $null }
             RetentionId             = if ($policy.PSObject.Properties.Name -contains "RetentionId") { [string]$policy.RetentionId } elseif ($policy.PSObject.Properties.Name -contains "Guid") { [string]$policy.Guid } else { $null }
             RetentionPolicyTagLinks = @($tagLinks)
             TagCount                = @($tagLinks).Count
@@ -585,7 +627,7 @@ function Build-RetentionPolicyCatalog {
     return @($catalog | Sort-Object -Property @{ Expression = { -1 * [int]$_.MailboxCount } }, @{ Expression = { [string]$_.Name } })
 }
 
-function Apply-RetentionPolicyDetailsToMailboxRecords {
+function Set-RetentionPolicyDetailsToMailboxRecords {
     param(
         [Parameter(Mandatory)] [object[]]$MailboxRecords,
         [Parameter(Mandatory)] [object[]]$RetentionPolicies
@@ -653,6 +695,32 @@ function Get-LastSampleTimestampOrNow {
     return $SnapshotTimeUtc.ToString("o")
 }
 
+function Get-LatestHistorySample {
+    param(
+        [Parameter()] [object[]]$Samples
+    )
+
+    $validSamples = @($Samples | Where-Object { $null -ne $_ })
+    if ($validSamples.Count -eq 0) { return $null }
+
+    $latestSample = $null
+    $latestTimestamp = [datetime]::MinValue
+    foreach ($sample in $validSamples) {
+        $timestamp = $null
+        if ($sample.PSObject.Properties.Name -contains "TimestampUtc" -and -not [string]::IsNullOrWhiteSpace([string]$sample.TimestampUtc)) {
+            try { $timestamp = [datetime]::Parse([string]$sample.TimestampUtc).ToUniversalTime() } catch { $timestamp = $null }
+        }
+
+        if ($null -ne $timestamp -and ($null -eq $latestSample -or $timestamp -ge $latestTimestamp)) {
+            $latestSample = $sample
+            $latestTimestamp = $timestamp
+        }
+    }
+
+    if ($null -ne $latestSample) { return $latestSample }
+    return $validSamples[-1]
+}
+
 function Update-MailboxPolicyAndLicenseChangeHistory {
     param(
         [Parameter(Mandatory)] [psobject]$HistoryEntry,
@@ -682,13 +750,13 @@ function Update-MailboxPolicyAndLicenseChangeHistory {
 
     $currentRetentionPolicy = if ($CurrentRecord.Retention -and $CurrentRecord.Retention.PSObject.Properties.Name -contains "RetentionPolicy") { [string]$CurrentRecord.Retention.RetentionPolicy } else { $null }
     $currentLicenseType = if ($CurrentRecord.Licensing -and $CurrentRecord.Licensing.PSObject.Properties.Name -contains "LicenseType") { [string]$CurrentRecord.Licensing.LicenseType } else { $null }
-    $currentHasLicense = if ($CurrentRecord.Licensing -and $CurrentRecord.Licensing.PSObject.Properties.Name -contains "HasLicense") { Try-ConvertToBoolean -InputObject $CurrentRecord.Licensing.HasLicense } else { $null }
-    $currentLicenseRequired = if ($CurrentRecord.Licensing -and $CurrentRecord.Licensing.PSObject.Properties.Name -contains "LicenseRequired") { Try-ConvertToBoolean -InputObject $CurrentRecord.Licensing.LicenseRequired } else { $null }
+    $currentHasLicense = if ($CurrentRecord.Licensing -and $CurrentRecord.Licensing.PSObject.Properties.Name -contains "HasLicense") { ConvertTo-Boolean -InputObject $CurrentRecord.Licensing.HasLicense } else { $null }
+    $currentLicenseRequired = if ($CurrentRecord.Licensing -and $CurrentRecord.Licensing.PSObject.Properties.Name -contains "LicenseRequired") { ConvertTo-Boolean -InputObject $CurrentRecord.Licensing.LicenseRequired } else { $null }
 
     $previousRetentionPolicy = if ($HistoryEntry.Retention -and $HistoryEntry.Retention.PSObject.Properties.Name -contains "RetentionPolicy") { [string]$HistoryEntry.Retention.RetentionPolicy } else { $null }
     $previousLicenseType = if ($HistoryEntry.Licensing -and $HistoryEntry.Licensing.PSObject.Properties.Name -contains "LicenseType") { [string]$HistoryEntry.Licensing.LicenseType } else { $null }
-    $previousHasLicense = if ($HistoryEntry.Licensing -and $HistoryEntry.Licensing.PSObject.Properties.Name -contains "HasLicense") { Try-ConvertToBoolean -InputObject $HistoryEntry.Licensing.HasLicense } else { $null }
-    $previousLicenseRequired = if ($HistoryEntry.Licensing -and $HistoryEntry.Licensing.PSObject.Properties.Name -contains "LicenseRequired") { Try-ConvertToBoolean -InputObject $HistoryEntry.Licensing.LicenseRequired } else { $null }
+    $previousHasLicense = if ($HistoryEntry.Licensing -and $HistoryEntry.Licensing.PSObject.Properties.Name -contains "HasLicense") { ConvertTo-Boolean -InputObject $HistoryEntry.Licensing.HasLicense } else { $null }
+    $previousLicenseRequired = if ($HistoryEntry.Licensing -and $HistoryEntry.Licensing.PSObject.Properties.Name -contains "LicenseRequired") { ConvertTo-Boolean -InputObject $HistoryEntry.Licensing.LicenseRequired } else { $null }
 
     if ($retentionHistory.Count -eq 0 -and -not [string]::IsNullOrWhiteSpace($previousRetentionPolicy)) {
         $retentionHistory.Add([pscustomobject]@{
@@ -719,8 +787,8 @@ function Update-MailboxPolicyAndLicenseChangeHistory {
     }
     else {
         $lastLicense = $licenseHistory[$licenseHistory.Count - 1]
-        $lastHasLicense = if ($lastLicense.PSObject.Properties.Name -contains "HasLicense") { Try-ConvertToBoolean -InputObject $lastLicense.HasLicense } else { $null }
-        $lastLicenseRequired = if ($lastLicense.PSObject.Properties.Name -contains "LicenseRequired") { Try-ConvertToBoolean -InputObject $lastLicense.LicenseRequired } else { $null }
+        $lastHasLicense = if ($lastLicense.PSObject.Properties.Name -contains "HasLicense") { ConvertTo-Boolean -InputObject $lastLicense.HasLicense } else { $null }
+        $lastLicenseRequired = if ($lastLicense.PSObject.Properties.Name -contains "LicenseRequired") { ConvertTo-Boolean -InputObject $lastLicense.LicenseRequired } else { $null }
         $lastLicenseType = if ($lastLicense.PSObject.Properties.Name -contains "LicenseType") { [string]$lastLicense.LicenseType } else { $null }
 
         if ($lastHasLicense -ne $currentHasLicense -or $lastLicenseRequired -ne $currentLicenseRequired -or [string]$lastLicenseType -ne [string]$currentLicenseType) {
@@ -888,7 +956,7 @@ function Get-MailboxDashboardRecord {
     $stats = Get-EXOMailboxStatistics -Identity $Identity
     $exchangeGuid = [string]$mailbox.ExchangeGuid
     $historyEntry = Get-HistoryEntry -HistoryLookup $HistoryLookup -ExchangeGuid $exchangeGuid -PrimarySmtpAddress ([string]$mailbox.PrimarySmtpAddress)
-    $latestHistorySample = if ($null -ne $historyEntry -and @($historyEntry.Samples).Count -gt 0) { @($historyEntry.Samples)[-1] } else { $null }
+    $latestHistorySample = if ($null -ne $historyEntry) { Get-LatestHistorySample -Samples @($historyEntry.Samples) } else { $null }
 
     $totalBytes = Convert-ExoSizeToBytes -SizeObject $stats.TotalItemSize
     $totalGB = Convert-BytesToGB -Bytes $totalBytes
@@ -972,18 +1040,18 @@ function Get-MailboxDashboardRecord {
 
     $retentionProfile = [pscustomobject]@{
         RetentionPolicy = if ($mailbox.PSObject.Properties.Name -contains "RetentionPolicy") { [string]$mailbox.RetentionPolicy } else { $null }
-        RetentionHoldEnabled = if ($mailbox.PSObject.Properties.Name -contains "RetentionHoldEnabled") { Try-ConvertToBoolean -InputObject $mailbox.RetentionHoldEnabled } else { $null }
-        LitigationHoldEnabled = if ($mailbox.PSObject.Properties.Name -contains "LitigationHoldEnabled") { Try-ConvertToBoolean -InputObject $mailbox.LitigationHoldEnabled } else { $null }
+        RetentionHoldEnabled = if ($mailbox.PSObject.Properties.Name -contains "RetentionHoldEnabled") { ConvertTo-Boolean -InputObject $mailbox.RetentionHoldEnabled } else { $null }
+        LitigationHoldEnabled = if ($mailbox.PSObject.Properties.Name -contains "LitigationHoldEnabled") { ConvertTo-Boolean -InputObject $mailbox.LitigationHoldEnabled } else { $null }
         LitigationHoldDurationDays = if ($mailbox.PSObject.Properties.Name -contains "LitigationHoldDuration" -and $null -ne $mailbox.LitigationHoldDuration) { [int]$mailbox.LitigationHoldDuration } else { $null }
         InPlaceHolds = if ($mailbox.PSObject.Properties.Name -contains "InPlaceHolds") { Convert-StringArray -InputObject $mailbox.InPlaceHolds } else { @() }
-        SingleItemRecoveryEnabled = if ($mailbox.PSObject.Properties.Name -contains "SingleItemRecoveryEnabled") { Try-ConvertToBoolean -InputObject $mailbox.SingleItemRecoveryEnabled } else { $null }
+        SingleItemRecoveryEnabled = if ($mailbox.PSObject.Properties.Name -contains "SingleItemRecoveryEnabled") { ConvertTo-Boolean -InputObject $mailbox.SingleItemRecoveryEnabled } else { $null }
         RetainDeletedItemsFor = if ($mailbox.PSObject.Properties.Name -contains "RetainDeletedItemsFor" -and $null -ne $mailbox.RetainDeletedItemsFor) { [string]$mailbox.RetainDeletedItemsFor } else { $null }
     }
 
     $recipientTypeDetails = if ($mailbox.PSObject.Properties.Name -contains "RecipientTypeDetails") { [string]$mailbox.RecipientTypeDetails } else { "" }
-    $skuAssigned = if ($mailbox.PSObject.Properties.Name -contains "SKUAssigned") { Try-ConvertToBoolean -InputObject $mailbox.SKUAssigned } else { $null }
+    $skuAssigned = if ($mailbox.PSObject.Properties.Name -contains "SKUAssigned") { ConvertTo-Boolean -InputObject $mailbox.SKUAssigned } else { $null }
     $persistedCapabilities = if ($mailbox.PSObject.Properties.Name -contains "PersistedCapabilities") { Convert-StringArray -InputObject $mailbox.PersistedCapabilities } else { @() }
-    $isInactiveMailbox = if ($mailbox.PSObject.Properties.Name -contains "IsInactiveMailbox") { Try-ConvertToBoolean -InputObject $mailbox.IsInactiveMailbox } else { $null }
+    $isInactiveMailbox = if ($mailbox.PSObject.Properties.Name -contains "IsInactiveMailbox") { ConvertTo-Boolean -InputObject $mailbox.IsInactiveMailbox } else { $null }
     $licenseAssessment = Get-LicenseAssessment -RecipientTypeDetails $recipientTypeDetails -IsInactiveMailbox $isInactiveMailbox -SkuAssigned $skuAssigned -PersistedCapabilities $persistedCapabilities
 
     $licensingProfile = [pscustomobject]@{
@@ -1174,7 +1242,15 @@ try {
                 $samples = @(
                     @($historyEntry.Samples) | ForEach-Object { $_ }
                     @($result.History) | ForEach-Object { $_ }
-                ) | Select-Object -Last $MaxHistorySamples
+                ) |
+                    Sort-Object -Property @{ Expression = {
+                        $timestamp = $null
+                        if ($null -ne $_ -and $_.PSObject.Properties.Name -contains "TimestampUtc") {
+                            try { $timestamp = [datetime]::Parse([string]$_.TimestampUtc).ToUniversalTime() } catch { $timestamp = $null }
+                        }
+                        if ($null -ne $timestamp) { $timestamp.Ticks } else { [int64]::MinValue }
+                    } } |
+                    Select-Object -Last $MaxHistorySamples
                 $historyEntry.ExchangeGuid = [string]$result.Current.ExchangeGuid
                 $historyEntry.PrimarySmtpAddress = [string]$result.Current.PrimarySmtpAddress
                 $historyEntry.DisplayName = [string]$result.Current.DisplayName
@@ -1227,8 +1303,8 @@ try {
     )
 
     $retentionPolicies = Build-RetentionPolicyCatalog -PolicyLookup $retentionPolicyLookup -MailboxRecords $currentRecords
-    Apply-RetentionPolicyDetailsToMailboxRecords -MailboxRecords $currentRecords -RetentionPolicies $retentionPolicies
-    Apply-RetentionPolicyDetailsToMailboxRecords -MailboxRecords @($historyLookup.Entries) -RetentionPolicies $retentionPolicies
+    Set-RetentionPolicyDetailsToMailboxRecords -MailboxRecords $currentRecords -RetentionPolicies $retentionPolicies
+    Set-RetentionPolicyDetailsToMailboxRecords -MailboxRecords @($historyLookup.Entries) -RetentionPolicies $retentionPolicies
 
     Show-CriticalThresholdReport -ThresholdMailboxes $thresholdMailboxes -CriticalThresholdPercent $CriticalThresholdPercent
 

@@ -435,7 +435,11 @@ foreach ($identityValue in $identities) {
             $samples.Add($result.Sample)
 
             if ($samples.Count -gt $maxSamples) {
-                $samples = [System.Collections.Generic.List[psobject]](@($samples | Select-Object -Last $maxSamples))
+                $orderedSamples = @($samples | Sort-Object -Property @{ Expression = {
+                    $parsed = ConvertTo-DateTimeOrNull -Value (Get-PropertyValueOrNull -Object $_ -Name 'TimestampUtc')
+                    if ($null -ne $parsed) { $parsed } else { [datetime]::MinValue }
+                } })
+                $samples = [System.Collections.Generic.List[psobject]](@($orderedSamples | Select-Object -Last $maxSamples))
             }
 
             $entry.PrimarySmtpAddress = $result.PrimarySmtpAddress
