@@ -243,7 +243,7 @@ function Get-MailboxSample {
         Get-EXOMailboxPermission -Identity $MailboxIdentity -ErrorAction Stop |
             Where-Object { $_.IsInherited -eq $false -and $_.User -notmatch "NT AUTHORITY\\SELF|S-1-5-" }
     )
-    $permissions = Convert-PermissionSet -Permissions $rawPermissions
+    $permissions = @(Convert-PermissionSet -Permissions $rawPermissions)
 
     $archive = Get-ArchiveMetric -MailboxIdentity $MailboxIdentity -MailboxInfo $mailboxInfo
 
