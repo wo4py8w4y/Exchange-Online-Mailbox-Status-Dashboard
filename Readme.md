@@ -82,6 +82,8 @@ Set-Location C:\Deploy\MailboxDashboard
 ---
 
 ## Installation
+*TLDR ? Just go to [./Collector/Setup-Walkthough.md](https://github.com/wo4py8w4y/MailboxDashboard/blob/main/Collector/Setup-Walkthrough.md)*
+
 
 ### Prerequisites
 
