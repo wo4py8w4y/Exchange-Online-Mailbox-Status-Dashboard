@@ -1,118 +1,170 @@
-# MailboxDashboard Collector Setup Walkthrough
+# MailboxDashboard setup walkthrough
 
-This guide sets up the collector for delegated Exchange Online auth with a reusable local app registration.
+This guide prepares the current MailboxDashboard collector and local static dashboard.
+The normal entry point is `Invoke-MailboxDashboardCollection.ps1`; the older collector
+scripts are retained only under `Collector/Legacy` for reference.
 
-## What this uses
+## Prerequisites
 
-- [Register-EntraApp.ps1](C:/TEMP/MailboxDashboard/Collector/Register-EntraApp.ps1)
-- [Start-HistoryCollectorThreaded.ps1](C:/TEMP/MailboxDashboard/Collector/Start-HistoryCollectorThreaded.ps1)
-- [HistoryCollector.ps1](C:/TEMP/MailboxDashboard/Collector/HistoryCollector.ps1)
-- [Get-ExchangeOnlineAccessToken.ps1](C:/TEMP/MailboxDashboard/Collector/Get-ExchangeOnlineAccessToken.ps1)
-- [dashboardConfig.json](C:/TEMP/MailboxDashboard/Collector/Config/dashboardConfig.json)
+- Windows PowerShell 5.1 or PowerShell 7 (PowerShell 7 is recommended)
+- Exchange Online administrator access
+- Permission to create or update an Entra app registration when using `Register-EntraApp.ps1`
+- `ExchangeOnlineManagement` PowerShell module
 
-## 1. Prerequisites
-
-- PowerShell 7+
-- Microsoft Graph PowerShell modules
-- ExchangeOnlineManagement module
-- A tenant admin account with permission to create app registrations and grant delegated consent
-
-Install modules if needed:
+Optional modules are reported by the setup script:
 
 ```powershell
-Install-Module Microsoft.Graph -Scope CurrentUser
 Install-Module ExchangeOnlineManagement -Scope CurrentUser
+Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
+Install-Module graph.auth.lite -Scope CurrentUser
 Install-Module Microsoft.PowerShell.ThreadJob -Scope CurrentUser
 ```
 
-## 2. Create or repair the Entra app
+Only `ExchangeOnlineManagement` is required for a sequential Exchange collection.
+`Microsoft.PowerShell.ThreadJob` is required only when `-Parallel` is used.
 
-Run:
+## 1. Initialize the installation
 
-```powershell
-.\Collector\Register-EntraApp.ps1
-```
-
-This will:
-
-- create or update the app registration
-- create a client secret
-- grant the Exchange Online delegated permission
-- update [dashboardConfig.json](C:/TEMP/MailboxDashboard/Collector/Config/dashboardConfig.json)
-
-  - expected output
-
-  ```PowerShell
-  PS C:\TEMP\MailboxDashboard\Collector> . .\Register-EntraApp.ps1 -ConfigPath  C:\TEMP\MailboxDashboard\Collector\Config\dashboardConfig.json -AppId 260cd5f4-a25c-4976-b1ca-2aeaf1cc3464 -TenantIdOrDomain ec445a2a-b5ba-46f6-bead-4595e9fbd4a2 -DisplayName 'exchange report'
-
-  Confirm
-  Are you sure you want to perform this action?
-  Performing the operation "Update registration" on target "Entra application 'exchange report'".
-  [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): y
-
-  Confirm
-  Are you sure you want to perform this action?
-  Performing the operation "Grant 'Exchange.Manage'" on target "Delegated permission grant for 'exchange report'".
-  [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): y
-
-  Confirm
-  Are you sure you want to perform this action?
-  Performing the operation "Update dashboard config with AppId and tenant" on target "C:\TEMP\MailboxDashboard\Collector\Config\dashboardConfig.json".
-  [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "Y"): y
-
-
-  DisplayName         : exchange report
-  Tenant              : ec445a2a-b5ba-46f6-bead-4595e9fbd4a2
-  AppId               : 260cd5f4-a25c-4976-b1ca-2aeaf1cc3464
-  ApplicationObjectId : e2426414-bde2-430b-bb25-aee927535c2f
-  ServicePrincipalId  : 3edb8884-e33b-4ef9-bc46-6e49d285d776
-  RedirectUri         : http://localhost:8400/
-  ExchangeScope       : Exchange.Manage
-  ConfigUpdated       : True
-  ```
-
-## 3. Verify the config
-
-Check that [dashboardConfig.json](C:/TEMP/MailboxDashboard/Collector/Config/dashboardConfig.json) contains:
-
-- `Organization`
-- `AppID`
-- `ClientSecret`
-- `UserPrincipalName`
-- `CsvPath`
-- `MailboxesCsvPath`
-- `HistoryJsonPath`
-
-## 4. Run the threaded collector
+From the repository root, run:
 
 ```powershell
-.\Collector\Start-HistoryCollectorThreaded.ps1 -UserPrincipalName your-admin@yourtenant.onmicrosoft.com
+.\Collector\Initialize-MailboxDashboard.ps1
 ```
 
-The bootstrapper will:
+The wizard creates or checks the configuration, required folders, and
+`Mailboxes/mailboxes.csv`. It does not overwrite an existing configuration unless
+`-Force` is supplied.
 
-- read the config
-- open browser sign-in and create a delegated access token automatically
-- split the mailbox CSV into chunks
-- run [HistoryCollector.ps1](C:/TEMP/MailboxDashboard/Collector/HistoryCollector.ps1) in thread jobs
-- merge the chunk output into `history.json`
-
-## 5. Run the collector directly
-
-If you want a single-process run:
+For unattended setup:
 
 ```powershell
-.\Collector\HistoryCollector.ps1
+.\Collector\Initialize-MailboxDashboard.ps1 `
+    -Organization contoso.onmicrosoft.com `
+    -AppId 00000000-0000-0000-0000-000000000000 `
+    -AuthenticationMode Certificate `
+    -Unattended
 ```
 
-It will connect automatically if Exchange Online is not already connected.
+Replace the sample mailbox rows in `Mailboxes/mailboxes.csv` with the mailboxes to
+collect. The accepted address column names include `PrimarySMTPAddress`, `Mailbox`,
+`EmailAddress`, and `UserPrincipalName`.
 
-If app creation fails, make sure your Graph login has permission to create apps and grant app roles.
+## 2. Configure authentication
 
-- If token creation fails, re-run [Register-EntraApp.ps1](C:/TEMP/MailboxDashboard/Collector/Register-EntraApp.ps1) and confirm the delegated Exchange permission, redirect URI, and public client flow settings are present.
-- If paths are wrong, check the relative values in [dashboardConfig.json](C:/TEMP/MailboxDashboard/Collector/Config/dashboardConfig.json).
+Edit `Collector/Config/dashboardConfig.json`, or let initialization populate its basic
+values. The important settings are:
 
-## 7. Notes
+- `Organization`: tenant ID or primary domain
+- `AppID`: Entra application (client) ID
+- `Authentication.Mode`: `Certificate`, `Interactive`, `Delegated`, or `Auto`
+- `ClientSecret` or `Thumbprint` for certificate/app-only collection
+- `UserPrincipalName` for delegated collection
 
-- The app secret remains available for future app-only scenarios, but the threaded collector now uses delegated browser sign-in by default.
-- The mailbox CSV should point to [mailboxes.csv](C:/TEMP/MailboxDashboard/Mailboxes/mailboxes.csv).
+For a new app registration, run:
+
+```powershell
+.\Collector\Register-EntraApp.ps1 `
+    -ConfigPath .\Collector\Config\dashboardConfig.json
+```
+
+Use certificate or client-secret authentication for scheduled or parallel collection.
+Use `Interactive` or `Delegated` for a manual run. `Auto` displays the authentication
+menu at runtime.
+
+## 3. Test without Exchange Online
+
+Generate synthetic data and build both dashboard JSON files:
+
+```powershell
+.\Collector\Invoke-MailboxDashboardCollection.ps1 -TestData
+```
+
+This overwrites `Web/history.json` and `Web/data.json`. Use it only when replacing the
+current dashboard data is acceptable.
+
+To generate demo files without replacing the live files:
+
+```powershell
+.\Collector\New-MailboxDashboardTestData.ps1
+```
+
+## 4. Run a real collection
+
+The sequential collection path is the default:
+
+```powershell
+.\Collector\Invoke-MailboxDashboardCollection.ps1
+```
+
+Useful overrides include:
+
+```powershell
+.\Collector\Invoke-MailboxDashboardCollection.ps1 `
+    -AuthenticationMode Certificate `
+    -Identity user@contoso.com `
+    -BatchSize 50
+```
+
+For app-only parallel collection:
+
+```powershell
+.\Collector\Invoke-MailboxDashboardCollection.ps1 `
+    -Parallel `
+    -ThrottleLimit 8
+```
+
+Parallel workers write temporary files under `Collector/Temp/ThreadJobs`; the pipeline
+merges successful worker output before generating the snapshot. `-Parallel` requires
+certificate or client-secret authentication.
+
+## 5. Validate and repair data
+
+The pipeline validates generated files unless `-SkipValidation` is supplied. Run the
+validator directly when investigating or repairing existing data:
+
+```powershell
+# Report problems without changing files
+.\Collector\Test-MailboxDashboardJSON.ps1
+
+# Repair recoverable values and write backups first
+.\Collector\Test-MailboxDashboardJSON.ps1 -Repair
+
+# Repair and remove records that cannot be repaired
+.\Collector\Test-MailboxDashboardJSON.ps1 -Repair -Cull
+
+# Return a failure exit code when any issue is found
+.\Collector\Test-MailboxDashboardJSON.ps1 -Strict
+```
+
+If history is correct but the overview is stale, rebuild only the current snapshot:
+
+```powershell
+.\Collector\Generate-MailboxSnapshot.ps1
+```
+
+## 6. Browse the dashboard locally
+
+Start the static server from the repository root:
+
+```powershell
+.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8888/
+```
+
+Open <http://localhost:8888/>. The published `Web` folder contains the HTML, JavaScript,
+CSS, theme files, scopes, and generated JSON consumed by the dashboard.
+
+## Troubleshooting
+
+- If authentication appears to stop, check whether the sign-in window opened behind the
+  terminal or editor.
+- If parallel collection is rejected, use `-Parallel` only with certificate or client-secret
+  authentication and install `Microsoft.PowerShell.ThreadJob`.
+- If the dashboard is empty, confirm `Web/history.json` and `Web/data.json` exist, then run
+  `Generate-MailboxSnapshot.ps1` and `Test-MailboxDashboardJSON.ps1`.
+- If a collection fails, inspect `Collector/Logs/failures.log` and
+  `Collector/Logs/exports.log`.
+- If the server returns 404, confirm that it is serving the `Web` folder and that the browser
+  URL uses the same port as `-Prefix`.
+
+For the complete configuration reference and deployment instructions, see the repository
+[README](../Readme.md).

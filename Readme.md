@@ -10,6 +10,7 @@ size, quota, archive and permission data, and a static web dashboard that report
 - [How it works](#how-it-works)
 - [Quick start](#quick-start)
 - [Installation](#installation)
+- [Setup walkthrough](#setup-walkthrough)
 - [Configuration](#configuration)
 - [Running a collection](#running-a-collection)
 - [Validating and repairing data](#validating-and-repairing-data)
@@ -134,6 +135,12 @@ Unattended:
 
 Or let the setup wizard do it with `-RegisterEntraApp`.
 
+### Setup walkthrough
+
+For a step-by-step first installation, see
+[`Collector/Setup-Walkthrough.md`](Collector/Setup-Walkthrough.md). It covers setup,
+authentication choices, test data, a real collection, validation, and local hosting.
+
 ---
 
 ## Configuration
@@ -172,7 +179,7 @@ any machine regardless of where the repository is cloned.
   "Collection": {
     "BatchSize":         50,      // commit progress to disk every N mailboxes
     "MaxHistorySamples": 365,     // samples retained per mailbox
-    "UseThreading":      true,
+    "UseThreading":      true,     // legacy/default preference; use -Parallel to opt in
     "ThreadCount":       10
   },
 
@@ -204,7 +211,9 @@ any machine regardless of where the repository is cloned.
 }
 ```
 
-Configurations from the previous version still load — old root-level keys such as
+The orchestrator collects sequentially unless `-Parallel` is supplied. When parallel
+collection is enabled, `ThreadCount` supplies the default worker count and
+`-ThrottleLimit` can override it. Configurations from the previous version still load — old root-level keys such as
 `HistoryJsonPath` and `MailboxesCsvPath` are mapped onto the new `Paths` section
 automatically.
 
@@ -384,7 +393,7 @@ To build the dashboard end to end without Exchange:
 ## The web dashboard
 
 ```powershell
-.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8080/
+.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8888/
 ```
 
 | Page | Shows |
