@@ -132,6 +132,9 @@ validator directly when investigating or repairing existing data:
 # Repair and remove records that cannot be repaired
 .\Collector\Test-MailboxDashboardJSON.ps1 -Repair -Cull
 
+# Restore empty history samples from matching data.json snapshots
+.\Collector\Test-MailboxDashboardJSON.ps1 -Repair -RestoreSamplesFromData
+
 # Return a failure exit code when any issue is found
 .\Collector\Test-MailboxDashboardJSON.ps1 -Strict
 ```
@@ -141,6 +144,10 @@ If history is correct but the overview is stale, rebuild only the current snapsh
 ```powershell
 .\Collector\Generate-MailboxSnapshot.ps1
 ```
+
+Licensing status is collected from Exchange and copied into `data.json`. After upgrading
+an older installation, run a fresh collection before expecting licensing assignments to
+appear; older records are shown as unknown when licensing metadata is absent.
 
 ## 6. Browse the dashboard locally
 

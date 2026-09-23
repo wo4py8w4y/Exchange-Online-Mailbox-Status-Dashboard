@@ -115,6 +115,7 @@ function ConvertTo-HistoryRecord {
         ExchangeGuid       = $exchangeGuid
         PrimarySmtpAddress = [string](Get-PropertyValueOrNull -Object $Raw -Name 'PrimarySmtpAddress')
         DisplayName        = [string](Get-PropertyValueOrNull -Object $Raw -Name 'DisplayName')
+        Licensing          = Get-PropertyValueOrNull -Object $Raw -Name 'Licensing'
         Permissions        = $permissions
         Samples            = @($sample)
     }
@@ -252,10 +253,12 @@ function Merge-RecordIntoIndex {
 
     $newSmtp = [string](Get-PropertyValueOrNull -Object $Record -Name 'PrimarySmtpAddress')
     $newDisplayName = [string](Get-PropertyValueOrNull -Object $Record -Name 'DisplayName')
+    $newLicensing = Get-PropertyValueOrNull -Object $Record -Name 'Licensing'
     $newPermissions = Get-PropertyValueOrNull -Object $Record -Name 'Permissions'
 
     if (-not [string]::IsNullOrWhiteSpace($newSmtp)) { $existing.PrimarySmtpAddress = $newSmtp }
     if (-not [string]::IsNullOrWhiteSpace($newDisplayName)) { $existing.DisplayName = $newDisplayName }
+    if ($null -ne $newLicensing) { $existing.Licensing = $newLicensing }
     if ($null -ne $newPermissions) { $existing.Permissions = @($newPermissions) }
 
     $existing.Samples = $ordered

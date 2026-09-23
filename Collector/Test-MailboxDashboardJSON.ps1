@@ -8,13 +8,18 @@
 
     Three modes, in increasing order of intervention:
       (default)  report only - nothing is written
-      -Repair    fix recoverable problems and write the file back
+    -Repair    fix recoverable problems and write the file back
+    -RestoreSamplesFromData
+             restore empty history records from matching data.json snapshots
       -Cull      additionally remove records that cannot be repaired
       -Strict    report only, and fail the run if any problem is found
 .PARAMETER Target
     Which files to check: History, Data, or Both (default).
 .PARAMETER Path
     Validate a specific file instead of the configured ones. Requires -Target.
+.PARAMETER RestoreSamplesFromData
+    When repairing both configured files, restore an empty history Samples array from
+    the matching data.json current snapshot when the snapshot has a valid timestamp.
 .EXAMPLE
     .\Test-MailboxDashboardJSON.ps1
     Reports problems in history.json and data.json without changing anything.
@@ -39,6 +44,9 @@ param(
 
     [Parameter()]
     [switch]$Repair,
+
+    [Parameter()]
+    [switch]$RestoreSamplesFromData,
 
     [Parameter()]
     [switch]$Cull,
@@ -453,6 +461,10 @@ function Test-HistoryDocument {
         }
 
         $guidKey = ([string]$guid).Trim().ToLowerInvariant()
+        if ($ApplyRepair -and [string]$guid -cne $guidKey) {
+            Set-FieldValue -Container $record -Name 'ExchangeGuid' -Value $guidKey
+            Add-RepairNote $Report "$label - normalised 'ExchangeGuid' casing."
+        }
         if ($seenGuids.ContainsKey($guidKey)) {
             Add-Problem $Report "$label - duplicate ExchangeGuid (first seen at record $($seenGuids[$guidKey]))."
             if ($ApplyCull) {
@@ -619,6 +631,10 @@ function Test-DataDocument {
         }
 
         $guidKey = ([string]$guid).Trim().ToLowerInvariant()
+        if ($ApplyRepair -and [string]$guid -cne $guidKey) {
+            Set-FieldValue -Container $record -Name 'ExchangeGuid' -Value $guidKey
+            Add-RepairNote $Report "$label - normalised 'ExchangeGuid' casing."
+        }
         if ($seenGuids.ContainsKey($guidKey)) {
             Add-Problem $Report "$label - duplicate ExchangeGuid."
             if ($ApplyCull) {
@@ -703,6 +719,89 @@ function Test-DataDocument {
 }
 
 #endregion
+
+function Restore-HistorySamplesFromData {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)] [string]$HistoryPath,
+        [Parameter(Mandatory)] [string]$DataPath,
+        [Parameter()] [switch]$SkipBackup
+    )
+
+    if (-not (Test-Path -LiteralPath $HistoryPath) -or -not (Test-Path -LiteralPath $DataPath)) {
+        throw "RestoreSamplesFromData requires both history and data files."
+    }
+
+    $history = Read-MailboxJson -Path $HistoryPath
+    $data = Read-MailboxJson -Path $DataPath
+    $dataIndex = @{}
+
+    foreach ($record in @($data.Mailboxes)) {
+        $guid = [string](Get-PropertyOrNull -Object $record -Name 'ExchangeGuid')
+        if (Test-GuidLike -Value $guid) {
+            $dataIndex[$guid.Trim().ToLowerInvariant()] = $record
+        }
+    }
+
+    $restored = 0
+    $unrecoverable = 0
+    foreach ($record in @($history.MailboxHistory)) {
+        $samples = @(Get-PropertyOrNull -Object $record -Name 'Samples')
+        if ($samples.Count -gt 0) { continue }
+
+        $guid = [string](Get-PropertyOrNull -Object $record -Name 'ExchangeGuid')
+        $key = $guid.Trim().ToLowerInvariant()
+        $current = if ($dataIndex.ContainsKey($key)) {
+            Get-PropertyOrNull -Object $dataIndex[$key] -Name 'current'
+        }
+        else { $null }
+
+        $timestamp = ConvertTo-IsoTimestampOrNull -Value (Get-PropertyOrNull -Object $current -Name 'sampleTimestamp')
+        $sizeGb = ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'totalGB')
+        $itemCount = ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'itemCount')
+        $quotaRaw = Get-PropertyOrNull -Object $current -Name 'quotaGB'
+        $quotaGb = if ($null -eq $quotaRaw) { $null } else { ConvertTo-NumberOrNull -Value $quotaRaw }
+
+        if ($null -eq $timestamp -or $null -eq $sizeGb -or $null -eq $itemCount -or
+            ($null -ne $quotaRaw -and $null -eq $quotaGb)) {
+            $unrecoverable++
+            continue
+        }
+
+        $usage = ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'usagePercent')
+        if ($null -eq $usage -and $null -ne $quotaGb -and $quotaGb -gt 0) {
+            $usage = [math]::Round(($sizeGb / $quotaGb) * 100, 2)
+        }
+
+        $sample = [pscustomobject]@{
+            TimestampUtc     = $timestamp
+            SizeGB           = [double]$sizeGb
+            ItemCount        = [int64]$itemCount
+            PermissionCount  = [int64](ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'permissionCount'))
+            QuotaGB          = $quotaGb
+            UsagePercent     = $usage
+            LastLogonTime    = Get-PropertyOrNull -Object $current -Name 'lastLogonTime'
+            ArchiveEnabled   = [bool](Get-PropertyOrNull -Object $current -Name 'archiveEnabled')
+            ArchiveSizeGB    = [double](ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'archiveSizeGB'))
+            ArchiveItemCount = [int64](ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'archiveItemCount'))
+        }
+
+        Set-FieldValue -Container $record -Name 'ExchangeGuid' -Value $key
+        Set-FieldValue -Container $record -Name 'Samples' -Value @($sample)
+        $restored++
+    }
+
+    if ($restored -gt 0) {
+        if (-not $SkipBackup) { Copy-Item -LiteralPath $HistoryPath -Destination "$HistoryPath.bak" -Force }
+        Write-MailboxJson -InputObject $history -Path $HistoryPath `
+            -Source 'Test-MailboxDashboardJSON.ps1 (restore samples from data)' `
+            -RecordCount @($history.MailboxHistory).Count `
+            -RecordDetail "$restored sample(s) restored, $unrecoverable unrecoverable"
+    }
+
+    Write-Detail "History recovery: $restored sample(s) restored; $unrecoverable record(s) require recollection."
+    return [pscustomobject]@{ Restored = $restored; Unrecoverable = $unrecoverable }
+}
 
 function Invoke-FileValidation {
     param(
@@ -822,6 +921,20 @@ $config = Import-MailboxDashboardConfig -ConfigPath $ConfigPath -SkipValidation
 
 if ($Strict -and ($Repair -or $Cull)) {
     throw "-Strict reports without changing anything; it cannot be combined with -Repair or -Cull."
+}
+
+if ($RestoreSamplesFromData) {
+    if (-not $Repair) {
+        throw "-RestoreSamplesFromData requires -Repair."
+    }
+    if ($Target -ne 'Both' -or -not [string]::IsNullOrWhiteSpace($Path)) {
+        throw "-RestoreSamplesFromData requires the configured History and Data files with -Target Both."
+    }
+
+    $null = Restore-HistorySamplesFromData `
+        -HistoryPath $config.ResolvedPaths.HistoryJson `
+        -DataPath $config.ResolvedPaths.DataJson `
+        -SkipBackup:$NoBackup
 }
 
 $maxSamples = [int]$config.Collection.MaxHistorySamples

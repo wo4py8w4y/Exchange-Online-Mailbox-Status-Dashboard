@@ -60,6 +60,7 @@ existing installations.
 .\Collector\Invoke-MailboxDashboardCollection.ps1 -TestData
 .\Collector\Invoke-MailboxDashboardCollection.ps1 -Parallel -ThrottleLimit 8
 .\Collector\Test-MailboxDashboardJSON.ps1 -Repair -Cull
+.\Collector\Test-MailboxDashboardJSON.ps1 -Repair -RestoreSamplesFromData
 .\Collector\Generate-MailboxSnapshot.ps1
 .\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8888/
 ```

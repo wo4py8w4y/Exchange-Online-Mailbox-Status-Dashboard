@@ -54,9 +54,11 @@ Install-Module Microsoft.PowerShell.ThreadJob -Scope CurrentUser</code></pre>
   <pre><code>.\Collector\Test-MailboxDashboardJSON.ps1
 .\Collector\Test-MailboxDashboardJSON.ps1 -Repair
 .\Collector\Test-MailboxDashboardJSON.ps1 -Repair -Cull
+.\Collector\Test-MailboxDashboardJSON.ps1 -Repair -RestoreSamplesFromData
 .\Collector\Test-MailboxDashboardJSON.ps1 -Strict
 .\Collector\Generate-MailboxSnapshot.ps1</code></pre>
   <p>Use the snapshot command when history is correct but the overview data is stale.</p>
+    <p>Licensing status is collected from Exchange during a fresh collection. Older records without licensing metadata are shown as unknown until they are recollected.</p>
   <h2>6. Browse locally</h2>
   <pre><code>.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8888/</code></pre>
   <p>Open <a href="http://localhost:8888/">http://localhost:8888/</a>.</p>

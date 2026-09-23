@@ -1879,7 +1879,7 @@ function normaliseHistoryData(payload) {
         });
 
         history.mailboxes.push(mailbox);
-        history.byGuid[mailbox.exchangeGuid] = normalisedSamples;
+        if (mailbox.exchangeGuid) history.byGuid[mailbox.exchangeGuid.toLowerCase()] = normalisedSamples;
         if (mailbox.primarySmtpAddress) history.bySmtp[mailbox.primarySmtpAddress.toLowerCase()] = normalisedSamples;
     });
 
@@ -1893,7 +1893,7 @@ function addHistoryMailboxRecord(history, record) {
     if (!isMailboxRenderable(mailbox) || samples.length === 0) return;
 
     history.mailboxes.push(mailbox);
-    if (mailbox.exchangeGuid) history.byGuid[mailbox.exchangeGuid] = samples;
+    if (mailbox.exchangeGuid) history.byGuid[mailbox.exchangeGuid.toLowerCase()] = samples;
     if (mailbox.primarySmtpAddress) history.bySmtp[mailbox.primarySmtpAddress.toLowerCase()] = samples;
 }
 
@@ -2067,6 +2067,8 @@ function normaliseRetentionProfile(source) {
 
 function normaliseLicensingProfile(source) {
     const licensingSource = source?.licensing ?? source?.Licensing ?? {};
+    const hasLicensingData = Object.keys(licensingSource).length > 0 ||
+        source?.RecipientTypeDetails != null || source?.recipientTypeDetails != null;
     const capabilities = licensingSource.PersistedCapabilities ?? licensingSource.persistedCapabilities;
     const recipientTypeDetails = licensingSource.RecipientTypeDetails ??
         licensingSource.recipientTypeDetails ??
@@ -2088,12 +2090,16 @@ function normaliseLicensingProfile(source) {
         persistedCapabilities: Array.isArray(capabilities) ? capabilities.map(item => String(item || "")).filter(Boolean) : [],
         archiveStatus: licensingSource.ArchiveStatus ?? licensingSource.archiveStatus ?? null,
         isInactiveMailbox: getBoolean(licensingSource, ["IsInactiveMailbox", "isInactiveMailbox"]),
-        licenseRequired: getBoolean(licensingSource, ["LicenseRequired", "licenseRequired"]) ?? inferredLicenseRequired,
-        hasLicense: inferredHasLicense,
+        licenseRequired: hasLicensingData ? (getBoolean(licensingSource, ["LicenseRequired", "licenseRequired"]) ?? inferredLicenseRequired) : null,
+        hasLicense: hasLicensingData ? inferredHasLicense : null,
         licenseTypes,
         licenseType: licensingSource.LicenseType ?? licensingSource.licenseType ?? (licenseTypes.length > 0 ? licenseTypes.join(", ") : null),
-        isLicenseCompliant: getBoolean(licensingSource, ["IsLicenseCompliant", "isLicenseCompliant"]) ?? ((inferredLicenseRequired !== true) || inferredHasLicense === true),
-        licenseRequirementReason: licensingSource.LicenseRequirementReason ?? licensingSource.licenseRequirementReason ?? getDefaultLicenseRequirementReason(recipientTypeDetails, inferredLicenseRequired)
+        isLicenseCompliant: hasLicensingData
+            ? (getBoolean(licensingSource, ["IsLicenseCompliant", "isLicenseCompliant"]) ?? ((inferredLicenseRequired !== true) || inferredHasLicense === true))
+            : null,
+        licenseRequirementReason: hasLicensingData
+            ? (licensingSource.LicenseRequirementReason ?? licensingSource.licenseRequirementReason ?? getDefaultLicenseRequirementReason(recipientTypeDetails, inferredLicenseRequired))
+            : "Licensing data has not been collected."
     };
 }
 
@@ -2139,8 +2145,9 @@ function normalisePermissions(permissionSource) {
 
 function getHistoryPointsForMailbox(mailbox) {
     if (!mailbox) return [];
-    if (mailbox.exchangeGuid && Array.isArray(state.historyData.byGuid[mailbox.exchangeGuid])) {
-        return state.historyData.byGuid[mailbox.exchangeGuid];
+    const exchangeGuid = String(mailbox.exchangeGuid || "").toLowerCase();
+    if (exchangeGuid && Array.isArray(state.historyData.byGuid[exchangeGuid])) {
+        return state.historyData.byGuid[exchangeGuid];
     }
     const smtpAddress = String(mailbox.primarySmtpAddress || "").toLowerCase();
     if (smtpAddress && Array.isArray(state.historyData.bySmtp[smtpAddress])) {

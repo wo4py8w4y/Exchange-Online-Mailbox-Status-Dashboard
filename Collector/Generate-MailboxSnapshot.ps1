@@ -121,6 +121,7 @@ function ConvertTo-SnapshotRecord {
         ExchangeGuid       = [string](Get-PropertyValueOrNull -Object $Entry -Name 'ExchangeGuid')
         PrimarySmtpAddress = [string](Get-PropertyValueOrNull -Object $Entry -Name 'PrimarySmtpAddress')
         DisplayName        = [string](Get-PropertyValueOrNull -Object $Entry -Name 'DisplayName')
+        Licensing          = Get-PropertyValueOrNull -Object $Entry -Name 'Licensing'
         current            = [pscustomobject]@{
             totalGB          = $sizeGb
             itemCount        = [int64](Get-PropertyValueOrNull -Object $Sample -Name 'ItemCount')

@@ -320,6 +320,11 @@ slice is missing but every other slice still merges.
 `Generate-MailboxSnapshot.ps1` is safe to run at any time — it only re-reads history, so it
 is the quickest way to refresh the dashboard after editing or repairing history data.
 
+Licensing fields are collected from Exchange during a mailbox collection and copied into
+the snapshot. After updating an older installation, run a new collection and then
+`Generate-MailboxSnapshot.ps1`; records from before licensing collection will show
+licensing as `Unknown`, not as a false missing-license failure.
+
 ---
 
 ## Validating and repairing data
@@ -330,6 +335,9 @@ is the quickest way to refresh the dashboard after editing or repairing history 
 
 # Fix what can be fixed, backing up first
 .\Collector\Test-MailboxDashboardJSON.ps1 -Repair
+
+# Restore empty history records from matching current snapshots, then validate both files
+.\Collector\Test-MailboxDashboardJSON.ps1 -Repair -RestoreSamplesFromData
 
 # Also remove records that cannot be fixed
 .\Collector\Test-MailboxDashboardJSON.ps1 -Repair -Cull
@@ -344,7 +352,10 @@ zero, usage that disagrees with size ÷ quota, and mailboxes with no samples.
 
 **Repaired:** numeric strings converted to numbers, negatives clamped to zero, usage
 recalculated, timestamps normalised to ISO 8601, booleans coerced, empty display names
-filled from the address, samples sorted and trimmed to `MaxHistorySamples`.
+filled from the address, samples sorted and trimmed to `MaxHistorySamples`. With
+`-RestoreSamplesFromData`, an empty history record can also receive one sample rebuilt
+from its matching `data.json` current snapshot. Records without a matching valid snapshot
+are reported as requiring recollection and are not fabricated.
 
 **Culled** (with `-Cull`): records with no usable GUID, duplicates, unparseable timestamps,
 zero quota, and records left with no samples.

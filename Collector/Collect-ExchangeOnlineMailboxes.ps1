@@ -218,6 +218,60 @@ function Get-ArchiveMetric {
     return $result
 }
 
+function Get-LicensingProfile {
+    param(
+        [Parameter(Mandatory)] $MailboxInfo
+    )
+
+    $recipientType = if ($MailboxInfo.PSObject.Properties.Name -contains 'RecipientTypeDetails') {
+        [string]$MailboxInfo.RecipientTypeDetails
+    }
+    else { $null }
+
+    $capabilities = if ($MailboxInfo.PSObject.Properties.Name -contains 'PersistedCapabilities') {
+        @($MailboxInfo.PersistedCapabilities | ForEach-Object { [string]$_ } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    }
+    else { @() }
+
+    $skuAssigned = if ($MailboxInfo.PSObject.Properties.Name -contains 'SKUAssigned' -and $null -ne $MailboxInfo.SKUAssigned) {
+        [bool]$MailboxInfo.SKUAssigned
+    }
+    else { $null }
+
+    $isInactive = if ($MailboxInfo.PSObject.Properties.Name -contains 'IsInactiveMailbox' -and $null -ne $MailboxInfo.IsInactiveMailbox) {
+        [bool]$MailboxInfo.IsInactiveMailbox
+    }
+    else { $null }
+
+    $unlicensedTypes = @('sharedmailbox', 'roommailbox', 'equipmentmailbox', 'discoverymailbox',
+        'publicfoldermailbox', 'groupmailbox', 'schedulingmailbox', 'teammailbox',
+        'auditlogmailbox', 'arbitrationmailbox')
+    $normalisedType = $recipientType.Trim().ToLowerInvariant()
+    $licenseRequired = if ($isInactive -eq $true -or $unlicensedTypes -contains $normalisedType) { $false } else { $true }
+    $hasLicense = ($skuAssigned -eq $true) -or $capabilities.Count -gt 0
+    $licenseType = if ($capabilities.Count -gt 0) { $capabilities -join ', ' } else { $null }
+
+    return [pscustomobject]@{
+        RecipientTypeDetails     = $recipientType
+        IsSharedMailbox          = ($normalisedType -eq 'sharedmailbox')
+        SKUAssigned              = $skuAssigned
+        PersistedCapabilities    = @($capabilities)
+        ArchiveStatus            = if ($MailboxInfo.PSObject.Properties.Name -contains 'ArchiveStatus') { [string]$MailboxInfo.ArchiveStatus } else { $null }
+        IsInactiveMailbox        = $isInactive
+        LicenseRequired          = $licenseRequired
+        HasLicense               = $hasLicense
+        LicenseTypes             = @($capabilities)
+        LicenseType              = $licenseType
+        IsLicenseCompliant       = (-not $licenseRequired) -or $hasLicense
+        LicenseRequirementReason = if (-not $licenseRequired) {
+            "Recipient type '$recipientType' is typically unlicensed."
+        }
+        else {
+            "Recipient type '$recipientType' is expected to require mailbox licensing."
+        }
+    }
+}
+
 function Get-MailboxSample {
 <#
 .SYNOPSIS
@@ -228,7 +282,7 @@ function Get-MailboxSample {
         [Parameter(Mandatory)] [string]$Timestamp
     )
 
-    $mailboxInfo = Get-EXOMailbox -Identity $MailboxIdentity -Properties ExchangeGuid, ArchiveGuid, ArchiveStatus, ProhibitSendReceiveQuota -ErrorAction Stop
+    $mailboxInfo = Get-EXOMailbox -Identity $MailboxIdentity -Properties ExchangeGuid, ArchiveGuid, ArchiveStatus, ProhibitSendReceiveQuota, RecipientTypeDetails, SKUAssigned, PersistedCapabilities, IsInactiveMailbox -ErrorAction Stop
     $stats = Get-EXOMailboxStatistics -Identity $MailboxIdentity -ErrorAction Stop
 
     $sizeGb = Convert-BytesToGigabytes -Bytes (Convert-ExoSizeToBytes -Value $stats.TotalItemSize) -Precision 2
@@ -246,6 +300,7 @@ function Get-MailboxSample {
     $permissions = @(Convert-PermissionSet -Permissions $rawPermissions)
 
     $archive = Get-ArchiveMetric -MailboxIdentity $MailboxIdentity -MailboxInfo $mailboxInfo
+    $licensing = Get-LicensingProfile -MailboxInfo $mailboxInfo
 
     $lastLogonTime = $null
     if ($stats.PSObject.Properties.Name -contains 'LastLogonTime' -and $stats.LastLogonTime) {
@@ -261,7 +316,7 @@ function Get-MailboxSample {
         TimestampUtc     = $Timestamp
         SizeGB           = $sizeGb
         ItemCount        = [int64]$stats.ItemCount
-        PermissionCount  = $permissions.Count
+        PermissionCount  = @($permissions).Count
         QuotaGB          = $quotaGb
         UsagePercent     = $usagePercent
         LastLogonTime    = $lastLogonTime
@@ -274,6 +329,7 @@ function Get-MailboxSample {
         ExchangeGuid       = [string]$mailboxInfo.ExchangeGuid
         PrimarySmtpAddress = [string]$mailboxInfo.PrimarySmtpAddress
         DisplayName        = [string]$mailboxInfo.DisplayName
+        Licensing          = $licensing
         Permissions        = @($permissions)
         Sample             = $sample
     }
@@ -444,6 +500,7 @@ foreach ($identityValue in $identities) {
 
             $entry.PrimarySmtpAddress = $result.PrimarySmtpAddress
             $entry.DisplayName = $result.DisplayName
+            $entry.Licensing = $result.Licensing
             $entry.Permissions = $result.Permissions
             $entry.Samples = @($samples)
         }
@@ -452,6 +509,7 @@ foreach ($identityValue in $identities) {
                 ExchangeGuid       = $result.ExchangeGuid
                 PrimarySmtpAddress = $result.PrimarySmtpAddress
                 DisplayName        = $result.DisplayName
+                Licensing          = $result.Licensing
                 Permissions        = $result.Permissions
                 Samples            = @($result.Sample)
             }
