@@ -693,10 +693,19 @@ then stored in the configuration at all.
 | `Generate-MailboxSnapshot.ps1` | Rebuilds `data.json` from history |
 | `Test-MailboxDashboardJSON.ps1` | Validates, repairs and culls the JSON files |
 | `New-MailboxDashboardTestData.ps1` | Generates synthetic data |
+| `New-MailboxDashboardUrl.ps1` | Creates shareable dashboard filter URLs |
 | `Register-EntraApp.ps1` | Creates or repairs the Entra app registration |
 | `Get-ExchangeOnlineAccessToken.ps1` | Standalone token helper |
 | `Modules/MailboxDashboard.Config.psm1` | Loads, validates and resolves the configuration |
 | `Modules/MailboxDashboard.Common.psm1` | Paths, JSON I/O, size and date conversion, console, logging |
+
+`New-MailboxDashboardUrl.ps1` opens an arrow-key menu by default. Use
+`-NoMenu` with `-Domain`, `-Query`, or `-Mailbox` for scripted URL generation. For
+example:
+
+```powershell
+.\Collector\New-MailboxDashboardUrl.ps1 -NoMenu -Domain smartservice.qld.gov.au
+```
 
 ### Superseded — `Collector/Legacy/`
 

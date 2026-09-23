@@ -398,8 +398,9 @@
             statusEl.textContent = `All ${p} checks passed ✓`;
             statusEl.style.color = "var(--chart-success)";
         }
+    }
 
-        function calculateThresholdCount(mailboxes, thresholdPercent) {
+    function calculateThresholdCount(mailboxes, thresholdPercent) {
             return mailboxes.filter(mailbox => {
                 const current = getCurrentRecord(mailbox);
                 const usage = Number(current.usagePercent ?? current.UsagePercent ?? mailbox.usagePercent ?? mailbox.UsagePercent ?? 0);
@@ -407,7 +408,7 @@
             }).length;
         }
 
-        function calculateLicenseGapCount(mailboxes) {
+    function calculateLicenseGapCount(mailboxes) {
             return mailboxes.filter(mailbox => {
                 const licensing = mailbox.licensing || mailbox.Licensing || {};
                 const required = licensing.LicenseRequired ?? licensing.licenseRequired;
@@ -416,7 +417,7 @@
             }).length;
         }
 
-        function calculateRetentionCatalogCounts(mailboxes) {
+    function calculateRetentionCatalogCounts(mailboxes) {
             const map = new Map();
             mailboxes.forEach(mailbox => {
                 const retention = mailbox.retention || mailbox.Retention || {};
@@ -426,7 +427,7 @@
             return map;
         }
 
-        function runKnownValueCalculationChecks() {
+    function runKnownValueCalculationChecks() {
             const syntheticMailbox = {
                 current: { totalGB: 25, quotaGB: 50, usagePercent: 50 },
                 licensing: { licenseRequired: true, hasLicense: false },
@@ -447,7 +448,7 @@
                 policyCount === 1 ? "Expected Policy-A mailbox count 1 confirmed." : `Expected 1 but got ${policyCount}.`);
         }
 
-        async function checkDataDrivenCalculationConsistency() {
+    async function checkDataDrivenCalculationConsistency() {
             try {
                 const response = await fetch("data.json?v=" + Date.now(), { cache: "no-store" });
                 if (!response.ok) {
@@ -503,7 +504,6 @@
             } catch (error) {
                 addResult("checksCalcs", "data.json calculation consistency", "fail", error.message);
             }
-        }
     }
 
     async function checkJsDashboard() {
