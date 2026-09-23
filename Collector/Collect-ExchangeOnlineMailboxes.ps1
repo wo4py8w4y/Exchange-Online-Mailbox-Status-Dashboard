@@ -248,8 +248,9 @@ function Get-LicensingProfile {
         'auditlogmailbox', 'arbitrationmailbox')
     $normalisedType = $recipientType.Trim().ToLowerInvariant()
     $licenseRequired = if ($isInactive -eq $true -or $unlicensedTypes -contains $normalisedType) { $false } else { $true }
-    $hasLicense = ($skuAssigned -eq $true) -or $capabilities.Count -gt 0
-    $licenseType = if ($capabilities.Count -gt 0) { $capabilities -join ', ' } else { $null }
+    $capabilityCount = @($capabilities).Count
+    $hasLicense = ($skuAssigned -eq $true) -or $capabilityCount -gt 0
+    $licenseType = if ($capabilityCount -gt 0) { @($capabilities) -join ', ' } else { $null }
 
     return [pscustomobject]@{
         RecipientTypeDetails     = $recipientType
@@ -500,7 +501,12 @@ foreach ($identityValue in $identities) {
 
             $entry.PrimarySmtpAddress = $result.PrimarySmtpAddress
             $entry.DisplayName = $result.DisplayName
-            $entry.Licensing = $result.Licensing
+            if ($entry.PSObject.Properties.Name -contains 'Licensing') {
+                $entry.Licensing = $result.Licensing
+            }
+            else {
+                Add-Member -InputObject $entry -NotePropertyName 'Licensing' -NotePropertyValue $result.Licensing
+            }
             $entry.Permissions = $result.Permissions
             $entry.Samples = @($samples)
         }

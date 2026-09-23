@@ -258,7 +258,14 @@ function Merge-RecordIntoIndex {
 
     if (-not [string]::IsNullOrWhiteSpace($newSmtp)) { $existing.PrimarySmtpAddress = $newSmtp }
     if (-not [string]::IsNullOrWhiteSpace($newDisplayName)) { $existing.DisplayName = $newDisplayName }
-    if ($null -ne $newLicensing) { $existing.Licensing = $newLicensing }
+    if ($null -ne $newLicensing) {
+        if ($existing.PSObject.Properties.Name -contains 'Licensing') {
+            $existing.Licensing = $newLicensing
+        }
+        else {
+            Add-Member -InputObject $existing -NotePropertyName 'Licensing' -NotePropertyValue $newLicensing
+        }
+    }
     if ($null -ne $newPermissions) { $existing.Permissions = @($newPermissions) }
 
     $existing.Samples = $ordered
