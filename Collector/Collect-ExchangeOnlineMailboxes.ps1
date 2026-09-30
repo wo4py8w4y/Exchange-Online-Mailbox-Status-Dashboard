@@ -273,6 +273,36 @@ function Get-LicensingProfile {
     }
 }
 
+function Get-RetentionProfile {
+    param(
+        [Parameter(Mandatory)] $MailboxInfo
+    )
+
+    $getValue = {
+        param([string]$Name)
+        if ($MailboxInfo.PSObject.Properties.Name -contains $Name) {
+            return $MailboxInfo.$Name
+        }
+        return $null
+    }
+
+    $duration = & $getValue 'LitigationHoldDuration'
+    $durationDays = $null
+    if ($null -ne $duration -and $duration -is [timespan]) {
+        $durationDays = [math]::Round($duration.TotalDays, 2)
+    }
+
+    return [pscustomobject]@{
+        RetentionPolicy            = [string](& $getValue 'RetentionPolicy')
+        RetentionHoldEnabled       = & $getValue 'RetentionHoldEnabled'
+        LitigationHoldEnabled      = & $getValue 'LitigationHoldEnabled'
+        LitigationHoldDurationDays = $durationDays
+        InPlaceHolds               = @(& $getValue 'InPlaceHolds' | ForEach-Object { [string]$_ } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+        SingleItemRecoveryEnabled  = & $getValue 'SingleItemRecoveryEnabled'
+        RetainDeletedItemsFor      = [string](& $getValue 'RetainDeletedItemsFor')
+    }
+}
+
 function Get-MailboxSample {
 <#
 .SYNOPSIS
@@ -283,7 +313,7 @@ function Get-MailboxSample {
         [Parameter(Mandatory)] [string]$Timestamp
     )
 
-    $mailboxInfo = Get-EXOMailbox -Identity $MailboxIdentity -Properties ExchangeGuid, ArchiveGuid, ArchiveStatus, ProhibitSendReceiveQuota, RecipientTypeDetails, SKUAssigned, PersistedCapabilities, IsInactiveMailbox -ErrorAction Stop
+    $mailboxInfo = Get-EXOMailbox -Identity $MailboxIdentity -Properties ExchangeGuid, ArchiveGuid, ArchiveStatus, ProhibitSendReceiveQuota, RecipientTypeDetails, SKUAssigned, PersistedCapabilities, IsInactiveMailbox, RetentionPolicy, RetentionHoldEnabled, LitigationHoldEnabled, LitigationHoldDuration, InPlaceHolds, SingleItemRecoveryEnabled, RetainDeletedItemsFor -ErrorAction Stop
     $stats = Get-EXOMailboxStatistics -Identity $MailboxIdentity -ErrorAction Stop
 
     $sizeGb = Convert-BytesToGigabytes -Bytes (Convert-ExoSizeToBytes -Value $stats.TotalItemSize) -Precision 2
@@ -302,6 +332,7 @@ function Get-MailboxSample {
 
     $archive = Get-ArchiveMetric -MailboxIdentity $MailboxIdentity -MailboxInfo $mailboxInfo
     $licensing = Get-LicensingProfile -MailboxInfo $mailboxInfo
+    $retention = Get-RetentionProfile -MailboxInfo $mailboxInfo
 
     $lastLogonTime = $null
     if ($stats.PSObject.Properties.Name -contains 'LastLogonTime' -and $stats.LastLogonTime) {
@@ -331,6 +362,7 @@ function Get-MailboxSample {
         PrimarySmtpAddress = [string]$mailboxInfo.PrimarySmtpAddress
         DisplayName        = [string]$mailboxInfo.DisplayName
         Licensing          = $licensing
+        Retention          = $retention
         Permissions        = @($permissions)
         Sample             = $sample
     }

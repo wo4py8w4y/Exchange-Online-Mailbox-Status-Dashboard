@@ -116,6 +116,9 @@ function ConvertTo-HistoryRecord {
         PrimarySmtpAddress = [string](Get-PropertyValueOrNull -Object $Raw -Name 'PrimarySmtpAddress')
         DisplayName        = [string](Get-PropertyValueOrNull -Object $Raw -Name 'DisplayName')
         Licensing          = Get-PropertyValueOrNull -Object $Raw -Name 'Licensing'
+        Retention          = Get-PropertyValueOrNull -Object $Raw -Name 'Retention'
+        RetentionPolicyChangeHistory = Get-PropertyValueOrNull -Object $Raw -Name 'RetentionPolicyChangeHistory'
+        LicenseAssignmentHistory = Get-PropertyValueOrNull -Object $Raw -Name 'LicenseAssignmentHistory'
         Permissions        = $permissions
         Samples            = @($sample)
     }
@@ -264,6 +267,17 @@ function Merge-RecordIntoIndex {
         }
         else {
             Add-Member -InputObject $existing -NotePropertyName 'Licensing' -NotePropertyValue $newLicensing
+        }
+    }
+    foreach ($fieldName in @('Retention', 'RetentionPolicyChangeHistory', 'LicenseAssignmentHistory')) {
+        $newValue = Get-PropertyValueOrNull -Object $Record -Name $fieldName
+        if ($null -eq $newValue) { continue }
+
+        if ($existing.PSObject.Properties.Name -contains $fieldName) {
+            $existing.$fieldName = $newValue
+        }
+        else {
+            Add-Member -InputObject $existing -NotePropertyName $fieldName -NotePropertyValue $newValue
         }
     }
     if ($null -ne $newPermissions) { $existing.Permissions = @($newPermissions) }
