@@ -179,6 +179,7 @@ const state = {
 window.allMailboxes = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+    ensureLoadingIndicator();
     readFilterSortFromUrl();
     bindHeaderControls();
     bindSearchControls();
@@ -250,11 +251,13 @@ function bindSearchControls() {
 }
 
 async function loadDashboard() {
+    setLoadingState(true, "Loading mailbox data");
     const cacheBust = Date.now();
     const dataUrl = `${DATA_URL}?cacheBust=${cacheBust}`;
     const historyUrl = `${HISTORY_URL}?cacheBust=${cacheBust}`;
 
-    await ensureScopesLoaded();
+    try {
+        await ensureScopesLoaded();
 
     const [dataResponse, historyResponse] = await Promise.all([
         fetch(dataUrl, { cache: "no-store" }),
@@ -301,7 +304,36 @@ async function loadDashboard() {
         state.historyData.generatedUtc
     );
     highlightNav();
-    applyFilter();
+        applyFilter();
+    }
+    finally {
+        setLoadingState(false);
+    }
+}
+
+function ensureLoadingIndicator() {
+    if (document.getElementById("dashboardLoading")) return;
+
+    const indicator = document.createElement("div");
+    indicator.id = "dashboardLoading";
+    indicator.className = "dashboard-loading";
+    indicator.setAttribute("role", "status");
+    indicator.setAttribute("aria-live", "polite");
+    indicator.innerHTML = `
+        <span class="dashboard-spinner" aria-hidden="true"></span>
+        <span class="dashboard-loading-label">Loading mailbox data</span>
+    `;
+    document.body.appendChild(indicator);
+}
+
+function setLoadingState(isLoading, message = "Loading mailbox data") {
+    const indicator = document.getElementById("dashboardLoading");
+    if (!indicator) return;
+    const label = indicator.querySelector(".dashboard-loading-label");
+    if (label) label.textContent = message;
+    indicator.classList.toggle("is-visible", isLoading);
+    indicator.setAttribute("aria-hidden", String(!isLoading));
+    document.body.classList.toggle("is-loading", isLoading);
 }
 
 function handleSearchInput() {
