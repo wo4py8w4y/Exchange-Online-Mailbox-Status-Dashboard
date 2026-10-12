@@ -313,7 +313,7 @@ function Get-MailboxSample {
         [Parameter(Mandatory)] [string]$Timestamp
     )
 
-    $mailboxInfo = Get-EXOMailbox -Identity $MailboxIdentity -Properties ExchangeGuid, ArchiveGuid, ArchiveStatus, ProhibitSendReceiveQuota, RecipientTypeDetails, SKUAssigned, PersistedCapabilities, IsInactiveMailbox, RetentionPolicy, RetentionHoldEnabled, LitigationHoldEnabled, LitigationHoldDuration, InPlaceHolds, SingleItemRecoveryEnabled, RetainDeletedItemsFor -ErrorAction Stop
+    $mailboxInfo = Get-EXOMailbox -Identity $MailboxIdentity -Properties ExchangeGuid, ArchiveGuid, ArchiveStatus, ProhibitSendReceiveQuota, RecipientTypeDetails, SKUAssigned, PersistedCapabilities, IsInactiveMailbox, WhenCreated, RetentionPolicy, RetentionHoldEnabled, LitigationHoldEnabled, LitigationHoldDuration, InPlaceHolds, SingleItemRecoveryEnabled, RetainDeletedItemsFor -ErrorAction Stop
     $stats = Get-EXOMailboxStatistics -Identity $MailboxIdentity -ErrorAction Stop
 
     $sizeGb = Convert-BytesToGigabytes -Bytes (Convert-ExoSizeToBytes -Value $stats.TotalItemSize) -Precision 2
@@ -361,6 +361,7 @@ function Get-MailboxSample {
         ExchangeGuid       = [string]$mailboxInfo.ExchangeGuid
         PrimarySmtpAddress = [string]$mailboxInfo.PrimarySmtpAddress
         DisplayName        = [string]$mailboxInfo.DisplayName
+        WhenCreatedUtc     = ConvertTo-IsoUtcString -Value $mailboxInfo.WhenCreated
         Licensing          = $licensing
         Retention          = $retention
         Permissions        = @($permissions)
@@ -374,12 +375,14 @@ function Save-CollectionProgress {
         [Parameter(Mandatory)] [string]$Path,
         [Parameter(Mandatory)] [string]$Timestamp,
         [Parameter(Mandatory)] [string]$Source,
-        [Parameter()] [string]$Detail
+        [Parameter()] [string]$Detail,
+        [Parameter()] [string]$CollectorLastCompletedUtc
     )
 
     $document = [pscustomobject]@{
-        GeneratedUtc   = $Timestamp
-        MailboxHistory = @($Records)
+        GeneratedUtc               = $Timestamp
+        CollectorLastCompletedUtc = $CollectorLastCompletedUtc
+        MailboxHistory             = @($Records)
     }
 
     Write-MailboxJson `
@@ -462,6 +465,7 @@ Write-Detail "Target: $resolvedOutputPath"
 # A slice writes only what it collects; a full run merges into the existing history.
 $records = [System.Collections.Generic.List[psobject]]::new()
 $recordIndex = @{}
+$collectorLastCompletedUtc = $null
 
 if (-not $isSliceOutput) {
     $existing = $null
@@ -473,6 +477,7 @@ if (-not $isSliceOutput) {
     }
 
     if ($null -ne $existing -and $existing.PSObject.Properties.Name -contains 'MailboxHistory') {
+        $collectorLastCompletedUtc = [string](Get-PropertyValueOrNull -Object $existing -Name 'CollectorLastCompletedUtc')
         foreach ($entry in @($existing.MailboxHistory)) {
             if ($null -eq $entry) { continue }
             $records.Add($entry)
@@ -575,6 +580,7 @@ foreach ($identityValue in $identities) {
             -Path $resolvedOutputPath `
             -Timestamp $timestamp `
             -Source "Exchange Online (batch commit $counter/$($identities.Count))" `
+            -CollectorLastCompletedUtc $collectorLastCompletedUtc `
             -Detail "$collected collected so far"
     }
 }
@@ -584,6 +590,7 @@ Save-CollectionProgress `
     -Path $resolvedOutputPath `
     -Timestamp $timestamp `
     -Source "Exchange Online (Get-EXOMailbox / Get-EXOMailboxStatistics / Get-EXOMailboxPermission)" `
+    -CollectorLastCompletedUtc $collectorLastCompletedUtc `
     -Detail "$collected collected, $failed failed"
 
 Write-Detail "Collected $collected of $($identities.Count); $failed failed, $skipped skipped."

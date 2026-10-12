@@ -30,7 +30,8 @@ const TABLE_EXPORT_CONFIG = {
             licenseType: m.licensing.licenseType,
             cleanupStatus: getCleanupStatusLabel(m),
             retentionPolicy: m.retention.retentionPolicy,
-            permissions: m.permissions.length, lastLogonTime: m.current.lastLogonTime
+            permissions: m.permissions.length, recordRefreshedUtc: m.current.sampleTimestamp,
+            lastLogonTime: m.current.lastLogonTime, mailboxCreatedUtc: m.whenCreatedUtc
         }),
         columns: [
             { header: "Mailbox",       value: m => m.displayName },
@@ -43,7 +44,9 @@ const TABLE_EXPORT_CONFIG = {
             { header: "License",       value: m => getLicenseStatusLabel(m) },
             { header: "Cleanup",       value: m => getCleanupStatusLabel(m) },
             { header: "Permissions",   value: m => m.permissions.length },
+            { header: "Record Refreshed", value: m => m.current.sampleTimestamp ?? "" },
             { header: "Last Logon",    value: m => m.current.lastLogonTime ?? "" },
+            { header: "Mailbox Created", value: m => m.whenCreatedUtc ?? "" },
         ]
     },
     permsTable: {
@@ -296,6 +299,9 @@ async function loadDashboard() {
     updateSearchInput();
     updateNavLinks();
     updateLastUpdated(
+        rawDashboardData?.CollectorLastCompletedUtc ||
+        rawDashboardData?.collectorLastCompletedUtc ||
+        state.historyData.collectorLastCompletedUtc,
         rawDashboardData?.GeneratedUtc ||
         rawDashboardData?.generatedUtc ||
         state.historyData.generatedUtc
@@ -723,6 +729,9 @@ function renderSelectedMailboxSummary(selected) {
             <div class="summary-metric"><span class="label">Usage</span><strong>${formatPercent(selected.current.usagePercent)}</strong></div>
             <div class="summary-metric"><span class="label">Cleanup</span><strong>${escapeHtml(getCleanupStatusLabel(selected))}</strong></div>
             <div class="summary-metric"><span class="label">Permissions</span><strong>${formatNumber(selected.permissions.length)}</strong></div>
+            <div class="summary-metric"><span class="label">Record refreshed</span><strong>${formatDate(selected.current.sampleTimestamp)}</strong></div>
+            <div class="summary-metric"><span class="label">Last logon</span><strong>${formatDate(selected.current.lastLogonTime)}</strong></div>
+            <div class="summary-metric"><span class="label">Mailbox created</span><strong>${formatDate(selected.whenCreatedUtc)}</strong></div>
         </div>
     `;
 }
@@ -863,7 +872,9 @@ function renderSelectedMailboxPanel(selected) {
                     <div class="spotlight-metric"><span class="label">Usage</span><strong>${formatPercent(selected.current.usagePercent)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Items</span><strong>${formatNumber(selected.current.itemCount)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Permissions</span><strong>${formatNumber(selected.permissions.length)}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Record refreshed</span><strong>${formatDate(selected.current.sampleTimestamp)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Last logon</span><strong>${formatDate(selected.current.lastLogonTime)}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Mailbox created</span><strong>${formatDate(selected.whenCreatedUtc)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Change since last sample</span><strong>${deltaGB == null ? "N/A" : `${deltaGB >= 0 ? "+" : ""}${formatGB(deltaGB)} GB`}</strong></div>
                     <div class="spotlight-metric"><span class="label">Cleanup health</span><strong>${escapeHtml(getCleanupStatusLabel(selected))}</strong></div>
                     <div class="spotlight-metric"><span class="label">Mailbox type</span><strong>${escapeHtml(selected.licensing.recipientTypeDetails || "Unknown")}</strong></div>
@@ -945,7 +956,7 @@ function renderUsageTable(mailboxes) {
     renderPaginationBar("usageTablePagination", "usageTable");
 
     if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No mailboxes found matching that search.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="13" class="empty-state">No mailboxes found matching that search.</td></tr>`;
         return;
     }
 
@@ -961,7 +972,9 @@ function renderUsageTable(mailboxes) {
             <td>${licenseBadge(mailbox)}</td>
             <td>${cleanupBadge(mailbox)}</td>
             <td>${formatNumber(mailbox.permissions.length)}</td>
+            <td>${formatDate(mailbox.current.sampleTimestamp)}</td>
             <td>${formatDate(mailbox.current.lastLogonTime)}</td>
+            <td>${formatDate(mailbox.whenCreatedUtc)}</td>
         </tr>
     `).join("");
 }
@@ -1782,6 +1795,7 @@ function pickValue(primary, fallback) {
 function createEmptyHistoryData() {
     return {
         generatedUtc: null,
+        collectorLastCompletedUtc: null,
         mailboxes: [],
         byGuid: {},
         bySmtp: {}
@@ -1853,6 +1867,7 @@ function normaliseHistoryData(payload) {
     if (!payload || typeof payload !== "object") return history;
 
     history.generatedUtc = payload.GeneratedUtc ?? payload.generatedUtc ?? null;
+    history.collectorLastCompletedUtc = payload.CollectorLastCompletedUtc ?? payload.collectorLastCompletedUtc ?? null;
 
     if (Array.isArray(payload.MailboxHistory) || Array.isArray(payload.mailboxHistory)) {
         const mailboxHistory = Array.isArray(payload.MailboxHistory) ? payload.MailboxHistory : payload.mailboxHistory;
@@ -1979,6 +1994,7 @@ function normaliseMailbox(source) {
 
     return {
         exchangeGuid: String(source?.ExchangeGuid ?? source?.exchangeGuid ?? ""),
+        whenCreatedUtc: source?.WhenCreatedUtc ?? source?.whenCreatedUtc ?? source?.WhenCreated ?? source?.whenCreated ?? null,
         displayName: String(displayName || primarySmtpAddress || source?.ExchangeGuid || "Unknown mailbox"),
         primarySmtpAddress: String(primarySmtpAddress || ""),
         current: {
@@ -1991,6 +2007,7 @@ function normaliseMailbox(source) {
             lastLogonTime: sample?.LastLogonTime ?? sample?.lastLogonTime ??
                 currentSource?.LastLogonTime ?? currentSource?.lastLogonTime ??
                 currentSource?.lastLogonTime ?? null,
+            sampleTimestamp: sample?.TimestampUtc ?? sample?.timestampUtc ?? currentSource?.sampleTimestamp ?? currentSource?.SampleTimestamp ?? null,
             archiveEnabled,
             archiveSizeGB: getNumber(sample, ["ArchiveSizeGB", "archiveSizeGB"]) ??
                 getNumber(currentSource, ["archiveSizeGB", "ArchiveSizeGB"]) ??
@@ -2298,10 +2315,12 @@ function resetAutoRefreshTimer() {
     refreshTimer = setInterval(() => loadDashboard().catch(showError), refreshMs);
 }
 
-function updateLastUpdated(utcString) {
+function updateLastUpdated(collectorUtc, recordUtc) {
     const el = document.getElementById("lastUpdated");
     if (!el) return;
-    el.textContent = utcString ? `Last updated: ${new Date(utcString).toLocaleString()}` : "Data loaded";
+    const collectorText = collectorUtc ? new Date(collectorUtc).toLocaleString() : "Unknown";
+    const recordText = recordUtc ? new Date(recordUtc).toLocaleString() : "Unknown";
+    el.textContent = `Collector last completed: ${collectorText} | Latest record refreshed: ${recordText}`;
 }
 
 function highlightNav() {

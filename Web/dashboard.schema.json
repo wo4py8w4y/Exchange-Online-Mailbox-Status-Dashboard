@@ -28,6 +28,12 @@
     "GeneratedUtc": {
       "type": "string"
     },
+    "CollectorLastCompletedUtc": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "Mailboxes": {
       "type": "array",
       "items": {
@@ -98,6 +104,12 @@
           ]
         },
         "lastLogonTime": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sampleTimestamp": {
           "type": [
             "string",
             "null"
@@ -463,6 +475,12 @@
         },
         "DisplayName": {
           "type": "string"
+        },
+        "WhenCreatedUtc": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "current": {
           "$ref": "#/$defs/currentMetrics"

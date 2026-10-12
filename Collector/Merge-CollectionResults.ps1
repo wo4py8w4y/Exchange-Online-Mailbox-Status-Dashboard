@@ -115,6 +115,7 @@ function ConvertTo-HistoryRecord {
         ExchangeGuid       = $exchangeGuid
         PrimarySmtpAddress = [string](Get-PropertyValueOrNull -Object $Raw -Name 'PrimarySmtpAddress')
         DisplayName        = [string](Get-PropertyValueOrNull -Object $Raw -Name 'DisplayName')
+        WhenCreatedUtc     = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Raw -Name 'WhenCreatedUtc')
         Licensing          = Get-PropertyValueOrNull -Object $Raw -Name 'Licensing'
         Retention          = Get-PropertyValueOrNull -Object $Raw -Name 'Retention'
         RetentionPolicyChangeHistory = Get-PropertyValueOrNull -Object $Raw -Name 'RetentionPolicyChangeHistory'
@@ -256,11 +257,20 @@ function Merge-RecordIntoIndex {
 
     $newSmtp = [string](Get-PropertyValueOrNull -Object $Record -Name 'PrimarySmtpAddress')
     $newDisplayName = [string](Get-PropertyValueOrNull -Object $Record -Name 'DisplayName')
+    $newWhenCreatedUtc = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Record -Name 'WhenCreatedUtc')
     $newLicensing = Get-PropertyValueOrNull -Object $Record -Name 'Licensing'
     $newPermissions = Get-PropertyValueOrNull -Object $Record -Name 'Permissions'
 
     if (-not [string]::IsNullOrWhiteSpace($newSmtp)) { $existing.PrimarySmtpAddress = $newSmtp }
     if (-not [string]::IsNullOrWhiteSpace($newDisplayName)) { $existing.DisplayName = $newDisplayName }
+    if ($null -ne $newWhenCreatedUtc) {
+        if ($existing.PSObject.Properties.Name -contains 'WhenCreatedUtc') {
+            $existing.WhenCreatedUtc = $newWhenCreatedUtc
+        }
+        else {
+            Add-Member -InputObject $existing -NotePropertyName 'WhenCreatedUtc' -NotePropertyValue $newWhenCreatedUtc
+        }
+    }
     if ($null -ne $newLicensing) {
         if ($existing.PSObject.Properties.Name -contains 'Licensing') {
             $existing.Licensing = $newLicensing
@@ -419,8 +429,9 @@ $recordsAdded = $records.Count - $recordsBefore
 $recordsUpdated = $index.Count - $recordsAdded
 
 $document = [pscustomobject]@{
-    GeneratedUtc   = $latestTimestamp
-    MailboxHistory = @($records)
+    GeneratedUtc               = $latestTimestamp
+    CollectorLastCompletedUtc = Get-PropertyValueOrNull -Object $existingHistory -Name 'CollectorLastCompletedUtc'
+    MailboxHistory             = @($records)
 }
 
 Write-MailboxJson `

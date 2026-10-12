@@ -121,6 +121,7 @@ function ConvertTo-SnapshotRecord {
         ExchangeGuid       = [string](Get-PropertyValueOrNull -Object $Entry -Name 'ExchangeGuid')
         PrimarySmtpAddress = [string](Get-PropertyValueOrNull -Object $Entry -Name 'PrimarySmtpAddress')
         DisplayName        = [string](Get-PropertyValueOrNull -Object $Entry -Name 'DisplayName')
+        WhenCreatedUtc     = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Entry -Name 'WhenCreatedUtc')
         Licensing          = Get-PropertyValueOrNull -Object $Entry -Name 'Licensing'
         Retention          = Get-PropertyValueOrNull -Object $Entry -Name 'Retention'
         RetentionPolicyChangeHistory = Get-PropertyValueOrNull -Object $Entry -Name 'RetentionPolicyChangeHistory'
@@ -248,8 +249,9 @@ if ([string]::IsNullOrWhiteSpace($generatedUtc)) {
 
 if ($PSCmdlet.ShouldProcess($resolvedDataPath, "Write snapshot")) {
     $document = [pscustomobject]@{
-        GeneratedUtc = $generatedUtc
-        Mailboxes    = @($snapshots)
+        GeneratedUtc               = $generatedUtc
+        CollectorLastCompletedUtc = Get-PropertyValueOrNull -Object $history -Name 'CollectorLastCompletedUtc'
+        Mailboxes                  = @($snapshots)
     }
 
     Write-MailboxJson `
