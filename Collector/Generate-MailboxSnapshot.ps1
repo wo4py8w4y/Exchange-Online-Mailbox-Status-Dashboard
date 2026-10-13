@@ -124,8 +124,8 @@ function ConvertTo-SnapshotRecord {
         WhenCreatedUtc     = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Entry -Name 'WhenCreatedUtc')
         Licensing          = Get-PropertyValueOrNull -Object $Entry -Name 'Licensing'
         Retention          = Get-PropertyValueOrNull -Object $Entry -Name 'Retention'
-        RetentionPolicyChangeHistory = Get-PropertyValueOrNull -Object $Entry -Name 'RetentionPolicyChangeHistory'
-        LicenseAssignmentHistory = Get-PropertyValueOrNull -Object $Entry -Name 'LicenseAssignmentHistory'
+        RetentionPolicyChangeHistory = @(Get-PropertyValueOrNull -Object $Entry -Name 'RetentionPolicyChangeHistory' | Where-Object { $null -ne $_ })
+        LicenseAssignmentHistory = @(Get-PropertyValueOrNull -Object $Entry -Name 'LicenseAssignmentHistory' | Where-Object { $null -ne $_ })
         current            = [pscustomobject]@{
             totalGB          = $sizeGb
             itemCount        = [int64](Get-PropertyValueOrNull -Object $Sample -Name 'ItemCount')
@@ -137,7 +137,7 @@ function ConvertTo-SnapshotRecord {
             archiveItemCount = [int64](Get-PropertyValueOrNull -Object $Sample -Name 'ArchiveItemCount')
             sampleTimestamp  = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Sample -Name 'TimestampUtc')
         }
-        permissions        = Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Entry -Name 'Permissions')
+        permissions        = @(Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Entry -Name 'Permissions'))
     }
 }
 

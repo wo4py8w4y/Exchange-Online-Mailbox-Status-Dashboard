@@ -190,31 +190,8 @@ function ConvertTo-NumberOrNull {
 function ConvertTo-IsoTimestampOrNull {
     param($Value)
 
-    if ($null -eq $Value) { return $null }
-
-    $text = ([string]$Value).Trim()
-    if ([string]::IsNullOrWhiteSpace($text)) { return $null }
-
-    $parsed = [datetime]::MinValue
-    $styles = [System.Globalization.DateTimeStyles]::AdjustToUniversal -bor [System.Globalization.DateTimeStyles]::AssumeUniversal
-    $invariant = [System.Globalization.CultureInfo]::InvariantCulture
-
-    # ISO first, then the local culture - on en-AU '11/08/2026' means 11 August, and
-    # invariant parsing would silently turn it into 8 November.
-    $isoFormats = @('o', "yyyy-MM-ddTHH:mm:ss.fffffffZ", "yyyy-MM-ddTHH:mm:ssZ", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-dd HH:mm:ss")
-    if ([datetime]::TryParseExact($text, $isoFormats, $invariant, $styles, [ref]$parsed)) {
-        return $parsed.ToString("o")
-    }
-
-    if ([datetime]::TryParse($text, [System.Globalization.CultureInfo]::CurrentCulture, $styles, [ref]$parsed)) {
-        return $parsed.ToString("o")
-    }
-
-    if ([datetime]::TryParse($text, $invariant, $styles, [ref]$parsed)) {
-        return $parsed.ToString("o")
-    }
-
-    return $null
+    # ConvertFrom-Json yields [datetime]; a [string] cast is invariant M/d and then misparses as en-AU d/M.
+    return ConvertTo-IsoUtcString -Value $Value
 }
 
 function Test-GuidLike {

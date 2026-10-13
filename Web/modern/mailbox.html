@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mailbox · Mailbox Dashboard</title>
+    <script>
+        document.documentElement.dataset.theme = localStorage.getItem("modernDashboardTheme") ||
+            (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    </script>
+    <link rel="stylesheet" href="modern.css">
+</head>
+<body data-page="mailbox">
+<div class="shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark" data-icon="logo"></span>
+            <div><div class="brand-name">Mailbox Insights</div><div class="brand-sub">Exchange Online</div></div>
+        </div>
+        <nav class="nav" aria-label="Pages">
+            <span class="nav-label">Views</span>
+            <a href="index.html" data-nav="overview"><span data-icon="grid"></span>Overview</a>
+            <a href="mailbox.html" data-nav="mailbox" aria-current="page"><span data-icon="mailbox"></span>Mailbox</a>
+            <a href="../mailbox.html" data-nav="classic"><span data-icon="classic"></span>Classic dashboard</a>
+        </nav>
+        <section class="share-card" aria-labelledby="shareCardTitle">
+            <h2 id="shareCardTitle">Share this mailbox</h2>
+            <p>Scan to open this mailbox view</p>
+            <div id="sidebarQr"></div>
+        </section>
+    </aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div class="page-title">
+                <h1>Mailbox details</h1>
+                <div id="freshness" class="freshness">Loading…</div>
+            </div>
+            <label class="search">
+                <span data-icon="search"></span>
+                <span class="sr-only">Find a mailbox</span>
+                <input id="searchInput" type="search" placeholder="Find another mailbox" autocomplete="off">
+            </label>
+            <label class="sr-only" for="scopeSelect">Scope</label>
+            <select id="scopeSelect" class="select" title="Scope used when searching"></select>
+            <button id="themeToggle" type="button" class="btn btn-icon"></button>
+            <button id="refreshButton" type="button" class="btn btn-icon" aria-label="Reload data"><span data-icon="refresh"></span></button>
+            <button type="button" class="btn btn-primary" data-open-share><span data-icon="qr"></span>Share</button>
+        </header>
+
+        <main id="mailboxContent" class="content">
+            <div class="card skeleton" style="min-height:120px"></div>
+            <section class="grid grid-kpi"><div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div></section>
+        </main>
+    </div>
+</div>
+
+<dialog id="shareDialog" class="share" aria-labelledby="shareTitle">
+    <div class="share-body">
+        <h2 id="shareTitle">Share this view</h2>
+        <p data-share-title></p>
+        <div class="share-qr" data-share-qr></div>
+        <div class="share-url" data-share-url></div>
+        <div class="share-actions">
+            <button type="button" class="btn btn-primary" data-copy-link><span data-icon="copy"></span>Copy link</button>
+            <button type="button" class="btn" data-download-qr><span data-icon="download"></span>Download QR</button>
+            <button type="button" class="btn" data-close-share><span data-icon="close"></span>Close</button>
+        </div>
+        <p class="share-note">The link opens this mailbox in the modern view. Viewers need the same access to the dashboard.</p>
+    </div>
+</dialog>
+
+<script defer src="qrcode.js"></script>
+<script defer src="modern.js"></script>
+</body>
+</html>

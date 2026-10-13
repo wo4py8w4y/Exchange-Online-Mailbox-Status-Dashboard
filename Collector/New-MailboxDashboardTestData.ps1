@@ -254,11 +254,11 @@ function New-MailboxHistoryRecord {
             RecipientTypeDetails     = $MailboxProfile.RecipientTypeDetails
             IsSharedMailbox          = $MailboxProfile.RecipientTypeDetails -eq "SharedMailbox"
             SKUAssigned              = $MailboxProfile.HasLicense
-            PersistedCapabilities    = if ($MailboxProfile.HasLicense) { @("EXO_P2") } else { @() }
+            PersistedCapabilities    = @(if ($MailboxProfile.HasLicense) { "EXO_P2" })
             IsInactiveMailbox        = $false
             LicenseRequired          = $MailboxProfile.LicenseRequired
             HasLicense               = $MailboxProfile.HasLicense
-            LicenseTypes             = if ($MailboxProfile.HasLicense) { @("EXO_P2") } else { @() }
+            LicenseTypes             = @(if ($MailboxProfile.HasLicense) { "EXO_P2" })
             LicenseType              = if ($MailboxProfile.HasLicense) { "EXO_P2" } else { $null }
             IsLicenseCompliant       = (-not $MailboxProfile.LicenseRequired) -or $MailboxProfile.HasLicense
             LicenseRequirementReason = if ($MailboxProfile.LicenseRequired) { "Synthetic mailbox requires licensing." } else { "Synthetic shared mailbox is typically unlicensed." }

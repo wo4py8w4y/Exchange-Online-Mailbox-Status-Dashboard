@@ -96,7 +96,7 @@ function ConvertTo-HistoryRecord {
         $usagePercent = [math]::Round((($sizeGb / $quotaGb) * 100), 2)
     }
 
-    $permissions = Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Raw -Name 'Permissions')
+    $permissions = @(Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Raw -Name 'Permissions'))
 
     $sample = [pscustomobject]@{
         TimestampUtc     = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Raw -Name 'TimestampUtc')
@@ -118,8 +118,8 @@ function ConvertTo-HistoryRecord {
         WhenCreatedUtc     = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Raw -Name 'WhenCreatedUtc')
         Licensing          = Get-PropertyValueOrNull -Object $Raw -Name 'Licensing'
         Retention          = Get-PropertyValueOrNull -Object $Raw -Name 'Retention'
-        RetentionPolicyChangeHistory = Get-PropertyValueOrNull -Object $Raw -Name 'RetentionPolicyChangeHistory'
-        LicenseAssignmentHistory = Get-PropertyValueOrNull -Object $Raw -Name 'LicenseAssignmentHistory'
+        RetentionPolicyChangeHistory = @(Get-PropertyValueOrNull -Object $Raw -Name 'RetentionPolicyChangeHistory' | Where-Object { $null -ne $_ })
+        LicenseAssignmentHistory = @(Get-PropertyValueOrNull -Object $Raw -Name 'LicenseAssignmentHistory' | Where-Object { $null -ne $_ })
         Permissions        = $permissions
         Samples            = @($sample)
     }

@@ -494,11 +494,17 @@
             "$ref": "#/$defs/permission"
           }
         },
-        "retention": {
-          "$ref": "#/$defs/retention"
+        "Retention": {
+          "anyOf": [
+            { "$ref": "#/$defs/retention" },
+            { "type": "null" }
+          ]
         },
-        "licensing": {
-          "$ref": "#/$defs/licensing"
+        "Licensing": {
+          "anyOf": [
+            { "$ref": "#/$defs/licensing" },
+            { "type": "null" }
+          ]
         },
         "mailboxMaintenance": {
           "$ref": "#/$defs/maintenance"
@@ -585,6 +591,12 @@
         },
         "DisplayName": {
           "type": "string"
+        },
+        "WhenCreatedUtc": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "Permissions": {
           "type": [

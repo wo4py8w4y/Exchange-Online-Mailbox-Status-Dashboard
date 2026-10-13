@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Overview · Mailbox Dashboard</title>
+    <script>
+        document.documentElement.dataset.theme = localStorage.getItem("modernDashboardTheme") ||
+            (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    </script>
+    <link rel="stylesheet" href="modern.css">
+</head>
+<body data-page="overview">
+<div class="shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark" data-icon="logo"></span>
+            <div><div class="brand-name">Mailbox Insights</div><div class="brand-sub">Exchange Online</div></div>
+        </div>
+        <nav class="nav" aria-label="Pages">
+            <span class="nav-label">Views</span>
+            <a href="index.html" data-nav="overview" aria-current="page"><span data-icon="grid"></span>Overview</a>
+            <a href="mailbox.html" data-nav="mailbox"><span data-icon="mailbox"></span>Mailbox</a>
+            <a href="../index.html" data-nav="classic"><span data-icon="classic"></span>Classic dashboard</a>
+        </nav>
+        <section class="share-card" aria-labelledby="shareCardTitle">
+            <h2 id="shareCardTitle">Share this view</h2>
+            <p>Scan to open exactly what is on screen</p>
+            <div id="sidebarQr"></div>
+        </section>
+    </aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div class="page-title">
+                <h1>Mailbox overview</h1>
+                <div id="freshness" class="freshness">Loading…</div>
+            </div>
+            <label class="search">
+                <span data-icon="search"></span>
+                <span class="sr-only">Search mailboxes</span>
+                <input id="searchInput" type="search" placeholder="Search name or SMTP address" autocomplete="off">
+            </label>
+            <label class="sr-only" for="scopeSelect">Scope</label>
+            <select id="scopeSelect" class="select" title="Limit this view to a group of mailboxes"></select>
+            <button id="themeToggle" type="button" class="btn btn-icon"></button>
+            <button id="refreshButton" type="button" class="btn btn-icon" aria-label="Reload data"><span data-icon="refresh"></span></button>
+            <button type="button" class="btn btn-primary" data-open-share><span data-icon="qr"></span>Share</button>
+        </header>
+
+        <main id="content" class="content">
+            <section id="kpis" class="grid grid-kpi" aria-label="Key figures">
+                <div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div>
+            </section>
+
+            <section class="grid grid-wide">
+                <article class="card">
+                    <div class="card-head"><div><h2>Storage trend</h2><p>Total primary and archive storage per collection day</p></div></div>
+                    <div id="trendChart"><div class="skeleton"></div></div>
+                </article>
+                <article class="card">
+                    <div class="card-head"><div><h2>Mailbox health</h2><p>Quota status across the current view</p></div></div>
+                    <div id="healthChart"><div class="skeleton"></div></div>
+                </article>
+            </section>
+
+            <section class="grid grid-3">
+                <article class="card">
+                    <div class="card-head"><div><h2>Quota usage distribution</h2><p>Mailboxes by percentage of quota used</p></div></div>
+                    <div id="distributionChart"><div class="skeleton"></div></div>
+                </article>
+                <article class="card">
+                    <div class="card-head"><div><h2>Top storage consumers</h2><p>Largest primary mailboxes</p></div></div>
+                    <div id="topChart"><div class="skeleton"></div></div>
+                </article>
+                <article class="card">
+                    <div class="card-head"><div><h2>Logon activity</h2><p>Time since each mailbox was last used</p></div></div>
+                    <div id="activityChart"><div class="skeleton"></div></div>
+                </article>
+            </section>
+
+            <section class="card">
+                <div class="card-head">
+                    <div><h2>Mailboxes</h2><p id="tableMeta"></p></div>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead id="tableHead"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+                <div id="pager" class="pager"></div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<dialog id="shareDialog" class="share" aria-labelledby="shareTitle">
+    <div class="share-body">
+        <h2 id="shareTitle">Share this view</h2>
+        <p data-share-title></p>
+        <div class="share-qr" data-share-qr></div>
+        <div class="share-url" data-share-url></div>
+        <div class="share-actions">
+            <button type="button" class="btn btn-primary" data-copy-link><span data-icon="copy"></span>Copy link</button>
+            <button type="button" class="btn" data-download-qr><span data-icon="download"></span>Download QR</button>
+            <button type="button" class="btn" data-close-share><span data-icon="close"></span>Close</button>
+        </div>
+        <p class="share-note">The link opens this page with the same scope, search, status filter, sort and page. Viewers need the same access to the dashboard.</p>
+    </div>
+</dialog>
+
+<script defer src="qrcode.js"></script>
+<script defer src="modern.js"></script>
+</body>
+</html>

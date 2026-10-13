@@ -351,7 +351,8 @@ timestamps, unparseable dates, missing or non-numeric values, negative values, q
 zero, usage that disagrees with size ÷ quota, and mailboxes with no samples.
 
 **Repaired:** numeric strings converted to numbers, negatives clamped to zero, usage
-recalculated, timestamps normalised to ISO 8601, booleans coerced, empty display names
+recalculated, timestamps normalised to ISO 8601 UTC (culture-independent, so an en-AU
+server no longer swaps day and month), booleans coerced, empty display names
 filled from the address, samples sorted and trimmed to `MaxHistorySamples`. With
 `-RestoreSamplesFromData`, an empty history record can also receive one sample rebuilt
 from its matching `data.json` current snapshot. Records without a matching valid snapshot
@@ -418,6 +419,25 @@ To build the dashboard end to end without Exchange:
 | `permissions.html` | Delegate permissions across mailboxes |
 | `thresholds.html` | Mailboxes at or above the warning threshold |
 | `validate.html` | Standalone data validation view |
+
+### Modern view
+
+`Web/modern/` is an alternative front end over the same `data.json`, `history.json` and
+`scopes.json`. It does not replace the classic pages; both can be deployed side by side.
+
+| Page | Shows |
+|---|---|
+| `modern/index.html` | KPI tiles with sparklines, storage trend, health donut, quota distribution, top consumers, logon activity, sortable mailbox table |
+| `modern/mailbox.html` | One mailbox: storage history, quota gauge, created / last logon / refreshed / collector dates, licensing, delegates |
+
+Every page shows a **QR code that links to exactly what is on screen** — scope, search,
+status filter, sort, page and selected mailbox. Select **Share** to enlarge it, copy the
+link or download the QR as SVG. The QR is generated in the browser by
+`modern/qrcode.js`; no external service is called. Anyone scanning it still needs access
+to the dashboard.
+
+The modern view has light and dark themes (toggle in the top bar, remembered per
+browser) and adapts to phone widths.
 
 ### Finding and sorting
 
@@ -723,6 +743,7 @@ hardcoded paths. Use the current scripts.
 |---|---|
 | `dashboard.js` | All client-side logic |
 | `styles.css` | All styling |
+| `modern/` | Modern view: `index.html`, `mailbox.html`, `modern.js`, `modern.css`, `qrcode.js` |
 | `scopes.json` | Scope definitions |
 | `theme/themes.json` | Colour themes |
 | `HTTPServer.ps1` | Local static file server |
