@@ -60,9 +60,43 @@ body {
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+    .dashboard-loading {
+        position: fixed;
+        z-index: 1000;
+        inset: 18px 18px auto auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 44px;
+        padding: 10px 14px;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--panel-bg) 92%, transparent);
+        color: var(--text-primary);
+        box-shadow: var(--shadow);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-8px);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
     background: var(--header-bg);
+    .dashboard-loading.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
     color: var(--header-text);
+    .dashboard-spinner {
+        width: 18px;
+        height: 18px;
+        border: 2px solid var(--border-color);
+        border-top-color: var(--chart-primary);
+        border-radius: 50%;
+        animation: dashboard-spin 0.8s linear infinite;
+    }
     padding: 22px 24px;
+    @keyframes dashboard-spin {
+        to { transform: rotate(360deg); }
+    }
     border-radius: 18px;
     margin-bottom: 20px;
     box-shadow: var(--shadow);
@@ -232,6 +266,32 @@ body {
     gap: 10px;
     max-height: 420px;
     overflow-y: auto;
+    perspective: 900px;
+}
+
+.search-results .search-result {
+    transform: translateZ(0) rotateX(0deg);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.search-results .search-result:nth-child(2) {
+    transform: translateY(-3px) scale(0.99);
+}
+
+.search-results .search-result:nth-child(3) {
+    transform: translateY(-5px) scale(0.98);
+}
+
+.search-results .search-result:nth-child(n + 4) {
+    transform: translateY(-7px) scale(0.97);
+}
+
+.search-results .search-result:hover,
+.search-results .search-result:focus-visible {
+    position: relative;
+    z-index: 2;
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: var(--shadow);
 }
 
 .search-result {
