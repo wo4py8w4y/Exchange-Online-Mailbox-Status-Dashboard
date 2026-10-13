@@ -28,12 +28,15 @@
     "GeneratedUtc": {
       "type": "string"
     },
+<<<<<<< HEAD
     "CollectorLastCompletedUtc": {
       "type": [
         "string",
         "null"
       ]
     },
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
     "Mailboxes": {
       "type": "array",
       "items": {
@@ -109,12 +112,15 @@
             "null"
           ]
         },
+<<<<<<< HEAD
         "sampleTimestamp": {
           "type": [
             "string",
             "null"
           ]
         },
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
         "archiveEnabled": {
           "type": "boolean"
         },
@@ -476,12 +482,15 @@
         "DisplayName": {
           "type": "string"
         },
+<<<<<<< HEAD
         "WhenCreatedUtc": {
           "type": [
             "string",
             "null"
           ]
         },
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
         "current": {
           "$ref": "#/$defs/currentMetrics"
         },
@@ -494,6 +503,7 @@
             "$ref": "#/$defs/permission"
           }
         },
+<<<<<<< HEAD
         "Retention": {
           "anyOf": [
             { "$ref": "#/$defs/retention" },
@@ -505,6 +515,13 @@
             { "$ref": "#/$defs/licensing" },
             { "type": "null" }
           ]
+=======
+        "retention": {
+          "$ref": "#/$defs/retention"
+        },
+        "licensing": {
+          "$ref": "#/$defs/licensing"
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
         },
         "mailboxMaintenance": {
           "$ref": "#/$defs/maintenance"
@@ -592,12 +609,15 @@
         "DisplayName": {
           "type": "string"
         },
+<<<<<<< HEAD
         "WhenCreatedUtc": {
           "type": [
             "string",
             "null"
           ]
         },
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
         "Permissions": {
           "type": [
             "array",

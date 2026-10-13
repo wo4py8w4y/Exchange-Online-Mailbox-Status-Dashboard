@@ -398,6 +398,112 @@
             statusEl.textContent = `All ${p} checks passed ✓`;
             statusEl.style.color = "var(--chart-success)";
         }
+
+        function calculateThresholdCount(mailboxes, thresholdPercent) {
+            return mailboxes.filter(mailbox => {
+                const current = getCurrentRecord(mailbox);
+                const usage = Number(current.usagePercent ?? current.UsagePercent ?? mailbox.usagePercent ?? mailbox.UsagePercent ?? 0);
+                return Number.isFinite(usage) && usage >= thresholdPercent;
+            }).length;
+        }
+
+        function calculateLicenseGapCount(mailboxes) {
+            return mailboxes.filter(mailbox => {
+                const licensing = mailbox.licensing || mailbox.Licensing || {};
+                const required = licensing.LicenseRequired ?? licensing.licenseRequired;
+                const hasLicense = licensing.HasLicense ?? licensing.hasLicense;
+                return required === true && hasLicense !== true;
+            }).length;
+        }
+
+        function calculateRetentionCatalogCounts(mailboxes) {
+            const map = new Map();
+            mailboxes.forEach(mailbox => {
+                const retention = mailbox.retention || mailbox.Retention || {};
+                const policy = String(retention.RetentionPolicy ?? retention.retentionPolicy ?? "Unassigned").trim() || "Unassigned";
+                map.set(policy, (map.get(policy) || 0) + 1);
+            });
+            return map;
+        }
+
+        function runKnownValueCalculationChecks() {
+            const syntheticMailbox = {
+                current: { totalGB: 25, quotaGB: 50, usagePercent: 50 },
+                licensing: { licenseRequired: true, hasLicense: false },
+                retention: { retentionPolicy: "Policy-A" }
+            };
+
+            const thresholdCount = calculateThresholdCount([syntheticMailbox], 50);
+            addResult("checksCalcs", "Known-value threshold calculation", thresholdCount === 1 ? "pass" : "fail",
+                thresholdCount === 1 ? "Expected threshold count 1 confirmed (50% >= 50)." : `Expected 1 but got ${thresholdCount}.`);
+
+            const licenseGapCount = calculateLicenseGapCount([syntheticMailbox]);
+            addResult("checksCalcs", "Known-value license-gap calculation", licenseGapCount === 1 ? "pass" : "fail",
+                licenseGapCount === 1 ? "Expected license-gap count 1 confirmed." : `Expected 1 but got ${licenseGapCount}.`);
+
+            const retentionCounts = calculateRetentionCatalogCounts([syntheticMailbox]);
+            const policyCount = retentionCounts.get("Policy-A") || 0;
+            addResult("checksCalcs", "Known-value retention catalog count", policyCount === 1 ? "pass" : "fail",
+                policyCount === 1 ? "Expected Policy-A mailbox count 1 confirmed." : `Expected 1 but got ${policyCount}.`);
+        }
+
+        async function checkDataDrivenCalculationConsistency() {
+            try {
+                const response = await fetch("data.json?v=" + Date.now(), { cache: "no-store" });
+                if (!response.ok) {
+                    addResult("checksCalcs", "data.json calculation consistency", "warn", `Unable to load data.json (HTTP ${response.status}).`);
+                    return;
+                }
+
+                const json = await response.json();
+                const mailboxes = getMailboxArray(json);
+                if (mailboxes.length === 0) {
+                    addResult("checksCalcs", "data.json calculation consistency", "warn", "No mailbox records available for calculation checks.");
+                    return;
+                }
+
+                const thresholdBasis = Number(json.CriticalThresholdPercent ?? json.WarningThresholdPercent ?? 94);
+                const calculatedThresholdCount = calculateThresholdCount(mailboxes, thresholdBasis);
+                const declaredThresholdCount = Number(json.ThresholdCount);
+                if (Number.isFinite(declaredThresholdCount)) {
+                    addResult(
+                        "checksCalcs",
+                        "Threshold count consistency",
+                        calculatedThresholdCount === declaredThresholdCount ? "pass" : "fail",
+                        `Calculated ${calculatedThresholdCount}, declared ${declaredThresholdCount} (threshold ${thresholdBasis}%).`
+                    );
+                } else {
+                    addResult("checksCalcs", "Threshold count consistency", "warn", "ThresholdCount is not present in data.json.");
+                }
+
+                const calculatedLicenseGaps = calculateLicenseGapCount(mailboxes);
+                addResult("checksCalcs", "License gap calculation", "pass", `Calculated ${calculatedLicenseGaps} required-license gap(s).`);
+
+                const dataCatalog = Array.isArray(json.RetentionPolicies) ? json.RetentionPolicies : [];
+                if (dataCatalog.length > 0) {
+                    const derivedCounts = calculateRetentionCatalogCounts(mailboxes);
+                    const mismatches = dataCatalog.filter(entry => {
+                        const policyName = String(entry.Name ?? entry.name ?? "").trim();
+                        if (!policyName) return false;
+                        const derived = derivedCounts.get(policyName) || 0;
+                        const declared = Number(entry.MailboxCount ?? entry.mailboxCount ?? 0);
+                        return derived !== declared;
+                    });
+                    addResult(
+                        "checksCalcs",
+                        "Retention policy catalog count consistency",
+                        mismatches.length === 0 ? "pass" : "fail",
+                        mismatches.length === 0
+                            ? "Catalog mailbox counts match mailbox assignments."
+                            : `${mismatches.length} retention policy count mismatch(es) detected.`
+                    );
+                } else {
+                    addResult("checksCalcs", "Retention policy catalog count consistency", "warn", "No RetentionPolicies catalog to cross-check.");
+                }
+            } catch (error) {
+                addResult("checksCalcs", "data.json calculation consistency", "fail", error.message);
+            }
+        }
     }
 
     function calculateThresholdCount(mailboxes, thresholdPercent) {

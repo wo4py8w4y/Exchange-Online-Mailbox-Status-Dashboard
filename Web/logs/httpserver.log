@@ -490,6 +490,7 @@
 2026-08-14T12:43:41.5268335Z [REQ] ip=::1 method=GET path=/history.json?cacheBust=1786711421366 status=- duration=- bytes=- msg=Incoming request.
 2026-08-14T12:43:41.5592861Z [WARN] ip=::1 method=GET path=/history.json?cacheBust=1786711421366 status=404 duration=32 ms bytes=10 B msg=Request complete.
 2026-08-14T12:44:41.9600392Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=HTTP server stopped.
+<<<<<<< HEAD
 2026-09-21T05:06:16.5298522Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=Server startup complete.
 2026-09-21T05:06:33.5779791Z [REQ] ip=::1 method=GET path=/index.html status=- duration=- bytes=- msg=Incoming request.
 2026-09-21T05:06:33.6735787Z [OK] ip=::1 method=GET path=/index.html status=200 duration=94 ms bytes=7741 B msg=Request complete.
@@ -1315,3 +1316,5 @@
 2026-09-21T06:30:38.1505309Z [REQ] ip=::1 method=GET path=/quit status=- duration=- bytes=- msg=Incoming request.
 2026-09-21T06:30:38.1801106Z [OK] ip=::1 method=GET path=/quit status=200 duration=30 ms bytes=21 B msg=Request complete.
 2026-09-21T06:30:38.2060026Z [OK] ip=- method=- path=- status=- duration=- bytes=- msg=HTTP server stopped.
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
