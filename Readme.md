@@ -84,7 +84,6 @@ Set-Location C:\Deploy\MailboxDashboard
 ## Installation
 *TLDR ? Just go to [./Collector/Setup-Walkthough.md](https://github.com/wo4py8w4y/MailboxDashboard/blob/main/Collector/Setup-Walkthrough.md)*
 
-
 ### Prerequisites
 
 - Windows with PowerShell 5.1 or later (PowerShell 7 recommended)
@@ -324,6 +323,38 @@ Licensing fields are collected from Exchange during a mailbox collection and cop
 the snapshot. After updating an older installation, run a new collection and then
 `Generate-MailboxSnapshot.ps1`; records from before licensing collection will show
 licensing as `Unknown`, not as a false missing-license failure.
+
+License assignment uses Exchange's `SKUAssigned` value, not the presence of persisted
+capabilities or the mailbox quota. A 50 GB quota can belong to a licensed user mailbox
+or an unlicensed shared mailbox; quota alone does not establish license assignment.
+An unavailable assignment value is reported as `Unknown`. Persisted capabilities are
+retained as descriptive metadata, not proof of a currently assigned product SKU.
+
+The collector explicitly requests `LastLogonTime` and saves the creation date in history
+so both fields can reach the snapshot. Last logon can be empty and reflects mailbox
+access, including service activity; it is not an authoritative human sign-in timestamp.
+
+### History stops growing
+
+Each successful collection adds a sample per mailbox, up to
+`Collection.MaxHistorySamples` (365 by default). The history page uses all saved samples;
+it does not impose a two-point limit. Snapshot generation does not add history samples.
+Confirm that the scheduled task runs `Invoke-MailboxDashboardCollection.ps1` and that
+its configured history path is the file served by the dashboard. Avoid `-TestData` on
+production data because it replaces the live files.
+
+To inspect the saved counts without changing data, use the configured history path:
+
+```powershell
+$history = Get-Content -LiteralPath '<resolved HistoryJson path>' -Raw | ConvertFrom-Json
+$history.MailboxHistory | Select-Object -Property PrimarySmtpAddress,
+  @{Name = 'SampleCount'; Expression = { @($_.Samples).Count }}
+```
+
+The collector stops rather than replacing unreadable, empty, or unsupported existing
+history. Restore a known-good backup or convert legacy data to the nested
+`MailboxHistory[] -> Samples[]` structure before retrying. Previously discarded samples
+cannot be recovered by recollection or snapshot generation.
 
 ---
 
@@ -805,3 +836,4 @@ Confirm `HTTPServer.ps1` is running and that you are using the same port as `-Pr
 **Something failed and you want the detail.**
 `Collector/Logs/failures.log` has the script, line number, variables and stack trace for
 every failure.
+
