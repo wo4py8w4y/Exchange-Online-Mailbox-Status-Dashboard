@@ -12,7 +12,7 @@
 param(
     [string]$RootPath = $PSScriptRoot,
     [string]$Prefix = "http://localhost:8888/",
-    [string]$LogPath = (Join-Path -Path $PSScriptRoot -ChildPath "logs\httpserver.log"),
+    [string]$LogPath = (Join-Path -Path $PSScriptRoot -ChildPath "$RootPath\httpserver($(Get-Date -Format 'yyyy-MM-dd')).log"),
     [ValidateRange(1, 2048)]
     [int]$LogMaxSizeMB = 8,
     [ValidateRange(1, 100)]
@@ -42,7 +42,7 @@ function Get-NowUtcString {
     return (Get-Date).ToUniversalTime().ToString("o")
 }
 
-function Rotate-LogFile {
+function Invoke-LogRotation {
     param(
         [Parameter(Mandatory)]
         [string]$Path,
@@ -95,7 +95,7 @@ function Write-ServerLog {
         [string]$Message
     )
 
-    Rotate-LogFile -Path $Path -MaxBytes $MaxBytes -RetentionCount $RetentionCount
+    Invoke-LogRotation -Path $Path -MaxBytes $MaxBytes -RetentionCount $RetentionCount
     Add-Content -LiteralPath $Path -Value $Message -Encoding utf8
 }
 
