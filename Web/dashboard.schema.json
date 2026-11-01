@@ -54,6 +54,13 @@
         "User": {
           "type": "string"
         },
+        "MailboxGuid": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "PermissionType": {
+          "type": "string"
+        },
         "AccessRights": {
           "type": "array",
           "items": {
@@ -464,6 +471,15 @@
         "DisplayName": {
           "type": "string"
         },
+        "Alias": {
+          "type": "string"
+        },
+        "RecipientTypeDetails": {
+          "type": "string"
+        },
+        "CreatedUtc": {
+          "type": ["string", "null"]
+        },
         "current": {
           "$ref": "#/$defs/currentMetrics"
         },
@@ -567,6 +583,15 @@
         },
         "DisplayName": {
           "type": "string"
+        },
+        "Alias": {
+          "type": "string"
+        },
+        "RecipientTypeDetails": {
+          "type": "string"
+        },
+        "CreatedUtc": {
+          "type": ["string", "null"]
         },
         "Permissions": {
           "type": [

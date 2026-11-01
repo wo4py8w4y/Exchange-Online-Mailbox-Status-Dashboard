@@ -3,7 +3,8 @@
     Merges collector output files into history.json.
 .DESCRIPTION
     Combines the JSON files produced by threaded collection into the history file,
-    keyed on ExchangeGuid. Two input shapes are accepted:
+    keyed on ExchangeGuid while preserving aliases, creation metadata, and typed
+    delegation permissions. Two input shapes are accepted:
 
       - a slice document written by Collect-ExchangeOnlineMailboxes.ps1 -OutputPath,
         containing a MailboxHistory array
@@ -18,6 +19,9 @@
     Merges everything in the configured thread-jobs directory into history.json.
 .EXAMPLE
     .\Merge-CollectionResults.ps1 -InputPath .\Temp\Batch3 -RemoveProcessed
+.NOTES
+    GitHub Summary: Merges worker results by Exchange GUID while preserving mailbox
+    creation metadata, aliases, typed permissions, and deduplicated history samples.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -49,7 +53,10 @@ Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "Modules\MailboxDa
 function Convert-PermissionSet {
     param(
         [Parameter()]
-        $Permissions
+        $Permissions,
+
+        [Parameter()]
+        [string]$MailboxGuid
     )
 
     if ($null -eq $Permissions) {
@@ -64,9 +71,12 @@ function Convert-PermissionSet {
             if ($null -eq $rights) { $rights = Get-PropertyValueOrNull -Object $permission -Name 'accessRights' }
 
             [pscustomobject]@{
-                User         = [string](Get-PropertyValueOrNull -Object $permission -Name 'User')
-                AccessRights = @($rights | ForEach-Object { [string]$_ })
-                Deny         = [bool](Get-PropertyValueOrNull -Object $permission -Name 'Deny')
+                MailboxGuid    = [string]$(if (-not [string]::IsNullOrWhiteSpace($MailboxGuid)) { $MailboxGuid } else { Get-PropertyValueOrNull -Object $permission -Name 'MailboxGuid' })
+                User           = [string](Get-PropertyValueOrNull -Object $permission -Name 'User')
+                PermissionType = [string](Get-PropertyValueOrNull -Object $permission -Name 'PermissionType')
+                AccessRights   = @($rights | ForEach-Object { [string]$_ })
+                Deny           = [bool](Get-PropertyValueOrNull -Object $permission -Name 'Deny')
+                IsInherited    = [bool](Get-PropertyValueOrNull -Object $permission -Name 'IsInherited')
             }
         }
     )
@@ -96,7 +106,7 @@ function ConvertTo-HistoryRecord {
         $usagePercent = [math]::Round((($sizeGb / $quotaGb) * 100), 2)
     }
 
-    $permissions = Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Raw -Name 'Permissions')
+    $permissions = Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Raw -Name 'Permissions') -MailboxGuid $exchangeGuid
 
     $sample = [pscustomobject]@{
         TimestampUtc     = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Raw -Name 'TimestampUtc')
@@ -113,8 +123,11 @@ function ConvertTo-HistoryRecord {
 
     return [pscustomobject]@{
         ExchangeGuid       = $exchangeGuid
+        Alias              = [string](Get-PropertyValueOrNull -Object $Raw -Name 'Alias')
         PrimarySmtpAddress = [string](Get-PropertyValueOrNull -Object $Raw -Name 'PrimarySmtpAddress')
         DisplayName        = [string](Get-PropertyValueOrNull -Object $Raw -Name 'DisplayName')
+        RecipientTypeDetails = [string](Get-PropertyValueOrNull -Object $Raw -Name 'RecipientTypeDetails')
+        CreatedUtc         = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Raw -Name 'CreatedUtc')
         Permissions        = $permissions
         Samples            = @($sample)
     }
@@ -252,10 +265,16 @@ function Merge-RecordIntoIndex {
 
     $newSmtp = [string](Get-PropertyValueOrNull -Object $Record -Name 'PrimarySmtpAddress')
     $newDisplayName = [string](Get-PropertyValueOrNull -Object $Record -Name 'DisplayName')
+    $newAlias = [string](Get-PropertyValueOrNull -Object $Record -Name 'Alias')
+    $newRecipientTypeDetails = [string](Get-PropertyValueOrNull -Object $Record -Name 'RecipientTypeDetails')
+    $newCreatedUtc = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Record -Name 'CreatedUtc')
     $newPermissions = Get-PropertyValueOrNull -Object $Record -Name 'Permissions'
 
     if (-not [string]::IsNullOrWhiteSpace($newSmtp)) { $existing.PrimarySmtpAddress = $newSmtp }
     if (-not [string]::IsNullOrWhiteSpace($newDisplayName)) { $existing.DisplayName = $newDisplayName }
+    if (-not [string]::IsNullOrWhiteSpace($newAlias)) { $existing.Alias = $newAlias }
+    if (-not [string]::IsNullOrWhiteSpace($newRecipientTypeDetails)) { $existing.RecipientTypeDetails = $newRecipientTypeDetails }
+    if (-not [string]::IsNullOrWhiteSpace($newCreatedUtc)) { $existing.CreatedUtc = $newCreatedUtc }
     if ($null -ne $newPermissions) { $existing.Permissions = @($newPermissions) }
 
     $existing.Samples = $ordered

@@ -3,7 +3,8 @@
     Rebuilds data.json, the latest-snapshot file the dashboard reads.
 .DESCRIPTION
     Takes the newest sample for every mailbox in history.json and writes it to data.json
-    in the shape the web UI expects. Records are keyed on ExchangeGuid throughout.
+    in the shape the web UI expects. Records are keyed on ExchangeGuid throughout and
+    include creation metadata and typed permission links for the access map.
 .PARAMETER StaleAfterDays
     Report mailboxes whose newest sample is older than this. They are still written, but
     a stale snapshot usually means the collector stopped covering those mailboxes.
@@ -12,6 +13,9 @@
     Rebuilds data.json from the configured history file.
 .EXAMPLE
     .\Generate-MailboxSnapshot.ps1 -StaleAfterDays 7
+.NOTES
+    GitHub Summary: Generates the current dashboard snapshot from mailbox history,
+    retaining GUID-linked permissions and mailbox creation metadata.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -78,7 +82,10 @@ function Get-LatestSample {
 function Convert-PermissionSet {
     param(
         [Parameter()]
-        $Permissions
+        $Permissions,
+
+        [Parameter()]
+        [string]$MailboxGuid
     )
 
     if ($null -eq $Permissions) {
@@ -93,10 +100,12 @@ function Convert-PermissionSet {
             if ($null -eq $rights) { $rights = Get-PropertyValueOrNull -Object $permission -Name 'accessRights' }
 
             [pscustomobject]@{
-                User         = [string](Get-PropertyValueOrNull -Object $permission -Name 'User')
-                AccessRights = @($rights | ForEach-Object { [string]$_ })
-                Deny         = [bool](Get-PropertyValueOrNull -Object $permission -Name 'Deny')
-                IsInherited  = [bool](Get-PropertyValueOrNull -Object $permission -Name 'IsInherited')
+                MailboxGuid    = [string]$(if (-not [string]::IsNullOrWhiteSpace($MailboxGuid)) { $MailboxGuid } else { Get-PropertyValueOrNull -Object $permission -Name 'MailboxGuid' })
+                User           = [string](Get-PropertyValueOrNull -Object $permission -Name 'User')
+                PermissionType = [string](Get-PropertyValueOrNull -Object $permission -Name 'PermissionType')
+                AccessRights   = @($rights | ForEach-Object { [string]$_ })
+                Deny           = [bool](Get-PropertyValueOrNull -Object $permission -Name 'Deny')
+                IsInherited    = [bool](Get-PropertyValueOrNull -Object $permission -Name 'IsInherited')
             }
         }
     )
@@ -119,8 +128,11 @@ function ConvertTo-SnapshotRecord {
 
     return [pscustomobject]@{
         ExchangeGuid       = [string](Get-PropertyValueOrNull -Object $Entry -Name 'ExchangeGuid')
+        Alias              = [string](Get-PropertyValueOrNull -Object $Entry -Name 'Alias')
         PrimarySmtpAddress = [string](Get-PropertyValueOrNull -Object $Entry -Name 'PrimarySmtpAddress')
         DisplayName        = [string](Get-PropertyValueOrNull -Object $Entry -Name 'DisplayName')
+        RecipientTypeDetails = [string](Get-PropertyValueOrNull -Object $Entry -Name 'RecipientTypeDetails')
+        CreatedUtc         = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Entry -Name 'CreatedUtc')
         current            = [pscustomobject]@{
             totalGB          = $sizeGb
             itemCount        = [int64](Get-PropertyValueOrNull -Object $Sample -Name 'ItemCount')
@@ -132,7 +144,7 @@ function ConvertTo-SnapshotRecord {
             archiveItemCount = [int64](Get-PropertyValueOrNull -Object $Sample -Name 'ArchiveItemCount')
             sampleTimestamp  = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Sample -Name 'TimestampUtc')
         }
-        permissions        = Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Entry -Name 'Permissions')
+        permissions        = Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Entry -Name 'Permissions') -MailboxGuid ([string](Get-PropertyValueOrNull -Object $Entry -Name 'ExchangeGuid'))
     }
 }
 

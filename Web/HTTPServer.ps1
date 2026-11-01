@@ -1,3 +1,13 @@
+<#
+.SYNOPSIS
+    Serves the static MailboxDashboard web files over HTTP.
+.DESCRIPTION
+    Restricts published backup access to the status manifest and timestamped
+    history.json/data.json copies under Backups.
+.NOTES
+    GitHub Summary: Serves dashboard assets and applies an exact allowlist to published
+    backup manifests and data copies.
+#>
 [CmdletBinding()]
 param(
     [string]$RootPath = $PSScriptRoot,
@@ -279,6 +289,19 @@ try {
             $relativePath = [System.Uri]::UnescapeDataString($request.Url.AbsolutePath.TrimStart("/"))
             if ([string]::IsNullOrWhiteSpace($relativePath)) {
                 $relativePath = "index.html"
+            }
+
+            if ($relativePath -match '^(?i:Backups)(?:/|\\|$)') {
+                $isAllowedBackupFile =
+                    $relativePath -match '^(?i:Backups)[/\\]backup-status\.json$' -or
+                    $relativePath -match '^(?i:Backups)[/\\]MailboxDashboard_\d{8}T\d{9}Z[/\\](?:history|data)\.json$'
+                if (-not $isAllowedBackupFile) {
+                    $requestStatusCode = 404
+                    $body = [System.Text.Encoding]::UTF8.GetBytes("Not found.")
+                    $responseBytes = $body.Length
+                    Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
+                    continue
+                }
             }
 
             if ($relativePath -eq "quit") {

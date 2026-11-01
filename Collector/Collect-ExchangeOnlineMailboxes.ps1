@@ -3,8 +3,8 @@
     Collects Exchange Online mailbox metrics and appends them to the history file.
 .DESCRIPTION
     Reads the mailbox list, queries Exchange Online for size, quota, item count,
-    permissions, and archive metrics, then appends one sample per mailbox to
-    history.json keyed on ExchangeGuid.
+    Full Access, Send As, Send on Behalf, creation metadata, and archive metrics,
+    then appends one sample per mailbox to history.json keyed on ExchangeGuid.
 
     Requires an existing Exchange Online session - run Invoke-MailboxDashboardAuth.ps1
     first, or use -Connect to authenticate here.
@@ -22,6 +22,9 @@
 .EXAMPLE
     .\Collect-ExchangeOnlineMailboxes.ps1 -Identity user@contoso.com -Connect
     Authenticates, then collects a single mailbox.
+.NOTES
+    GitHub Summary: Collects primary/archive usage and typed mailbox delegations,
+    recording stable Exchange GUIDs for history and access-map reporting.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -70,25 +73,50 @@ Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "Modules\MailboxDa
 function Convert-PermissionSet {
 <#
 .SYNOPSIS
-    Reduces raw mailbox permissions to the fields the dashboard displays.
+    Normalizes Full Access, Send As, and Send on Behalf delegations for the dashboard.
 #>
     param(
-        [Parameter()]
-        $Permissions
+        [Parameter()] $FullAccess,
+        [Parameter()] $SendAs,
+        [Parameter()] $SendOnBehalf,
+        [Parameter()] [string]$MailboxGuid
     )
 
-    if ($null -eq $Permissions) {
-        return @()
-    }
-
     return @(
-        foreach ($permission in @($Permissions)) {
+        foreach ($permission in @($FullAccess)) {
             if ($null -eq $permission) { continue }
 
             [pscustomobject]@{
-                User         = [string]$permission.User
+                MailboxGuid  = $MailboxGuid
+                User         = [string](Get-PropertyValueOrNull -Object $permission -Name 'User')
+                PermissionType = 'FullAccess'
                 AccessRights = @($permission.AccessRights | ForEach-Object { [string]$_ })
                 Deny         = [bool]$permission.Deny
+                IsInherited  = [bool]$permission.IsInherited
+            }
+        }
+        foreach ($permission in @($SendAs)) {
+            if ($null -eq $permission) { continue }
+
+            [pscustomobject]@{
+                MailboxGuid  = $MailboxGuid
+                User          = [string](Get-PropertyValueOrNull -Object $permission -Name 'Trustee')
+                PermissionType = 'SendAs'
+                AccessRights  = @($permission.AccessRights | ForEach-Object { [string]$_ })
+                Deny          = [string](Get-PropertyValueOrNull -Object $permission -Name 'AccessControlType') -eq 'Deny'
+                IsInherited   = [bool](Get-PropertyValueOrNull -Object $permission -Name 'IsInherited')
+            }
+        }
+        foreach ($delegate in @($SendOnBehalf)) {
+            if ($null -eq $delegate) { continue }
+
+            [pscustomobject]@{
+                MailboxGuid  = $MailboxGuid
+                User          = [string]$delegate
+                PermissionType = 'SendOnBehalf'
+                AccessRights  = @('SendOnBehalf')
+                Deny          = $false
+                IsInherited   = $false
             }
         }
     )
@@ -228,7 +256,7 @@ function Get-MailboxSample {
         [Parameter(Mandatory)] [string]$Timestamp
     )
 
-    $mailboxInfo = Get-EXOMailbox -Identity $MailboxIdentity -Properties ExchangeGuid, ArchiveGuid, ArchiveStatus, ProhibitSendReceiveQuota -ErrorAction Stop
+    $mailboxInfo = Get-EXOMailbox -Identity $MailboxIdentity -Properties ExchangeGuid, Alias, DisplayName, PrimarySmtpAddress, WhenCreated, RecipientTypeDetails, GrantSendOnBehalfTo, ArchiveGuid, ArchiveStatus, ProhibitSendReceiveQuota -ErrorAction Stop
     $stats = Get-EXOMailboxStatistics -Identity $MailboxIdentity -ErrorAction Stop
 
     $sizeGb = Convert-BytesToGigabytes -Bytes (Convert-ExoSizeToBytes -Value $stats.TotalItemSize) -Precision 2
@@ -239,11 +267,27 @@ function Get-MailboxSample {
         $usagePercent = [math]::Round((($sizeGb / $quotaGb) * 100), 2)
     }
 
-    $rawPermissions = @(
+    $fullAccessPermissions = @(
         Get-EXOMailboxPermission -Identity $MailboxIdentity -ErrorAction Stop |
-            Where-Object { $_.IsInherited -eq $false -and $_.User -notmatch "NT AUTHORITY\\SELF|S-1-5-" }
+            Where-Object {
+                $_.IsInherited -eq $false -and
+                $_.Deny -eq $false -and
+                $_.User -notmatch "NT AUTHORITY\\SELF|S-1-5-"
+            }
     )
-    $permissions = Convert-PermissionSet -Permissions $rawPermissions
+    $sendAsPermissions = @(
+        Get-EXORecipientPermission -Identity $MailboxIdentity -AccessRights SendAs -ResultSize Unlimited -ErrorAction Stop |
+            Where-Object {
+                $null = $trustee = [string](Get-PropertyValueOrNull -Object $_ -Name 'Trustee')
+                $null = $accessRights = @(Get-PropertyValueOrNull -Object $_ -Name 'AccessRights' | ForEach-Object { [string]$_ })
+                (Get-PropertyValueOrNull -Object $_ -Name 'IsInherited') -ne $true -and
+                [string](Get-PropertyValueOrNull -Object $_ -Name 'AccessControlType') -ne 'Deny' -and
+                $trustee -notmatch "NT AUTHORITY\\SELF|S-1-5-" -and
+                $accessRights -contains 'SendAs'
+            }
+    )
+    $sendOnBehalf = @(Get-PropertyValueOrNull -Object $mailboxInfo -Name 'GrantSendOnBehalfTo')
+    $permissions = Convert-PermissionSet -FullAccess $fullAccessPermissions -SendAs $sendAsPermissions -SendOnBehalf $sendOnBehalf -MailboxGuid ([string]$mailboxInfo.ExchangeGuid)
 
     $archive = Get-ArchiveMetric -MailboxIdentity $MailboxIdentity -MailboxInfo $mailboxInfo
 
@@ -272,8 +316,13 @@ function Get-MailboxSample {
 
     return [pscustomobject]@{
         ExchangeGuid       = [string]$mailboxInfo.ExchangeGuid
+        Alias              = [string](Get-PropertyValueOrNull -Object $mailboxInfo -Name 'Alias')
         PrimarySmtpAddress = [string]$mailboxInfo.PrimarySmtpAddress
         DisplayName        = [string]$mailboxInfo.DisplayName
+        RecipientTypeDetails = [string](Get-PropertyValueOrNull -Object $mailboxInfo -Name 'RecipientTypeDetails')
+        CreatedUtc         = if ($null -ne (Get-PropertyValueOrNull -Object $mailboxInfo -Name 'WhenCreated')) {
+            ([datetime](Get-PropertyValueOrNull -Object $mailboxInfo -Name 'WhenCreated')).ToUniversalTime().ToString('o')
+        } else { $null }
         Permissions        = @($permissions)
         Sample             = $sample
     }
@@ -440,14 +489,22 @@ foreach ($identityValue in $identities) {
 
             $entry.PrimarySmtpAddress = $result.PrimarySmtpAddress
             $entry.DisplayName = $result.DisplayName
+            $entry.Alias = $result.Alias
+            $entry.RecipientTypeDetails = $result.RecipientTypeDetails
+            if (-not [string]::IsNullOrWhiteSpace($result.CreatedUtc)) {
+                $entry.CreatedUtc = $result.CreatedUtc
+            }
             $entry.Permissions = $result.Permissions
             $entry.Samples = @($samples)
         }
         else {
             $entry = [pscustomobject]@{
                 ExchangeGuid       = $result.ExchangeGuid
+                Alias              = $result.Alias
                 PrimarySmtpAddress = $result.PrimarySmtpAddress
                 DisplayName        = $result.DisplayName
+                RecipientTypeDetails = $result.RecipientTypeDetails
+                CreatedUtc         = $result.CreatedUtc
                 Permissions        = $result.Permissions
                 Samples            = @($result.Sample)
             }
@@ -483,7 +540,7 @@ Save-CollectionProgress `
     -Records $records `
     -Path $resolvedOutputPath `
     -Timestamp $timestamp `
-    -Source "Exchange Online (Get-EXOMailbox / Get-EXOMailboxStatistics / Get-EXOMailboxPermission)" `
+    -Source "Exchange Online (Get-EXOMailbox / Get-EXOMailboxStatistics / mailbox delegation cmdlets)" `
     -Detail "$collected collected, $failed failed"
 
 Write-Detail "Collected $collected of $($identities.Count); $failed failed, $skipped skipped."

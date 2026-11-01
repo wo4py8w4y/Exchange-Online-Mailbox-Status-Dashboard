@@ -15,6 +15,8 @@
     "MailboxesCsv": "..\\Mailboxes\\mailboxes.csv",
     "HistoryJson": "..\\Web\\history.json",
     "DataJson": "..\\Web\\data.json",
+    "BackupDirectory": "..\\Web\\Backups",
+    "WebRoot": "..\\Web",
     "DemoDataJson": "..\\Web\\demo-data.json",
     "DemoHistoryJson": "..\\Web\\demo-history.json",
     "TempDirectory": ".\\Temp",
@@ -39,6 +41,13 @@
     "PostValidateJson": true,
     "AutoRepairErrors": false,
     "CullInvalidRecords": true
+  },
+
+  "Backup": {
+    "Sources": [
+      "HistoryJson",
+      "DataJson"
+    ]
   },
 
   "Logging": {

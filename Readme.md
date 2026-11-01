@@ -162,6 +162,8 @@ any machine regardless of where the repository is cloned.
     "MailboxesCsv":        "..\\Mailboxes\\mailboxes.csv",
     "HistoryJson":         "..\\Web\\history.json",
     "DataJson":            "..\\Web\\data.json",
+    "BackupDirectory":     "..\\Web\\Backups",
+    "WebRoot":             "..\\Web",
     "DemoDataJson":        "..\\Web\\demo-data.json",
     "DemoHistoryJson":     "..\\Web\\demo-history.json",
     "TempDirectory":       ".\\Temp",
@@ -327,6 +329,50 @@ is the quickest way to refresh the dashboard after editing or repairing history 
 .\Collector\Test-MailboxDashboardJSON.ps1 -Strict
 ```
 
+### Backing up validated dashboard data
+
+`Backup-MailboxDashboard.ps1` validates the configured history and data JSON files before
+creating a backup. It then copies them into a timestamped folder, verifies each copy with
+SHA-256, validates the staged files, and only then finalizes the backup folder.
+
+The destination and included files are controlled by `Paths.BackupDirectory`,
+`Paths.WebRoot`, and `Backup.Sources` in `Collector\Config\dashboardConfig.json`.
+The backup directory must resolve to `WebRoot\Backups`; this keeps the published copies
+inside the dashboard's restricted static-file location.
+
+```json
+{
+  "Paths": {
+    "BackupDirectory": "..\\Web\\Backups",
+    "WebRoot": "..\\Web"
+  },
+  "Backup": {
+    "Sources": ["HistoryJson", "DataJson"]
+  }
+}
+```
+
+Only `HistoryJson` and `DataJson` can be included; configuration files and logs are never
+copied. Run the backup, or validate and preview it without writing:
+
+```powershell
+.\Collector\Backup-MailboxDashboard.ps1
+.\Collector\Backup-MailboxDashboard.ps1 -WhatIf
+```
+
+An invalid or missing source prevents a backup from being finalized. Existing backups are
+not automatically pruned. Each successful run adds its file names, byte sizes, SHA-256
+hashes, and validation status to `Web/Backups/backup-status.json`. The separate
+`backups.html` page checks the served copies against that manifest and provides downloads.
+IIS directory browsing is disabled for this folder, and URL Rewrite rules allow only the
+status manifest and timestamped `history.json`/`data.json` copies. Install the IIS URL
+Rewrite module when hosting with IIS; the built-in HTTP server applies the equivalent
+filename allowlist without that module. The browser uses Web Crypto to check SHA-256, so
+serve the dashboard over HTTPS or localhost; otherwise the copy is clearly marked as
+unverified. If your existing
+universal config still points at `Collector/Backups`, update both paths before running a
+backup.
+
 **Detected:** missing or malformed `ExchangeGuid`, duplicate mailboxes, duplicate sample
 timestamps, unparseable dates, missing or non-numeric values, negative values, quota of
 zero, usage that disagrees with size ÷ quota, and mailboxes with no samples.
@@ -393,9 +439,19 @@ To build the dashboard end to end without Exchange:
 | `scope.html` | The same overview limited to one scope |
 | `mailbox.html` | One mailbox: metrics, history, delegates |
 | `history.html` | Historical storage and utilisation |
-| `permissions.html` | Delegate permissions across mailboxes |
+| `permissions.html` | Full Access, Send As, and Send on Behalf permissions |
+| `accessmap.html` | User-to-mailbox delegation map, scoped to the current filters |
+| `backups.html` | Backup copies, hash/size validity, and downloads |
 | `thresholds.html` | Mailboxes at or above the warning threshold |
 | `validate.html` | Standalone data validation view |
+
+Mailbox delegation records carry the target `ExchangeGuid`; links use that GUID while the
+map displays mailbox names and aliases. The map distinguishes Full Access, Send As, and
+Send on Behalf with separate badges and can retain principals whose mailbox links are
+hidden by the active filters. Mailbox statistics also show lifetime-average storage
+consumption in GB/day: current primary plus archive storage divided by the mailbox age
+from `CreatedUtc` to the latest sample. The rate is unavailable if creation/sample dates
+are missing or invalid.
 
 ### Finding and sorting
 
@@ -670,6 +726,7 @@ then stored in the configuration at all.
 | `Merge-CollectionResults.ps1` | Merges parallel worker output into history |
 | `Generate-MailboxSnapshot.ps1` | Rebuilds `data.json` from history |
 | `Test-MailboxDashboardJSON.ps1` | Validates, repairs and culls the JSON files |
+| `Backup-MailboxDashboard.ps1` | Validates and backs up configured dashboard JSON |
 | `New-MailboxDashboardTestData.ps1` | Generates synthetic data |
 | `Register-EntraApp.ps1` | Creates or repairs the Entra app registration |
 | `Get-ExchangeOnlineAccessToken.ps1` | Standalone token helper |
