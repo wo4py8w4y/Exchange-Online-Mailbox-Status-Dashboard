@@ -1,3 +1,13 @@
+<#
+.SYNOPSIS
+    Serves the static MailboxDashboard web files over HTTP.
+.DESCRIPTION
+    Restricts published backup access to the status manifest and timestamped
+    history.json/data.json copies under Backups.
+.NOTES
+    GitHub Summary: Serves dashboard assets and applies an exact allowlist to published
+    backup manifests and data copies.
+#>
 [CmdletBinding()]
 param(
     [string]$RootPath = $PSScriptRoot,
@@ -32,11 +42,7 @@ function Get-NowUtcString {
     return (Get-Date).ToUniversalTime().ToString("o")
 }
 
-<<<<<<< HEAD
 function Invoke-LogRotation {
-=======
-function Rotate-LogFile {
->>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
     param(
         [Parameter(Mandatory)]
         [string]$Path,
@@ -89,11 +95,8 @@ function Write-ServerLog {
         [string]$Message
     )
 
-<<<<<<< HEAD
     Invoke-LogRotation -Path $Path -MaxBytes $MaxBytes -RetentionCount $RetentionCount
-=======
-    Rotate-LogFile -Path $Path -MaxBytes $MaxBytes -RetentionCount $RetentionCount
->>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+
     Add-Content -LiteralPath $Path -Value $Message -Encoding utf8
 }
 
@@ -201,7 +204,6 @@ function Send-TextResponse {
 
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($Text)
     Send-Response -Response $Response -Body $bytes -ContentType "text/plain; charset=utf-8" -StatusCode $StatusCode
-<<<<<<< HEAD
 }
 
 function Read-ServedFileBytes {
@@ -246,8 +248,6 @@ function Read-ServedFileBytes {
     }
 
     throw "Could not read served file '$Path'."
-=======
->>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
 }
 
 $resolvedRootPath = [System.IO.Path]::GetFullPath($RootPath)
@@ -309,10 +309,7 @@ try {
         $requestStart = Get-Date
         $requestStatusCode = 500
         $responseBytes = 0L
-<<<<<<< HEAD
         $responseSent = $false
-=======
->>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
         $requestPath = if ($request.Url) { $request.Url.PathAndQuery } else { "/" }
         $clientIp = if ($request.RemoteEndPoint) { $request.RemoteEndPoint.Address.ToString() } else { "" }
 
@@ -332,10 +329,7 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Only GET is supported.")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
-<<<<<<< HEAD
                 $responseSent = $true
-=======
->>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
                 continue
             }
 
@@ -344,15 +338,25 @@ try {
                 $relativePath = "index.html"
             }
 
+            if ($relativePath -match '^(?i:Backups)(?:/|\\|$)') {
+                $isAllowedBackupFile =
+                    $relativePath -match '^(?i:Backups)[/\\]backup-status\.json$' -or
+                    $relativePath -match '^(?i:Backups)[/\\]MailboxDashboard_\d{8}T\d{9}Z[/\\](?:history|data)\.json$'
+                if (-not $isAllowedBackupFile) {
+                    $requestStatusCode = 404
+                    $body = [System.Text.Encoding]::UTF8.GetBytes("Not found.")
+                    $responseBytes = $body.Length
+                    Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
+                    continue
+                }
+            }
+
             if ($relativePath -eq "quit") {
                 $requestStatusCode = 200
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Server shutting down.")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
-<<<<<<< HEAD
                 $responseSent = $true
-=======
->>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
                 break
             }
 
@@ -364,10 +368,7 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Forbidden.")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
-<<<<<<< HEAD
                 $responseSent = $true
-=======
->>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
                 continue
             }
 
@@ -376,10 +377,7 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Not found.")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
-<<<<<<< HEAD
                 $responseSent = $true
-=======
->>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
                 continue
             }
 
@@ -392,10 +390,7 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Not found.")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
-<<<<<<< HEAD
                 $responseSent = $true
-=======
->>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
                 continue
             }
 
@@ -404,7 +399,6 @@ try {
             $requestStatusCode = 200
             $responseBytes = $bytes.Length
             Send-Response -Response $response -Body $bytes -ContentType $contentType -StatusCode $requestStatusCode
-<<<<<<< HEAD
             $responseSent = $true
         }
         catch {
@@ -419,15 +413,6 @@ try {
                 catch {
                     Write-ServerEvent -Level "ERROR" -Message ("Error response failed: {0}" -f $_.Exception.Message) -LogPath $resolvedLogPath -LogMaxBytes $maxLogBytes -LogRetentionCount $LogRetentionCount -ClientIp $clientIp -Method $request.HttpMethod -Path $requestPath -StatusCode $requestStatusCode
                 }
-=======
-        }
-        catch {
-            if ($response.OutputStream.CanWrite) {
-                $requestStatusCode = 500
-                $body = [System.Text.Encoding]::UTF8.GetBytes("Server error: $($_.Exception.Message)")
-                $responseBytes = $body.Length
-                Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
->>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
             }
 
             Write-ServerEvent `

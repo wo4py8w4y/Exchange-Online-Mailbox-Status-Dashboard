@@ -13,6 +13,9 @@
              restore empty history records from matching data.json snapshots
       -Cull      additionally remove records that cannot be repaired
       -Strict    report only, and fail the run if any problem is found
+      -FailOnInvalid report failure as a terminating error for a calling script
+.PARAMETER FailOnInvalid
+    Read-only mode that throws on invalid files without exiting the invoking process.
 .PARAMETER Target
     Which files to check: History, Data, or Both (default).
 .PARAMETER Path
@@ -29,6 +32,9 @@
 .EXAMPLE
     .\Test-MailboxDashboardJSON.ps1 -Strict
     Exits with code 1 if the data is not clean - suitable for a scheduled task gate.
+.NOTES
+    GitHub Summary: Validates and optionally repairs dashboard JSON; read-only callers
+    can fail safely before dependent operations such as backup creation.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -53,6 +59,9 @@ param(
 
     [Parameter()]
     [switch]$Strict,
+
+    [Parameter()]
+    [switch]$FailOnInvalid,
 
     [Parameter()]
     [switch]$NoBackup
@@ -899,6 +908,9 @@ $config = Import-MailboxDashboardConfig -ConfigPath $ConfigPath -SkipValidation
 if ($Strict -and ($Repair -or $Cull)) {
     throw "-Strict reports without changing anything; it cannot be combined with -Repair or -Cull."
 }
+if ($FailOnInvalid -and ($Repair -or $Cull)) {
+    throw "-FailOnInvalid is read-only and cannot be combined with -Repair or -Cull."
+}
 
 if ($RestoreSamplesFromData) {
     if (-not $Repair) {
@@ -966,4 +978,7 @@ $reports
 
 if ($Strict -and -not $allValid) {
     exit 1
+}
+if ($FailOnInvalid -and -not $allValid) {
+    throw "Validation failed for one or more files. No dependent operation should proceed."
 }

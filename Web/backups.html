@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Validated Backups</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+        const savedTheme = localStorage.getItem('dashboardTheme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<body data-page="backups">
+    <header class="app-header">
+        <div>
+            <h1>Backup status</h1>
+            <p id="lastUpdated">Loading...</p>
+        </div>
+        <div class="header-actions">
+            <select id="themeSelect" class="theme-select" title="Change theme"></select>
+            <button id="refreshButton" class="btn-primary">Refresh now</button>
+        </div>
+    </header>
+
+    <nav class="panel view-nav" aria-label="Views">
+        <strong>Views:</strong>
+        <a href="index.html">Dashboard</a> |
+        <a href="scope.html">Scoped report</a> |
+        <a href="mailbox.html">Mailbox</a> |
+        <a href="history.html">History</a> |
+        <a href="permissions.html">Permissions</a> |
+        <a href="accessmap.html">Access map</a> |
+        <a href="backups.html">Backups</a> |
+        <a href="thresholds.html">Thresholds</a> |
+        <a href="licensing.html">Licensing</a> |
+        <a href="retentionpolicy.html">Retention Policy</a> |
+        <a href="validate.html">Validate</a>
+    </nav>
+
+    <main>
+        <section class="panel backup-status-panel">
+            <h2>Validated backup copies</h2>
+            <p id="backupStatusSummary" class="backup-status-message is-neutral">Loading backup manifest...</p>
+            <div id="backupList" class="backup-list"></div>
+            <p class="panel-subtitle">Each listed file is checked against its recorded size and SHA-256 hash. A missing or mismatched copy is marked invalid.</p>
+        </section>
+    </main>
+    <script defer src="dashboard.js"></script>
+</body>
+</html>

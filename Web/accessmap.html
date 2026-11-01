@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Mailbox Access Map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+        const savedTheme = localStorage.getItem('dashboardTheme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+</head>
+<body data-page="accessmap">
+    <header class="app-header">
+        <div>
+            <h1>Mailbox access map</h1>
+            <p id="lastUpdated">Loading...</p>
+        </div>
+        <div class="header-actions">
+            <select id="themeSelect" class="theme-select" title="Change theme"></select>
+            <button id="refreshButton" class="btn-primary">Refresh now</button>
+        </div>
+    </header>
+
+    <nav class="panel view-nav" aria-label="Views">
+        <strong>Views:</strong>
+        <a href="index.html">Dashboard</a> |
+        <a href="scope.html">Scoped report</a> |
+        <a href="mailbox.html">Mailbox</a> |
+        <a href="history.html">History</a> |
+        <a href="permissions.html">Permissions</a> |
+        <a href="accessmap.html">Access map</a> |
+        <a href="backups.html">Backups</a> |
+        <a href="thresholds.html">Thresholds</a> |
+        <a href="licensing.html">Licensing</a> |
+        <a href="retentionpolicy.html">Retention Policy</a> |
+        <a href="validate.html">Validate</a>
+    </nav>
+
+    <main>
+        <section id="scopeBanner" class="scope-banner" hidden></section>
+        <section class="panel search-panel">
+            <div class="search-panel-head">
+                <div>
+                    <h2>Delegation relationships</h2>
+                    <p id="searchStatus" class="panel-subtitle">Filter the map by mailbox, alias, or delegate. Each link uses the mailbox GUID.</p>
+                </div>
+                <button id="clearSearchBtn" class="btn-secondary">Clear</button>
+            </div>
+            <div class="search-shell">
+                <label class="sr-only" for="mailboxSearch">Find mailbox or delegate</label>
+                <input id="mailboxSearch" autocomplete="off" placeholder="Search mailbox, alias, or delegate">
+                <button id="openMailboxBtn" class="btn-primary" type="button">Open mailbox view</button>
+            </div>
+            <div id="selectedMailboxSummary" class="selected-mailbox-summary" hidden></div>
+            <section id="searchResultsPanel" class="search-results-panel" hidden>
+                <div class="search-results-head">
+                    <strong id="searchResultsTitle">Matches</strong>
+                    <span id="searchResultsMeta"></span>
+                </div>
+                <div id="searchResults" class="search-results"></div>
+            </section>
+        </section>
+
+        <section class="panel access-map-toolbar" id="accessMapControls" aria-label="Map filters">
+            <div>
+                <h2>Show permission types</h2>
+                <p class="panel-subtitle">Mailbox scope and current search/filter settings apply to links.</p>
+            </div>
+            <div class="access-map-filter-options">
+                <label><input type="checkbox" data-permission-type="FullAccess" checked> <span class="permission-badge permission-full-access">Full Access</span></label>
+                <label><input type="checkbox" data-permission-type="SendAs" checked> <span class="permission-badge permission-send-as">Send As</span></label>
+                <label><input type="checkbox" data-permission-type="SendOnBehalf" checked> <span class="permission-badge permission-send-on-behalf">Send on Behalf</span></label>
+                <label><input type="checkbox" data-permission-type="Other" checked> Other</label>
+                <label><input id="showUnlinkedPrincipals" type="checkbox" checked> Show principals without matching links</label>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="table-header">
+                <div>
+                    <h2>Users and mailbox links</h2>
+                    <p id="accessMapSummary" class="panel-subtitle">Building access map...</p>
+                </div>
+            </div>
+            <div id="accessMap" class="access-map-list" aria-live="polite"></div>
+        </section>
+    </main>
+    <script defer src="dashboard.js"></script>
+</body>
+</html>

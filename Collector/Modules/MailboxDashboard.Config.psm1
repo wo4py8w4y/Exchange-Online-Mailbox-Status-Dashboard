@@ -5,6 +5,9 @@
     Reads dashboardConfig.json, applies defaults for anything omitted, resolves every
     configured relative path against the collector root, and validates the settings that
     the selected authentication mode requires.
+.NOTES
+    GitHub Summary: Provides shared dashboard defaults and path resolution, including
+    the web-served validated-backup location.
 #>
 
 Set-StrictMode -Version Latest
@@ -35,6 +38,8 @@ function Get-DefaultConfig {
             MailboxesCsv        = "..\Mailboxes\mailboxes.csv"
             HistoryJson         = "..\Web\history.json"
             DataJson            = "..\Web\data.json"
+            BackupDirectory     = "..\Web\Backups"
+            WebRoot             = "..\Web"
             DemoDataJson        = "..\Web\demo-data.json"
             DemoHistoryJson     = "..\Web\demo-history.json"
             TempDirectory       = ".\Temp"
@@ -59,6 +64,10 @@ function Get-DefaultConfig {
             PostValidateJson   = $true
             AutoRepairErrors   = $false
             CullInvalidRecords = $true
+        }
+
+        Backup = [ordered]@{
+            Sources = @("HistoryJson", "DataJson")
         }
 
         Logging = [ordered]@{
@@ -193,6 +202,7 @@ function Import-MailboxDashboardConfig {
     $config.Collection = Merge-ConfigSection -Default $defaults.Collection -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Collection')
     $config.Thresholds = Merge-ConfigSection -Default $defaults.Thresholds -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Thresholds')
     $config.Validation = Merge-ConfigSection -Default $defaults.Validation -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Validation')
+    $config.Backup = Merge-ConfigSection -Default $defaults.Backup -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Backup')
     $config.Logging = Merge-ConfigSection -Default $defaults.Logging -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Logging')
     $config.Console = Merge-ConfigSection -Default $defaults.Console -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Console')
 
@@ -275,6 +285,7 @@ function Convert-LegacyPath {
         HistoryJsonPath  = 'HistoryJson'
         HotDataJsonPath  = 'DataJson'
     }
+    $suppliedPaths = Get-PropertyValueOrNull -Object $Supplied -Name 'Paths'
 
     foreach ($legacyName in $legacyMap.Keys) {
         if ($null -eq $Supplied -or ($Supplied.PSObject.Properties.Name -notcontains $legacyName)) {
@@ -289,7 +300,7 @@ function Convert-LegacyPath {
         $targetName = $legacyMap[$legacyName]
 
         # An explicit Paths entry always wins over the legacy root-level key.
-        if ($null -ne $Supplied.Paths -and ($Supplied.Paths.PSObject.Properties.Name -contains $targetName)) {
+        if ($null -ne $suppliedPaths -and ($suppliedPaths.PSObject.Properties.Name -contains $targetName)) {
             continue
         }
 

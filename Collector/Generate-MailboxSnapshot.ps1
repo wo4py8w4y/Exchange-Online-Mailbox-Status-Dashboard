@@ -3,7 +3,8 @@
     Rebuilds data.json, the latest-snapshot file the dashboard reads.
 .DESCRIPTION
     Takes the newest sample for every mailbox in history.json and writes it to data.json
-    in the shape the web UI expects. Records are keyed on ExchangeGuid throughout.
+    in the shape the web UI expects. Records are keyed on ExchangeGuid throughout and
+    include creation metadata and typed permission links for the access map.
 .PARAMETER StaleAfterDays
     Report mailboxes whose newest sample is older than this. They are still written, but
     a stale snapshot usually means the collector stopped covering those mailboxes.
@@ -12,6 +13,9 @@
     Rebuilds data.json from the configured history file.
 .EXAMPLE
     .\Generate-MailboxSnapshot.ps1 -StaleAfterDays 7
+.NOTES
+    GitHub Summary: Generates the current dashboard snapshot from mailbox history,
+    retaining GUID-linked permissions and mailbox creation metadata.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -78,7 +82,10 @@ function Get-LatestSample {
 function Convert-PermissionSet {
     param(
         [Parameter()]
-        $Permissions
+        $Permissions,
+
+        [Parameter()]
+        [string]$MailboxGuid
     )
 
     if ($null -eq $Permissions) {
@@ -91,12 +98,26 @@ function Convert-PermissionSet {
 
             $rights = Get-PropertyValueOrNull -Object $permission -Name 'AccessRights'
             if ($null -eq $rights) { $rights = Get-PropertyValueOrNull -Object $permission -Name 'accessRights' }
+            $rights = @($rights | ForEach-Object { [string]$_ })
+            $rightsText = $rights -join ' '
+            $permissionType = [string](Get-PropertyValueOrNull -Object $permission -Name 'PermissionType')
+            if ([string]::IsNullOrWhiteSpace($permissionType)) {
+                $permissionType = if ($rightsText -match '(?i)SendAs') { 'SendAs' }
+                elseif ($rightsText -match '(?i)SendOnBehalf') { 'SendOnBehalf' }
+                elseif ($rightsText -match '(?i)FullAccess') { 'FullAccess' }
+                else { 'Other' }
+            }
+
+            $user = Get-PropertyValueOrNull -Object $permission -Name 'User'
+            if ($null -eq $user) { $user = Get-PropertyValueOrNull -Object $permission -Name 'Trustee' }
 
             [pscustomobject]@{
-                User         = [string](Get-PropertyValueOrNull -Object $permission -Name 'User')
-                AccessRights = @($rights | ForEach-Object { [string]$_ })
-                Deny         = [bool](Get-PropertyValueOrNull -Object $permission -Name 'Deny')
-                IsInherited  = [bool](Get-PropertyValueOrNull -Object $permission -Name 'IsInherited')
+                MailboxGuid    = [string]$(if (-not [string]::IsNullOrWhiteSpace($MailboxGuid)) { $MailboxGuid } else { Get-PropertyValueOrNull -Object $permission -Name 'MailboxGuid' })
+                User           = [string]$user
+                PermissionType = $permissionType
+                AccessRights   = $rights
+                Deny           = [bool](Get-PropertyValueOrNull -Object $permission -Name 'Deny')
+                IsInherited    = [bool](Get-PropertyValueOrNull -Object $permission -Name 'IsInherited')
             }
         }
     )
@@ -117,8 +138,14 @@ function ConvertTo-SnapshotRecord {
         $usagePercent = [math]::Round((($sizeGb / $quotaGb) * 100), 2)
     }
 
+    $createdUtc = Get-PropertyValueOrNull -Object $Entry -Name 'CreatedUtc'
+    if ($null -eq $createdUtc) {
+        $createdUtc = Get-PropertyValueOrNull -Object $Entry -Name 'WhenCreatedUtc'
+    }
+
     return [pscustomobject]@{
         ExchangeGuid       = [string](Get-PropertyValueOrNull -Object $Entry -Name 'ExchangeGuid')
+        Alias              = [string](Get-PropertyValueOrNull -Object $Entry -Name 'Alias')
         PrimarySmtpAddress = [string](Get-PropertyValueOrNull -Object $Entry -Name 'PrimarySmtpAddress')
         DisplayName        = [string](Get-PropertyValueOrNull -Object $Entry -Name 'DisplayName')
         WhenCreatedUtc     = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Entry -Name 'WhenCreatedUtc')
@@ -126,6 +153,8 @@ function ConvertTo-SnapshotRecord {
         Retention          = Get-PropertyValueOrNull -Object $Entry -Name 'Retention'
         RetentionPolicyChangeHistory = @(Get-PropertyValueOrNull -Object $Entry -Name 'RetentionPolicyChangeHistory' | Where-Object { $null -ne $_ })
         LicenseAssignmentHistory = @(Get-PropertyValueOrNull -Object $Entry -Name 'LicenseAssignmentHistory' | Where-Object { $null -ne $_ })
+        RecipientTypeDetails = [string](Get-PropertyValueOrNull -Object $Entry -Name 'RecipientTypeDetails')
+        CreatedUtc         = ConvertTo-IsoUtcString -Value $createdUtc
         current            = [pscustomobject]@{
             totalGB          = $sizeGb
             itemCount        = [int64](Get-PropertyValueOrNull -Object $Sample -Name 'ItemCount')
@@ -137,7 +166,11 @@ function ConvertTo-SnapshotRecord {
             archiveItemCount = [int64](Get-PropertyValueOrNull -Object $Sample -Name 'ArchiveItemCount')
             sampleTimestamp  = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Sample -Name 'TimestampUtc')
         }
-        permissions        = @(Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Entry -Name 'Permissions'))
+        permissions        = @(
+            Convert-PermissionSet `
+                -Permissions (Get-PropertyValueOrNull -Object $Entry -Name 'Permissions') `
+                -MailboxGuid ([string](Get-PropertyValueOrNull -Object $Entry -Name 'ExchangeGuid'))
+        )
     }
 }
 

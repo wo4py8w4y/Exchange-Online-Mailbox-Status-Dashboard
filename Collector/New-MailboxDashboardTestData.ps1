@@ -19,6 +19,9 @@
     Writes 250 mailboxes with 30 days of history to the demo files.
 .EXAMPLE
     .\New-MailboxDashboardTestData.ps1 -MailboxCount 50 -Days 90 -Live
+.NOTES
+    GitHub Summary: Generates reproducible dashboard fixtures with mailbox GUIDs,
+    creation dates, archives, and representative typed delegations.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -75,7 +78,6 @@ $script:Sites = @("Brisbane", "Cairns", "Townsville", "Toowoomba", "Rockhampton"
 $script:AccessRights = @(
     @("FullAccess"),
     @("SendAs"),
-    @("FullAccess", "SendAs"),
     @("ReadPermission"),
     @("SendOnBehalf")
 )
@@ -154,8 +156,11 @@ function New-MailboxProfile {
 
     return [pscustomobject]@{
         ExchangeGuid   = [guid]::NewGuid().ToString()
+        Index          = $Index
         DisplayName    = $displayName
         SmtpAddress    = "$localPart@$Domain"
+        Alias          = $localPart
+        CreatedUtc     = [datetime]::UtcNow.AddDays(-$script:Random.Next(365, 5000)).ToString("o")
         UsageProfile   = $usageProfile
         QuotaGB        = $quotaGb
         StartSizeGB    = [math]::Round(($referenceQuota * $startUsage), 2)
@@ -176,6 +181,7 @@ function New-PermissionSet {
 
     $roll = $script:Random.Next(0, 100)
     $count = if ($roll -lt 45) { 0 } elseif ($roll -lt 80) { $script:Random.Next(1, 5) } else { $script:Random.Next(5, 25) }
+    if ($MailboxProfile.Index -eq 1) { $count = [math]::Max($count, 3) }
 
     if ($count -eq 0) {
         return @()
@@ -183,9 +189,34 @@ function New-PermissionSet {
 
     return @(
         for ($i = 1; $i -le $count; $i++) {
+            $rights = if ($MailboxProfile.Index -eq 1 -and $i -le 3) {
+                switch ($i) {
+                    1 { @("FullAccess") }
+                    2 { @("SendAs") }
+                    3 { @("SendOnBehalf") }
+                }
+            }
+            else {
+                @(Get-RandomItem -Items $script:AccessRights)
+            }
+            $rights = @($rights)
+            $permissionType = if ($rights -contains "SendOnBehalf") {
+                "SendOnBehalf"
+            }
+            elseif ($rights -contains "SendAs") {
+                "SendAs"
+            }
+            elseif ($rights -contains "FullAccess") {
+                "FullAccess"
+            }
+            else {
+                "Other"
+            }
             [pscustomobject]@{
+                MailboxGuid  = $MailboxProfile.ExchangeGuid
                 User         = ("delegate{0:D2}.{1}@{2}" -f $i, (Get-RandomItem -Items $script:Teams).ToLowerInvariant(), $Domain)
-                AccessRights = @(Get-RandomItem -Items $script:AccessRights)
+                PermissionType = $permissionType
+                AccessRights = $rights
                 Deny         = $false
                 IsInherited  = $false
             }
@@ -248,6 +279,7 @@ function New-MailboxHistoryRecord {
 
     return [pscustomobject]@{
         ExchangeGuid       = $MailboxProfile.ExchangeGuid
+        Alias              = $MailboxProfile.Alias
         PrimarySmtpAddress = $MailboxProfile.SmtpAddress
         DisplayName        = $MailboxProfile.DisplayName
         Licensing          = [pscustomobject]@{
@@ -272,6 +304,9 @@ function New-MailboxHistoryRecord {
             SingleItemRecoveryEnabled  = $true
             RetainDeletedItemsFor      = "14.00:00:00"
         }
+        RecipientTypeDetails = $MailboxProfile.RecipientTypeDetails
+        CreatedUtc         = $MailboxProfile.CreatedUtc
+        WhenCreatedUtc     = $MailboxProfile.CreatedUtc
         Permissions        = $permissions
         Samples            = @($samples)
     }
@@ -330,10 +365,14 @@ for ($i = 1; $i -le $MailboxCount; $i++) {
     $latest = $record.Samples[-1]
     $snapshots.Add([pscustomobject]@{
         ExchangeGuid       = $record.ExchangeGuid
+        Alias              = $record.Alias
         PrimarySmtpAddress = $record.PrimarySmtpAddress
         DisplayName        = $record.DisplayName
-         Licensing          = $record.Licensing
-         Retention          = $record.Retention
+        RecipientTypeDetails = $record.RecipientTypeDetails
+        CreatedUtc         = $record.CreatedUtc
+        WhenCreatedUtc     = $record.WhenCreatedUtc
+        Licensing          = $record.Licensing
+        Retention           = $record.Retention
         current            = [pscustomobject]@{
             totalGB          = $latest.SizeGB
             itemCount        = $latest.ItemCount

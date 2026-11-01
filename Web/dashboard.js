@@ -2,6 +2,7 @@ const DATA_URL = "data.json";
 const HISTORY_URL = "history.json";
 const MAX_SEARCH_RESULTS = 24;
 const MAX_TABLE_ROWS = 250;
+const MAX_ACCESS_MAP_PRINCIPALS = 500;
 const DEFAULT_PAGE_SIZE = 50;
 const WARNING_THRESHOLD = 85;
 const CRITICAL_THRESHOLD = 94;
@@ -52,14 +53,18 @@ const TABLE_EXPORT_CONFIG = {
     permsTable: {
         title: "Mailbox Permissions",
         toExportRow: ({ mailbox, permission }) => ({
+            mailboxGuid: permission.MailboxGuid || mailbox.exchangeGuid,
             mailboxName: mailbox.displayName, mailboxAddress: mailbox.primarySmtpAddress,
-            delegateUser: permission.User, accessRights: Array.isArray(permission.AccessRights) ? permission.AccessRights.join(", ") : permission.AccessRights,
+            delegateUser: permission.User, permissionType: permission.PermissionType,
+            accessRights: Array.isArray(permission.AccessRights) ? permission.AccessRights.join(", ") : permission.AccessRights,
             isInherited: permission.IsInherited
         }),
         columns: [
             { header: "Mailbox", value: r => r.mailbox.displayName },
             { header: "SMTP Address", value: r => r.mailbox.primarySmtpAddress },
+            { header: "Mailbox GUID", value: r => r.permission.MailboxGuid || r.mailbox.exchangeGuid },
             { header: "Delegate", value: r => r.permission.User },
+            { header: "Permission type", value: r => r.permission.PermissionType },
             { header: "Rights", value: r => Array.isArray(r.permission.AccessRights) ? r.permission.AccessRights.join(", ") : String(r.permission.AccessRights || "") },
             { header: "Inherited", value: r => r.permission.IsInherited ? "Yes" : "No" },
         ]
@@ -103,9 +108,11 @@ const TABLE_EXPORT_CONFIG = {
     },
     mailboxPermissionsTable: {
         title: "Explicit Permissions",
-        toExportRow: p => ({ user: p.User, accessRights: Array.isArray(p.AccessRights) ? p.AccessRights.join(", ") : String(p.AccessRights || ""), isInherited: p.IsInherited }),
+        toExportRow: p => ({ mailboxGuid: p.MailboxGuid, user: p.User, permissionType: p.PermissionType, accessRights: Array.isArray(p.AccessRights) ? p.AccessRights.join(", ") : String(p.AccessRights || ""), isInherited: p.IsInherited }),
         columns: [
+            { header: "Mailbox GUID", value: p => p.MailboxGuid },
             { header: "Delegate", value: p => p.User },
+            { header: "Permission type", value: p => p.PermissionType },
             { header: "Rights", value: p => Array.isArray(p.AccessRights) ? p.AccessRights.join(", ") : String(p.AccessRights || "") },
             { header: "Inherited", value: p => p.IsInherited ? "Yes" : "No" },
         ]
@@ -156,6 +163,8 @@ let refreshMs = 60000;
 
 const state = {
     historyData: createEmptyHistoryData(),
+    backupStatus: null,
+    backupStatusError: null,
     retentionPolicies: [],
     currentMailboxes: [],
     selectableMailboxes: [],
@@ -186,6 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
     readFilterSortFromUrl();
     bindHeaderControls();
     bindSearchControls();
+    bindAccessMapControls();
     bindTableControls();
     bindSortableHeaders();
     buildFilterBar();
@@ -262,9 +272,13 @@ async function loadDashboard() {
     try {
         await ensureScopesLoaded();
 
-        const [dataResponse, historyResponse] = await Promise.all([
+        const backupStatusRequest = getCurrentPage() === "backups"
+            ? fetch(`Backups/backup-status.json?cacheBust=${cacheBust}`, { cache: "no-store" })
+            : Promise.resolve(null);
+        const [dataResponse, historyResponse, backupStatusResponse] = await Promise.all([
             fetch(dataUrl, { cache: "no-store" }),
-            fetch(historyUrl, { cache: "no-store" })
+            fetch(historyUrl, { cache: "no-store" }),
+            backupStatusRequest
         ]);
 
         if (!dataResponse.ok) {
@@ -273,6 +287,24 @@ async function loadDashboard() {
 
         const rawDashboardData = await dataResponse.json();
         const rawHistoryData = historyResponse.ok ? await historyResponse.json() : null;
+        state.backupStatus = null;
+        state.backupStatusError = null;
+        if (backupStatusResponse) {
+            if (!backupStatusResponse.ok) {
+                state.backupStatusError = `Backup status could not be loaded (HTTP ${backupStatusResponse.status}).`;
+            } else {
+                try {
+                    const manifest = await backupStatusResponse.json();
+                    if (!manifest || !Array.isArray(manifest.Backups)) {
+                        state.backupStatusError = "Backup status manifest must contain a Backups array.";
+                    } else {
+                        state.backupStatus = manifest;
+                    }
+                } catch (error) {
+                    state.backupStatusError = `Backup status is not valid JSON: ${error.message}`;
+                }
+            }
+        }
 
         state.historyData = normaliseHistoryData(rawHistoryData);
         const retentionPoliciesFromData = normaliseRetentionPolicyCatalog(rawDashboardData);
@@ -452,7 +484,9 @@ const SORTABLE_COLUMNS = {
     ],
     permsTable: [
         { key: "displayName", type: "text", get: r => r.mailbox.displayName },
+        { key: "mailboxGuid", type: "text", get: r => r.permission.MailboxGuid || r.mailbox.exchangeGuid },
         { key: "delegate", type: "text", get: r => r.permission.User || r.permission.user || r.permission.Delegate || "" },
+        { key: "permissionType", type: "text", get: r => r.permission.PermissionType || "Other" },
         { key: "rights", type: "text", get: r => formatAccessRights(r.permission) },
         { key: "inherited", type: "number", get: r => (r.permission.IsInherited || r.permission.isInherited) ? 1 : 0 }
     ]
@@ -478,6 +512,7 @@ function applyTableFilter(mailboxes) {
 function mailboxMatchesFilter(mailbox, query) {
     const fields = [
         String(mailbox.displayName || "").toLowerCase(),
+        String(mailbox.alias || "").toLowerCase(),
         String(mailbox.primarySmtpAddress || "").toLowerCase(),
         String(mailbox.exchangeGuid || "").toLowerCase()
     ];
@@ -693,6 +728,12 @@ function applyFilter(opts = {}) {
         case "permissions":
             renderPermissionsPage();
             break;
+        case "accessmap":
+            renderAccessMapPage();
+            break;
+        case "backups":
+            renderBackupStatusPage();
+            break;
         case "thresholds":
             renderThresholdsPage();
             break;
@@ -890,6 +931,7 @@ function renderSelectedMailboxPanel(selected) {
     const latestSample = history.length > 0 ? history[history.length - 1] : null;
     const previousSample = history.length > 1 ? history[history.length - 2] : null;
     const deltaGB = latestSample && previousSample ? latestSample.SizeGB - previousSample.SizeGB : null;
+    const storageRate = getLifetimeStorageRate(selected);
 
     panel.hidden = false;
     panel.innerHTML = `
@@ -900,6 +942,7 @@ function renderSelectedMailboxPanel(selected) {
                 <div class="spotlight-metrics">
                     <div class="spotlight-metric"><span class="label">Primary storage</span><strong>${formatGB(selected.current.totalGB)} GB</strong></div>
                     <div class="spotlight-metric"><span class="label">Archive storage</span><strong>${formatGB(selected.current.archiveSizeGB)} GB</strong></div>
+                    <div class="spotlight-metric"><span class="label">Lifetime storage rate (primary + archive)</span><strong>${storageRate == null ? "Unavailable" : `${formatStorageRate(storageRate)} GB/day`}</strong></div>
                     <div class="spotlight-metric"><span class="label">Quota</span><strong>${selected.current.quotaGB == null ? "Unlimited" : `${formatGB(selected.current.quotaGB)} GB`}</strong></div>
                     <div class="spotlight-metric"><span class="label">Usage</span><strong>${formatPercent(selected.current.usagePercent)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Items</span><strong>${formatNumber(selected.current.itemCount)}</strong></div>
@@ -1225,7 +1268,7 @@ function renderPermissionsTable() {
         mailbox.permissions.forEach(permission => {
             totalRows++;
 
-            const mailboxName = `${mailbox.displayName} ${mailbox.primarySmtpAddress}`.toLowerCase();
+            const mailboxName = `${mailbox.displayName} ${mailbox.alias} ${mailbox.primarySmtpAddress} ${mailbox.exchangeGuid}`.toLowerCase();
             const delegateName = String(permission.User || permission.user || permission.Delegate || "").toLowerCase();
             if (query && !selected && !mailboxName.includes(query) && !delegateName.includes(query)) {
                 return;
@@ -1264,18 +1307,267 @@ function renderPermissionsTable() {
     renderPaginationBar("permsTablePagination", "permsTable");
 
     if (pageRows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No explicit permissions found for the current view.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No explicit permissions found for the current view.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = pageRows.map(({ mailbox, permission }) => `
         <tr>
             <td><a class="table-link" href="${escapeHtml(buildMailboxUrl("mailbox.html", mailbox))}">${escapeHtml(mailbox.displayName)}</a></td>
+            <td>${escapeHtml(permission.MailboxGuid || mailbox.exchangeGuid)}</td>
             <td>${escapeHtml(permission.User || permission.user || permission.Delegate || "")}</td>
+            <td>${escapeHtml(permission.PermissionType || "Other")}</td>
             <td>${escapeHtml(Array.isArray(permission.AccessRights || permission.accessRights) ? (permission.AccessRights || permission.accessRights).join(", ") : String(permission.AccessRights || permission.accessRights || permission.Rights || ""))}</td>
             <td>${(permission.IsInherited || permission.isInherited) ? "Yes" : "No"}</td>
+            <td><a class="table-link" href="${escapeHtml(buildAccessMapUrl(mailbox, permission))}">View map</a></td>
         </tr>
     `).join("");
+}
+
+function bindAccessMapControls() {
+    const controls = document.getElementById("accessMapControls");
+    if (!controls) return;
+    controls.addEventListener("change", event => {
+        if (event.target.matches("input")) renderAccessMapPage();
+    });
+    const principalParam = new URL(window.location.href).searchParams.get("principal");
+    if (principalParam) {
+        const search = document.getElementById("mailboxSearch");
+        if (search) search.value = principalParam;
+    }
+}
+
+function renderAccessMapPage() {
+    const container = document.getElementById("accessMap");
+    const summary = document.getElementById("accessMapSummary");
+    if (!container || !summary) return;
+
+    const selected = getSelectedMailbox();
+    const searchText = getSearchInputValue().trim().toLowerCase();
+    const tableFilter = state.filterQuery.trim().toLowerCase();
+    const principalParam = new URL(window.location.href).searchParams.get("principal")?.trim().toLowerCase() || "";
+    const visibleMailboxes = selected
+        ? [selected]
+        : filterMailboxes(state.currentMailboxes, searchText);
+    const visibleMailboxKeys = new Set(visibleMailboxes.map(getMailboxKey));
+    const mailboxIndex = new Map();
+    state.selectableMailboxes.forEach(mailbox => {
+        [mailbox.exchangeGuid, mailbox.alias, mailbox.primarySmtpAddress, mailbox.displayName]
+            .filter(Boolean)
+            .forEach(value => mailboxIndex.set(String(value).trim().toLowerCase(), mailbox));
+    });
+
+    const enabledTypes = new Set(
+        [...document.querySelectorAll("#accessMapControls input[data-permission-type]:checked")]
+            .map(input => input.dataset.permissionType)
+    );
+    const groups = new Map();
+    let edgeCount = 0;
+    let hiddenEdgeCount = 0;
+
+    state.selectableMailboxes.forEach(mailbox => {
+        mailbox.permissions.forEach(permission => {
+            const mailboxGuid = mailbox.exchangeGuid;
+            if (!mailboxGuid || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(mailboxGuid)) return;
+            const type = permission.PermissionType || "Other";
+            if (!enabledTypes.has(type)) return;
+
+            const rawPrincipal = String(permission.User || "").trim();
+            if (!rawPrincipal) return;
+            const canonicalMailbox = mailboxIndex.get(rawPrincipal.toLowerCase());
+            const principalKey = canonicalMailbox?.exchangeGuid
+                ? `mailbox:${canonicalMailbox.exchangeGuid.toLowerCase()}`
+                : `principal:${rawPrincipal.toLowerCase()}`;
+            const group = groups.get(principalKey) || {
+                id: principalKey,
+                label: canonicalMailbox
+                    ? `${canonicalMailbox.displayName}${canonicalMailbox.alias ? ` (${canonicalMailbox.alias})` : ""}`
+                    : rawPrincipal,
+                principalMailbox: canonicalMailbox || null,
+                edges: []
+            };
+            const mailboxIsVisible = visibleMailboxKeys.has(getMailboxKey(mailbox));
+            const principalMatchesFilter = matchesAccessMapQuery(rawPrincipal, tableFilter);
+            const matchesMailboxFilter = mailboxMatchesFilter(mailbox, tableFilter);
+            const principalMatchesSearch = matchesAccessMapQuery(rawPrincipal, searchText);
+            const mailboxMatchesSearch = matchesAccessMapQuery(
+                `${mailbox.displayName} ${mailbox.alias} ${mailbox.primarySmtpAddress} ${mailbox.exchangeGuid}`,
+                searchText
+            );
+            const matchesPrincipalParam = !principalParam ||
+                rawPrincipal.toLowerCase() === principalParam ||
+                canonicalMailbox?.exchangeGuid?.toLowerCase() === principalParam;
+            const filterAllowsEdge = (!tableFilter || matchesMailboxFilter || principalMatchesFilter) &&
+                (!searchText || mailboxMatchesSearch || principalMatchesSearch) &&
+                matchesPrincipalParam;
+            if (mailboxIsVisible && filterAllowsEdge) {
+                group.edges.push({ mailbox, mailboxGuid, permission, type });
+                edgeCount++;
+            } else {
+                hiddenEdgeCount++;
+            }
+            groups.set(principalKey, group);
+        });
+    });
+
+    const showUnlinked = document.getElementById("showUnlinkedPrincipals")?.checked !== false;
+    const matchingGroups = [...groups.values()]
+        .filter(group => {
+            const principalMatches = matchesAccessMapQuery(group.label, searchText) ||
+                matchesAccessMapQuery(group.label, tableFilter) ||
+                !searchText && !tableFilter;
+            return group.edges.length > 0 || (showUnlinked && principalMatches);
+        })
+        .sort((a, b) => a.label.localeCompare(b.label));
+    const displayedGroups = matchingGroups.slice(0, MAX_ACCESS_MAP_PRINCIPALS);
+    const shownEdges = displayedGroups.reduce((count, group) => count + group.edges.length, 0);
+
+    summary.textContent = `${formatNumber(displayedGroups.length)} principal${displayedGroups.length === 1 ? "" : "s"} · ${formatNumber(shownEdges)} visible link${shownEdges === 1 ? "" : "s"}${hiddenEdgeCount ? ` · ${formatNumber(hiddenEdgeCount)} filtered link${hiddenEdgeCount === 1 ? "" : "s"}` : ""}${matchingGroups.length > displayedGroups.length ? ` · showing first ${MAX_ACCESS_MAP_PRINCIPALS}` : ""}.`;
+    if (displayedGroups.length === 0) {
+        container.innerHTML = `<p class="empty-state">No matching mailbox permissions were found for the current filters.</p>`;
+        return;
+    }
+
+    container.innerHTML = displayedGroups.map(group => {
+        const principalLink = group.principalMailbox?.exchangeGuid
+            ? `<a class="table-link" href="${escapeHtml(buildMailboxUrl("mailbox.html", group.principalMailbox))}">Open mailbox</a>`
+            : "";
+        const edgesMarkup = group.edges.length > 0
+            ? group.edges
+                .sort((a, b) => a.mailbox.displayName.localeCompare(b.mailbox.displayName))
+                .map(edge => `
+                    <li class="access-map-edge">
+                        <span class="access-map-connector" aria-hidden="true"></span>
+                        <a class="access-map-mailbox" href="${escapeHtml(buildMailboxUrl("mailbox.html", edge.mailbox))}">
+                            <strong>${escapeHtml(edge.mailbox.displayName)}</strong>
+                            <span>${escapeHtml(edge.mailbox.alias || edge.mailbox.primarySmtpAddress)}</span>
+                            <small>GUID: ${escapeHtml(edge.mailboxGuid)}</small>
+                        </a>
+                        <span class="permission-badge permission-${escapeHtml(accessMapTypeClass(edge.type))}">${escapeHtml(edge.type)}</span>
+                    </li>
+                `).join("")
+            : `<li class="access-map-unlinked">No mailbox links match the current filters.</li>`;
+
+        return `
+            <article class="access-map-principal">
+                <header class="access-map-principal-header">
+                    <div><span class="eyebrow">${group.principalMailbox ? "Mailbox principal" : "User / delegate"}</span><h2>${escapeHtml(group.label)}</h2></div>
+                    ${principalLink}
+                </header>
+                <ul class="access-map-edges">${edgesMarkup}</ul>
+            </article>
+        `;
+    }).join("");
+}
+
+function matchesAccessMapQuery(value, query) {
+    if (!query) return false;
+    const normalized = String(value || "").toLowerCase();
+    return hasWildcard(query)
+        ? matchesPattern(normalized, query)
+        : normalized.includes(query);
+}
+
+function accessMapTypeClass(type) {
+    const normalized = String(type || "").toLowerCase().replace(/[^a-z]/g, "");
+    if (normalized.includes("fullaccess")) return "full-access";
+    if (normalized.includes("sendas")) return "send-as";
+    if (normalized.includes("sendonbehalf")) return "send-on-behalf";
+    return "other";
+}
+
+function renderBackupStatusPage() {
+    const status = document.getElementById("backupStatusSummary");
+    const container = document.getElementById("backupList");
+    if (!status || !container) return;
+
+    if (state.backupStatusError) {
+        status.textContent = state.backupStatusError;
+        status.className = "backup-status-message is-invalid";
+        container.innerHTML = "";
+        return;
+    }
+    const backups = Array.isArray(state.backupStatus?.Backups) ? state.backupStatus.Backups : [];
+    if (!state.backupStatus || backups.length === 0) {
+        status.textContent = "No validated backups are recorded yet.";
+        status.className = "backup-status-message is-neutral";
+        container.innerHTML = "";
+        return;
+    }
+
+    status.textContent = `${formatNumber(backups.length)} backup set${backups.length === 1 ? "" : "s"} recorded. File hashes and sizes are checked against the manifest.`;
+    status.className = "backup-status-message is-neutral";
+    container.innerHTML = backups.slice().reverse().map(backup => {
+        const safeId = /^[A-Za-z0-9_-]+$/.test(String(backup.Id || "")) ? backup.Id : "";
+        const files = Array.isArray(backup.Files) ? backup.Files : [];
+        return `
+            <article class="backup-card" data-manifest-status="${escapeHtml(backup.ValidationStatus || "")}">
+                <header><div><h2>${escapeHtml(backup.Id || "Unknown backup")}</h2><p>${escapeHtml(formatDate(backup.CreatedUtc))}</p></div>
+                    <span class="backup-validity" id="${escapeHtml(`backup-validity-${safeId}`)}">Verifying…</span></header>
+                <p>Manifest validation: <strong>${escapeHtml(backup.ValidationStatus || "Unknown")}</strong></p>
+                <ul>${files.map((file, index) => {
+                    const safeName = ["history.json", "data.json"].includes(String(file.Name || "").toLowerCase()) ? file.Name : "";
+                    const fileId = `backup-file-${safeId}-${index}`;
+                    const download = safeId && safeName
+                        ? `<a class="table-link" href="${escapeHtml(`Backups/${encodeURIComponent(safeId)}/${encodeURIComponent(safeName)}`)}" download>Download</a>`
+                        : "";
+                    return `<li id="${escapeHtml(fileId)}" data-backup-id="${escapeHtml(safeId)}" data-backup-name="${escapeHtml(safeName)}" data-file-status="${escapeHtml(file.ValidationStatus || "")}" data-expected-hash="${escapeHtml(file.SHA256 || "")}" data-expected-size="${Number(file.SizeBytes) || 0}">
+                        <span>${escapeHtml(safeName || "Unsupported file entry")}</span>
+                        <span class="backup-file-validation">Checking copy…</span>${download}
+                    </li>`;
+                }).join("")}</ul>
+            </article>
+        `;
+    }).join("");
+    verifyBackupCopies();
+}
+
+async function verifyBackupCopies() {
+    const rows = [...document.querySelectorAll("#backupList li[data-backup-name]")];
+    for (const row of rows) {
+        const backupId = row.dataset.backupId;
+        const fileName = row.dataset.backupName;
+        const fileStatus = row.dataset.fileStatus.toLowerCase();
+        const expectedHash = row.dataset.expectedHash.toLowerCase();
+        const expectedSize = Number(row.dataset.expectedSize);
+        const result = row.querySelector(".backup-file-validation");
+        if (!backupId || !fileName || fileStatus !== "valid" || !/^[a-f0-9]{64}$/.test(expectedHash) || !Number.isFinite(expectedSize)) {
+            result.textContent = "Invalid manifest entry";
+            result.classList.add("is-invalid");
+            continue;
+        }
+        if (!globalThis.crypto?.subtle?.digest) {
+            result.textContent = "Not verified — SHA-256 requires HTTPS or localhost";
+            result.classList.add("is-unavailable");
+            continue;
+        }
+        try {
+            const response = await fetch(`Backups/${encodeURIComponent(backupId)}/${encodeURIComponent(fileName)}`, { cache: "no-store" });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const content = await response.arrayBuffer();
+            const hashBytes = await crypto.subtle.digest("SHA-256", content);
+            const actualHash = [...new Uint8Array(hashBytes)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+            const valid = content.byteLength === expectedSize && actualHash === expectedHash;
+            result.textContent = valid ? "Valid — size and SHA-256 match" : "Invalid — size or SHA-256 mismatch";
+            result.classList.add(valid ? "is-valid" : "is-invalid");
+            if (!valid) row.closest(".backup-card")?.querySelector(".backup-validity")?.classList.add("is-invalid");
+        } catch (error) {
+            result.textContent = `Unavailable — ${error.message}`;
+            result.classList.add("is-invalid");
+            row.closest(".backup-card")?.querySelector(".backup-validity")?.classList.add("is-invalid");
+        }
+    }
+    document.querySelectorAll(".backup-card").forEach(card => {
+        const badge = card.querySelector(".backup-validity");
+        const fileResults = [...card.querySelectorAll(".backup-file-validation")];
+        const manifestIsValid = card.dataset.manifestStatus.toLowerCase() === "valid";
+        const allValid = manifestIsValid && fileResults.length > 0 && fileResults.every(result => result.classList.contains("is-valid"));
+        const verificationUnavailable = manifestIsValid &&
+            fileResults.some(result => result.classList.contains("is-unavailable")) &&
+            !fileResults.some(result => result.classList.contains("is-invalid"));
+        badge.textContent = allValid ? "Copies valid" : (verificationUnavailable ? "Verification unavailable" : "Invalid / unavailable");
+        badge.classList.add(allValid ? "is-valid" : (verificationUnavailable ? "is-unavailable" : "is-invalid"));
+    });
 }
 
 function renderThresholdsTable() {
@@ -1412,15 +1704,18 @@ function renderMailboxPermissionsTable(selected) {
     renderPaginationBar("mailboxPermissionsTablePagination", "mailboxPermissionsTable");
 
     if (!selected || rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" class="empty-state">No explicit permissions are available for this mailbox.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No explicit permissions are available for this mailbox.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = rows.map(permission => `
         <tr>
+            <td>${escapeHtml(permission.MailboxGuid || selected.exchangeGuid)}</td>
             <td>${escapeHtml(permission.User || permission.user || permission.Delegate || "")}</td>
+            <td>${escapeHtml(permission.PermissionType || "Other")}</td>
             <td>${escapeHtml(Array.isArray(permission.AccessRights || permission.accessRights) ? (permission.AccessRights || permission.accessRights).join(", ") : String(permission.AccessRights || permission.accessRights || permission.Rights || ""))}</td>
             <td>${(permission.IsInherited || permission.isInherited) ? "Yes" : "No"}</td>
+            <td><a class="table-link" href="${escapeHtml(buildAccessMapUrl(selected, permission))}">View map</a></td>
         </tr>
     `).join("");
 }
@@ -1998,6 +2293,7 @@ function normaliseMailbox(source) {
 
     const displayName = source?.DisplayName ?? source?.displayName ?? source?.MailboxName ?? source?.Mailbox?.DisplayName ?? source?.primarySmtpAddress ?? source?.PrimarySmtpAddress ?? "";
     const primarySmtpAddress = source?.PrimarySmtpAddress ?? source?.primarySmtpAddress ?? source?.SmtpAddress ?? source?.UserPrincipalName ?? source?.Mailbox?.PrimarySmtpAddress ?? "";
+    const exchangeGuid = String(source?.ExchangeGuid ?? source?.exchangeGuid ?? "");
     const permissions = normalisePermissions(
         source?.permissions ??
         source?.Permissions ??
@@ -2005,6 +2301,9 @@ function normaliseMailbox(source) {
         sample?.permissions ??
         sample?.Permissions
     );
+    permissions.forEach(permission => {
+        if (exchangeGuid) permission.MailboxGuid = exchangeGuid;
+    });
 
     const totalGB = getNumber(sample, ["SizeGB", "sizeGB", "TotalGB", "totalGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) ??
         getNumber(currentSource, ["totalGB", "TotalGB", "SizeGB", "sizeGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) ??
@@ -2027,10 +2326,14 @@ function normaliseMailbox(source) {
     const licenseAssignmentHistory = normaliseLicenseAssignmentHistory(source);
 
     return {
-        exchangeGuid: String(source?.ExchangeGuid ?? source?.exchangeGuid ?? ""),
-        whenCreatedUtc: source?.WhenCreatedUtc ?? source?.whenCreatedUtc ?? source?.WhenCreated ?? source?.whenCreated ?? null,
+        exchangeGuid,
+        whenCreatedUtc: source?.WhenCreatedUtc ?? source?.whenCreatedUtc ?? source?.WhenCreated ?? source?.whenCreated ??
+            source?.CreatedUtc ?? source?.createdUtc ?? null,
         displayName: String(displayName || primarySmtpAddress || source?.ExchangeGuid || "Unknown mailbox"),
         primarySmtpAddress: String(primarySmtpAddress || ""),
+        alias: String(source?.Alias ?? source?.alias ?? ""),
+        recipientTypeDetails: String(source?.RecipientTypeDetails ?? source?.recipientTypeDetails ?? ""),
+        createdUtc: source?.CreatedUtc ?? source?.createdUtc ?? source?.WhenCreatedUtc ?? source?.whenCreatedUtc ?? null,
         current: {
             totalGB,
             itemCount: getNumber(sample, ["ItemCount", "itemCount", "Items"]) ??
@@ -2050,7 +2353,8 @@ function normaliseMailbox(source) {
             archiveItemCount: getNumber(sample, ["ArchiveItemCount", "archiveItemCount"]) ??
                 getNumber(currentSource, ["archiveItemCount", "ArchiveItemCount"]) ??
                 getNumber(archiveSource, ["ItemCount", "itemCount"]) ??
-                0
+                0,
+            sampleTimestamp: sample?.TimestampUtc ?? sample?.timestampUtc ?? currentSource?.sampleTimestamp ?? null
         },
         retention,
         licensing,
@@ -2180,17 +2484,28 @@ function normalisePermissions(permissionSource) {
     if (!Array.isArray(permissionSource)) return [];
     return permissionSource
         .filter(Boolean)
-        .map(permission => ({
-            User: permission.User ?? permission.user ?? permission.Delegate ?? "",
-            AccessRights: Array.isArray(permission.AccessRights ?? permission.accessRights ?? permission.Rights)
+        .map(permission => {
+            const accessRights = Array.isArray(permission.AccessRights ?? permission.accessRights ?? permission.Rights)
                 ? (permission.AccessRights ?? permission.accessRights ?? permission.Rights)
                 : String(permission.AccessRights ?? permission.accessRights ?? permission.Rights ?? "")
                     .split(",")
                     .map(part => part.trim())
-                    .filter(Boolean),
-            IsInherited: getBoolean(permission, ["IsInherited", "isInherited"]) ?? false,
-            Deny: getBoolean(permission, ["Deny", "deny"]) ?? false
-        }));
+                    .filter(Boolean);
+            const user = permission.User ?? permission.user ?? permission.Delegate ?? "";
+            const rightsText = accessRights.join(" ").toLowerCase();
+            const permissionType = permission.PermissionType ?? permission.permissionType ??
+                (rightsText.includes("sendas") ? "SendAs" :
+                    (rightsText.includes("sendonbehalf") ? "SendOnBehalf" :
+                        (rightsText.includes("fullaccess") ? "FullAccess" : "Other")));
+            return {
+                MailboxGuid: permission.MailboxGuid ?? permission.mailboxGuid ?? "",
+                User: user,
+                PermissionType: String(permissionType),
+                AccessRights: accessRights,
+                IsInherited: getBoolean(permission, ["IsInherited", "isInherited"]) ?? false,
+                Deny: getBoolean(permission, ["Deny", "deny"]) ?? false
+            };
+        });
 }
 
 function getHistoryPointsForMailbox(mailbox) {
@@ -2211,7 +2526,7 @@ function filterMailboxes(mailboxes, searchText) {
     if (!query) return [...mailboxes];
 
     return mailboxes.filter(mailbox => {
-        const haystack = `${mailbox.displayName} ${mailbox.primarySmtpAddress}`.toLowerCase();
+        const haystack = `${mailbox.displayName} ${mailbox.alias} ${mailbox.primarySmtpAddress} ${mailbox.exchangeGuid}`.toLowerCase();
         return query.split(/\s+/).every(token => haystack.includes(token));
     });
 }
@@ -2231,8 +2546,10 @@ function getRankedMailboxes(searchText, limit) {
 
 function scoreMailbox(mailbox, query, tokens) {
     const display = String(mailbox.displayName || "").toLowerCase();
+    const alias = String(mailbox.alias || "").toLowerCase();
     const smtp = String(mailbox.primarySmtpAddress || "").toLowerCase();
-    const combined = `${display} ${smtp}`;
+    const guid = String(mailbox.exchangeGuid || "").toLowerCase();
+    const combined = `${display} ${alias} ${smtp} ${guid}`;
     if (!combined.includes(query)) {
         const everyTokenPresent = tokens.every(token => combined.includes(token));
         if (!everyTokenPresent) return 0;
@@ -2241,10 +2558,15 @@ function scoreMailbox(mailbox, query, tokens) {
     let score = 0;
     if (smtp === query) score += 1200;
     if (display === query) score += 1150;
+    if (alias === query) score += 1140;
     if (display.startsWith(query)) score += 950;
+    if (alias.startsWith(query)) score += 940;
     if (smtp.startsWith(query)) score += 930;
+    if (guid.startsWith(query)) score += 920;
     if (display.includes(query)) score += 700;
+    if (alias.includes(query)) score += 690;
     if (smtp.includes(query)) score += 680;
+    if (guid.includes(query)) score += 670;
     if (tokens.every(token => display.includes(token))) score += 540;
     if (tokens.every(token => smtp.includes(token))) score += 520;
     const totalGb = Number(mailbox?.current?.totalGB);
@@ -2267,10 +2589,30 @@ function getMailboxSearchLabel(mailbox) {
 
 function buildMailboxUrl(pageName, mailbox) {
     const url = new URL(pageName, window.location.href);
-    if (mailbox) {
-        url.searchParams.set("mailbox", mailbox.exchangeGuid || mailbox.primarySmtpAddress);
+    if (mailbox?.exchangeGuid) {
+        url.searchParams.set("mailbox", mailbox.exchangeGuid);
     }
     return `${url.pathname.split("/").pop()}${url.search}`;
+}
+
+function buildAccessMapUrl(mailbox, permission) {
+    const url = new URL("accessmap.html", window.location.href);
+    const mailboxGuid = permission?.MailboxGuid || mailbox?.exchangeGuid;
+    if (mailboxGuid) url.searchParams.set("mailbox", mailboxGuid);
+    const principal = permission?.User || permission?.user || permission?.Delegate;
+    if (principal) url.searchParams.set("principal", principal);
+    return `${url.pathname.split("/").pop()}${url.search}`;
+}
+
+function getLifetimeStorageRate(mailbox) {
+    const created = Date.parse(mailbox?.createdUtc || "");
+    const sampled = Date.parse(mailbox?.current?.sampleTimestamp || state.historyData.generatedUtc || "");
+    if (!Number.isFinite(created) || !Number.isFinite(sampled) || sampled <= created) return null;
+
+    const days = (sampled - created) / 86400000;
+    const primaryAndArchiveGb = (mailbox.current.totalGB || 0) + (mailbox.current.archiveSizeGB || 0);
+    const rate = primaryAndArchiveGb / days;
+    return Number.isFinite(rate) ? rate : null;
 }
 
 function navigateToMailboxPage(mailbox) {
@@ -2532,6 +2874,10 @@ function truncateLabel(text, maxLength) {
 function formatGB(value) {
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric.toFixed(2) : "0.00";
+}
+
+function formatStorageRate(value) {
+    return Number(value).toLocaleString(undefined, { maximumFractionDigits: 4 });
 }
 
 function formatPercent(value) {
@@ -3256,4 +3602,3 @@ function csvQuote(value) {
     return (str.includes(",") || str.includes("\"") || str.includes("\n"))
         ? `"${str.replace(/"/g, '""')}"` : str;
 }
-
