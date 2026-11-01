@@ -1,0 +1,15 @@
+\---📂MailboxDashboard
+    +---📂.copilot
+    +---📂.github
+    +---📂.vscode
+    +---📂Collector
+    |   +---📂Config
+    |   +---📂Legacy
+    |   +---📂Logs
+    |   +---📂Modules
+    |   \---📂Temp
+    |       \---📂ThreadJobs
+    +---📂Mailboxes
+    \---📂Web
+        +---📂logs
+        \---📂theme

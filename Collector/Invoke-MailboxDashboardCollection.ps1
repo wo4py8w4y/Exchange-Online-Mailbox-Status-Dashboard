@@ -71,6 +71,23 @@ Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "Modules\MailboxDa
 
 $script:StepResults = [System.Collections.Generic.List[object]]::new()
 
+function Set-CollectorCompletionMetadata {
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$CollectionProperty,
+        [Parameter(Mandatory)][string]$TimestampUtc
+    )
+
+    $document = Read-MailboxJson -Path $Path
+    if ($null -eq $document) {
+        throw "Cannot record collector completion; file is missing or empty: $Path"
+    }
+
+    Add-Member -InputObject $document -NotePropertyName 'CollectorLastCompletedUtc' -NotePropertyValue $TimestampUtc -Force
+    $records = Get-PropertyValueOrNull -Object $document -Name $CollectionProperty
+    Write-MailboxJson -InputObject $document -Path $Path -Source 'MailboxDashboard collection completed' -RecordCount @($records).Count -Depth 100
+}
+
 function Invoke-PipelineStep {
 <#
 .SYNOPSIS
@@ -347,6 +364,18 @@ finally {
 
     $failedSteps = @($script:StepResults | Where-Object { $_.Status -ne "OK" })
     if ($failedSteps.Count -eq 0) {
+        $completedUtc = (Get-Date).ToUniversalTime().ToString("o")
+        foreach ($target in @(
+            @{ Path = $historyPath; CollectionProperty = 'MailboxHistory' },
+            @{ Path = $dataPath; CollectionProperty = 'Mailboxes' }
+        )) {
+            try {
+                Set-CollectorCompletionMetadata -Path $target.Path -CollectionProperty $target.CollectionProperty -TimestampUtc $completedUtc
+            }
+            catch {
+                Write-Notice "Could not save collector completion to '$($target.Path)': $($_.Exception.Message)"
+            }
+        }
         Write-Success "Pipeline completed successfully."
     }
     else {

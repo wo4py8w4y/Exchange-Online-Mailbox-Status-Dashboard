@@ -10,6 +10,7 @@ size, quota, archive and permission data, and a static web dashboard that report
 - [How it works](#how-it-works)
 - [Quick start](#quick-start)
 - [Installation](#installation)
+- [Setup walkthrough](#setup-walkthrough)
 - [Configuration](#configuration)
 - [Running a collection](#running-a-collection)
 - [Validating and repairing data](#validating-and-repairing-data)
@@ -72,7 +73,7 @@ Set-Location C:\Deploy\MailboxDashboard
 .\Collector\Invoke-MailboxDashboardCollection.ps1 -TestData
 
 # 3. Browse it
-.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8080/
+.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8888/
 
 # 4. When you are ready, collect for real
 .\Collector\Invoke-MailboxDashboardCollection.ps1
@@ -81,6 +82,7 @@ Set-Location C:\Deploy\MailboxDashboard
 ---
 
 ## Installation
+*TLDR ? Just go to [./Collector/Setup-Walkthough.md](https://github.com/wo4py8w4y/MailboxDashboard/blob/main/Collector/Setup-Walkthrough.md)*
 
 ### Prerequisites
 
@@ -134,6 +136,12 @@ Unattended:
 
 Or let the setup wizard do it with `-RegisterEntraApp`.
 
+### Setup walkthrough
+
+For a step-by-step first installation, see
+[`Collector/Setup-Walkthrough.md`](Collector/Setup-Walkthrough.md). It covers setup,
+authentication choices, test data, a real collection, validation, and local hosting.
+
 ---
 
 ## Configuration
@@ -172,7 +180,7 @@ any machine regardless of where the repository is cloned.
   "Collection": {
     "BatchSize":         50,      // commit progress to disk every N mailboxes
     "MaxHistorySamples": 365,     // samples retained per mailbox
-    "UseThreading":      true,
+    "UseThreading":      true,     // legacy/default preference; use -Parallel to opt in
     "ThreadCount":       10
   },
 
@@ -204,7 +212,9 @@ any machine regardless of where the repository is cloned.
 }
 ```
 
-Configurations from the previous version still load — old root-level keys such as
+The orchestrator collects sequentially unless `-Parallel` is supplied. When parallel
+collection is enabled, `ThreadCount` supplies the default worker count and
+`-ThrottleLimit` can override it. Configurations from the previous version still load — old root-level keys such as
 `HistoryJsonPath` and `MailboxesCsvPath` are mapped onto the new `Paths` section
 automatically.
 
@@ -309,6 +319,43 @@ slice is missing but every other slice still merges.
 `Generate-MailboxSnapshot.ps1` is safe to run at any time — it only re-reads history, so it
 is the quickest way to refresh the dashboard after editing or repairing history data.
 
+Licensing fields are collected from Exchange during a mailbox collection and copied into
+the snapshot. After updating an older installation, run a new collection and then
+`Generate-MailboxSnapshot.ps1`; records from before licensing collection will show
+licensing as `Unknown`, not as a false missing-license failure.
+
+License assignment uses Exchange's `SKUAssigned` value, not the presence of persisted
+capabilities or the mailbox quota. A 50 GB quota can belong to a licensed user mailbox
+or an unlicensed shared mailbox; quota alone does not establish license assignment.
+An unavailable assignment value is reported as `Unknown`. Persisted capabilities are
+retained as descriptive metadata, not proof of a currently assigned product SKU.
+
+The collector explicitly requests `LastLogonTime` and saves the creation date in history
+so both fields can reach the snapshot. Last logon can be empty and reflects mailbox
+access, including service activity; it is not an authoritative human sign-in timestamp.
+
+### History stops growing
+
+Each successful collection adds a sample per mailbox, up to
+`Collection.MaxHistorySamples` (365 by default). The history page uses all saved samples;
+it does not impose a two-point limit. Snapshot generation does not add history samples.
+Confirm that the scheduled task runs `Invoke-MailboxDashboardCollection.ps1` and that
+its configured history path is the file served by the dashboard. Avoid `-TestData` on
+production data because it replaces the live files.
+
+To inspect the saved counts without changing data, use the configured history path:
+
+```powershell
+$history = Get-Content -LiteralPath '<resolved HistoryJson path>' -Raw | ConvertFrom-Json
+$history.MailboxHistory | Select-Object -Property PrimarySmtpAddress,
+  @{Name = 'SampleCount'; Expression = { @($_.Samples).Count }}
+```
+
+The collector stops rather than replacing unreadable, empty, or unsupported existing
+history. Restore a known-good backup or convert legacy data to the nested
+`MailboxHistory[] -> Samples[]` structure before retrying. Previously discarded samples
+cannot be recovered by recollection or snapshot generation.
+
 ---
 
 ## Validating and repairing data
@@ -319,6 +366,9 @@ is the quickest way to refresh the dashboard after editing or repairing history 
 
 # Fix what can be fixed, backing up first
 .\Collector\Test-MailboxDashboardJSON.ps1 -Repair
+
+# Restore empty history records from matching current snapshots, then validate both files
+.\Collector\Test-MailboxDashboardJSON.ps1 -Repair -RestoreSamplesFromData
 
 # Also remove records that cannot be fixed
 .\Collector\Test-MailboxDashboardJSON.ps1 -Repair -Cull
@@ -332,8 +382,12 @@ timestamps, unparseable dates, missing or non-numeric values, negative values, q
 zero, usage that disagrees with size ÷ quota, and mailboxes with no samples.
 
 **Repaired:** numeric strings converted to numbers, negatives clamped to zero, usage
-recalculated, timestamps normalised to ISO 8601, booleans coerced, empty display names
-filled from the address, samples sorted and trimmed to `MaxHistorySamples`.
+recalculated, timestamps normalised to ISO 8601 UTC (culture-independent, so an en-AU
+server no longer swaps day and month), booleans coerced, empty display names
+filled from the address, samples sorted and trimmed to `MaxHistorySamples`. With
+`-RestoreSamplesFromData`, an empty history record can also receive one sample rebuilt
+from its matching `data.json` current snapshot. Records without a matching valid snapshot
+are reported as requiring recollection and are not fabricated.
 
 **Culled** (with `-Cull`): records with no usable GUID, duplicates, unparseable timestamps,
 zero quota, and records left with no samples.
@@ -384,7 +438,7 @@ To build the dashboard end to end without Exchange:
 ## The web dashboard
 
 ```powershell
-.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8080/
+.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8888/
 ```
 
 | Page | Shows |
@@ -396,6 +450,25 @@ To build the dashboard end to end without Exchange:
 | `permissions.html` | Delegate permissions across mailboxes |
 | `thresholds.html` | Mailboxes at or above the warning threshold |
 | `validate.html` | Standalone data validation view |
+
+### Modern view
+
+`Web/modern/` is an alternative front end over the same `data.json`, `history.json` and
+`scopes.json`. It does not replace the classic pages; both can be deployed side by side.
+
+| Page | Shows |
+|---|---|
+| `modern/index.html` | KPI tiles with sparklines, storage trend, health donut, quota distribution, top consumers, logon activity, sortable mailbox table |
+| `modern/mailbox.html` | One mailbox: storage history, quota gauge, created / last logon / refreshed / collector dates, licensing, delegates |
+
+Every page shows a **QR code that links to exactly what is on screen** — scope, search,
+status filter, sort, page and selected mailbox. Select **Share** to enlarge it, copy the
+link or download the QR as SVG. The QR is generated in the browser by
+`modern/qrcode.js`; no external service is called. Anyone scanning it still needs access
+to the dashboard.
+
+The modern view has light and dark themes (toggle in the top bar, remembered per
+browser) and adapts to phone widths.
 
 ### Finding and sorting
 
@@ -671,10 +744,19 @@ then stored in the configuration at all.
 | `Generate-MailboxSnapshot.ps1` | Rebuilds `data.json` from history |
 | `Test-MailboxDashboardJSON.ps1` | Validates, repairs and culls the JSON files |
 | `New-MailboxDashboardTestData.ps1` | Generates synthetic data |
+| `New-MailboxDashboardUrl.ps1` | Creates shareable dashboard filter URLs |
 | `Register-EntraApp.ps1` | Creates or repairs the Entra app registration |
 | `Get-ExchangeOnlineAccessToken.ps1` | Standalone token helper |
 | `Modules/MailboxDashboard.Config.psm1` | Loads, validates and resolves the configuration |
 | `Modules/MailboxDashboard.Common.psm1` | Paths, JSON I/O, size and date conversion, console, logging |
+
+`New-MailboxDashboardUrl.ps1` opens an arrow-key menu by default. Use
+`-NoMenu` with `-Domain`, `-Query`, or `-Mailbox` for scripted URL generation. For
+example:
+
+```powershell
+.\Collector\New-MailboxDashboardUrl.ps1 -NoMenu -Domain smartservice.qld.gov.au
+```
 
 ### Superseded — `Collector/Legacy/`
 
@@ -692,6 +774,7 @@ hardcoded paths. Use the current scripts.
 |---|---|
 | `dashboard.js` | All client-side logic |
 | `styles.css` | All styling |
+| `modern/` | Modern view: `index.html`, `mailbox.html`, `modern.js`, `modern.css`, `qrcode.js` |
 | `scopes.json` | Scope definitions |
 | `theme/themes.json` | Colour themes |
 | `HTTPServer.ps1` | Local static file server |
@@ -753,3 +836,4 @@ Confirm `HTTPServer.ps1` is running and that you are using the same port as `-Pr
 **Something failed and you want the detail.**
 `Collector/Logs/failures.log` has the script, line number, variables and stack trace for
 every failure.
+

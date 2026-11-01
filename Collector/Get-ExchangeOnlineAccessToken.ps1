@@ -124,7 +124,7 @@ function New-FormUrlEncodedBody {
     return ($pairs -join "&")
 }
 
-function Parse-QueryParameters {
+function Convert-QueryParameters {
     param(
         [AllowEmptyString()]
         [string]$Query
@@ -293,7 +293,7 @@ try {
     $request = $context.Request
     $response = $context.Response
 
-    $query = Parse-QueryParameters -Query $request.Url.Query
+    $query = Convert-QueryParameters -Query $request.Url.Query
     $authorizationError = $query["error"]
     if (-not [string]::IsNullOrWhiteSpace($authorizationError)) {
         $authorizationErrorDescription = $query["error_description"]

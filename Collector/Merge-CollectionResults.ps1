@@ -96,7 +96,7 @@ function ConvertTo-HistoryRecord {
         $usagePercent = [math]::Round((($sizeGb / $quotaGb) * 100), 2)
     }
 
-    $permissions = Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Raw -Name 'Permissions')
+    $permissions = @(Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Raw -Name 'Permissions'))
 
     $sample = [pscustomobject]@{
         TimestampUtc     = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Raw -Name 'TimestampUtc')
@@ -115,6 +115,11 @@ function ConvertTo-HistoryRecord {
         ExchangeGuid       = $exchangeGuid
         PrimarySmtpAddress = [string](Get-PropertyValueOrNull -Object $Raw -Name 'PrimarySmtpAddress')
         DisplayName        = [string](Get-PropertyValueOrNull -Object $Raw -Name 'DisplayName')
+        WhenCreatedUtc     = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Raw -Name 'WhenCreatedUtc')
+        Licensing          = Get-PropertyValueOrNull -Object $Raw -Name 'Licensing'
+        Retention          = Get-PropertyValueOrNull -Object $Raw -Name 'Retention'
+        RetentionPolicyChangeHistory = @(Get-PropertyValueOrNull -Object $Raw -Name 'RetentionPolicyChangeHistory' | Where-Object { $null -ne $_ })
+        LicenseAssignmentHistory = @(Get-PropertyValueOrNull -Object $Raw -Name 'LicenseAssignmentHistory' | Where-Object { $null -ne $_ })
         Permissions        = $permissions
         Samples            = @($sample)
     }
@@ -252,10 +257,39 @@ function Merge-RecordIntoIndex {
 
     $newSmtp = [string](Get-PropertyValueOrNull -Object $Record -Name 'PrimarySmtpAddress')
     $newDisplayName = [string](Get-PropertyValueOrNull -Object $Record -Name 'DisplayName')
+    $newWhenCreatedUtc = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Record -Name 'WhenCreatedUtc')
+    $newLicensing = Get-PropertyValueOrNull -Object $Record -Name 'Licensing'
     $newPermissions = Get-PropertyValueOrNull -Object $Record -Name 'Permissions'
 
     if (-not [string]::IsNullOrWhiteSpace($newSmtp)) { $existing.PrimarySmtpAddress = $newSmtp }
     if (-not [string]::IsNullOrWhiteSpace($newDisplayName)) { $existing.DisplayName = $newDisplayName }
+    if ($null -ne $newWhenCreatedUtc) {
+        if ($existing.PSObject.Properties.Name -contains 'WhenCreatedUtc') {
+            $existing.WhenCreatedUtc = $newWhenCreatedUtc
+        }
+        else {
+            Add-Member -InputObject $existing -NotePropertyName 'WhenCreatedUtc' -NotePropertyValue $newWhenCreatedUtc
+        }
+    }
+    if ($null -ne $newLicensing) {
+        if ($existing.PSObject.Properties.Name -contains 'Licensing') {
+            $existing.Licensing = $newLicensing
+        }
+        else {
+            Add-Member -InputObject $existing -NotePropertyName 'Licensing' -NotePropertyValue $newLicensing
+        }
+    }
+    foreach ($fieldName in @('Retention', 'RetentionPolicyChangeHistory', 'LicenseAssignmentHistory')) {
+        $newValue = Get-PropertyValueOrNull -Object $Record -Name $fieldName
+        if ($null -eq $newValue) { continue }
+
+        if ($existing.PSObject.Properties.Name -contains $fieldName) {
+            $existing.$fieldName = $newValue
+        }
+        else {
+            Add-Member -InputObject $existing -NotePropertyName $fieldName -NotePropertyValue $newValue
+        }
+    }
     if ($null -ne $newPermissions) { $existing.Permissions = @($newPermissions) }
 
     $existing.Samples = $ordered
@@ -395,8 +429,9 @@ $recordsAdded = $records.Count - $recordsBefore
 $recordsUpdated = $index.Count - $recordsAdded
 
 $document = [pscustomobject]@{
-    GeneratedUtc   = $latestTimestamp
-    MailboxHistory = @($records)
+    GeneratedUtc               = $latestTimestamp
+    CollectorLastCompletedUtc = Get-PropertyValueOrNull -Object $existingHistory -Name 'CollectorLastCompletedUtc'
+    MailboxHistory             = @($records)
 }
 
 Write-MailboxJson `

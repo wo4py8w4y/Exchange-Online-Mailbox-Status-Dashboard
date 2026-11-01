@@ -193,7 +193,7 @@ function Update-ConfigFile {
     }
 }
 
-function Ensure-msgraphConnection {
+function Connect-MicrosoftGraphSession {
     param(
         [Parameter()]
         [string]$TenantValue
@@ -273,7 +273,7 @@ if (-not [string]::IsNullOrWhiteSpace($TenantIdOrDomain) -and (Test-PlaceholderV
     $TenantIdOrDomain = ""
 }
 
-Ensure-msgraphConnection -TenantValue $TenantIdOrDomain
+Connect-MicrosoftGraphSession -TenantValue $TenantIdOrDomain
 
 $exchangeOnlineAppId = "00000002-0000-0ff1-ce00-000000000000"
 $exchangePermissionName = "Exchange.Manage"

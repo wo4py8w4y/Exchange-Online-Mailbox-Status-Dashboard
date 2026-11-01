@@ -32,7 +32,11 @@ function Get-NowUtcString {
     return (Get-Date).ToUniversalTime().ToString("o")
 }
 
+<<<<<<< HEAD
+function Invoke-LogRotation {
+=======
 function Rotate-LogFile {
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
     param(
         [Parameter(Mandatory)]
         [string]$Path,
@@ -85,7 +89,11 @@ function Write-ServerLog {
         [string]$Message
     )
 
+<<<<<<< HEAD
+    Invoke-LogRotation -Path $Path -MaxBytes $MaxBytes -RetentionCount $RetentionCount
+=======
     Rotate-LogFile -Path $Path -MaxBytes $MaxBytes -RetentionCount $RetentionCount
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
     Add-Content -LiteralPath $Path -Value $Message -Encoding utf8
 }
 
@@ -193,6 +201,53 @@ function Send-TextResponse {
 
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($Text)
     Send-Response -Response $Response -Body $bytes -ContentType "text/plain; charset=utf-8" -StatusCode $StatusCode
+<<<<<<< HEAD
+}
+
+function Read-ServedFileBytes {
+    param(
+        [Parameter(Mandatory)] [string]$Path,
+        [int]$MaxAttempts = 4,
+        [int]$RetryDelayMilliseconds = 250
+    )
+
+    for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+        $stream = $null
+        try {
+            $stream = [System.IO.FileStream]::new(
+                $Path,
+                [System.IO.FileMode]::Open,
+                [System.IO.FileAccess]::Read,
+                [System.IO.FileShare]::ReadWrite -bor [System.IO.FileShare]::Delete,
+                65536,
+                [System.IO.FileOptions]::SequentialScan
+            )
+            $length = [int64]$stream.Length
+            if ($length -gt [int32]::MaxValue) {
+                throw "Served file is too large: $length bytes."
+            }
+
+            $bytes = [byte[]]::new([int]$length)
+            $offset = 0
+            while ($offset -lt $bytes.Length) {
+                $read = $stream.Read($bytes, $offset, $bytes.Length - $offset)
+                if ($read -le 0) { throw "Served file ended before all bytes were read." }
+                $offset += $read
+            }
+            return $bytes
+        }
+        catch {
+            if ($attempt -ge $MaxAttempts) { throw }
+            Start-Sleep -Milliseconds $RetryDelayMilliseconds
+        }
+        finally {
+            if ($null -ne $stream) { $stream.Dispose() }
+        }
+    }
+
+    throw "Could not read served file '$Path'."
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
 }
 
 $resolvedRootPath = [System.IO.Path]::GetFullPath($RootPath)
@@ -254,6 +309,10 @@ try {
         $requestStart = Get-Date
         $requestStatusCode = 500
         $responseBytes = 0L
+<<<<<<< HEAD
+        $responseSent = $false
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
         $requestPath = if ($request.Url) { $request.Url.PathAndQuery } else { "/" }
         $clientIp = if ($request.RemoteEndPoint) { $request.RemoteEndPoint.Address.ToString() } else { "" }
 
@@ -273,6 +332,10 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Only GET is supported.")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
+<<<<<<< HEAD
+                $responseSent = $true
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
                 continue
             }
 
@@ -286,6 +349,10 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Server shutting down.")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
+<<<<<<< HEAD
+                $responseSent = $true
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
                 break
             }
 
@@ -297,6 +364,10 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Forbidden.")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
+<<<<<<< HEAD
+                $responseSent = $true
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
                 continue
             }
 
@@ -305,6 +376,10 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Not found.")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
+<<<<<<< HEAD
+                $responseSent = $true
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
                 continue
             }
 
@@ -317,14 +392,34 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Not found.")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
+<<<<<<< HEAD
+                $responseSent = $true
+=======
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
                 continue
             }
 
-            $bytes = [System.IO.File]::ReadAllBytes($fullPath)
+            $bytes = Read-ServedFileBytes -Path $fullPath
             $contentType = Get-ContentType -Extension ([System.IO.Path]::GetExtension($fullPath))
             $requestStatusCode = 200
             $responseBytes = $bytes.Length
             Send-Response -Response $response -Body $bytes -ContentType $contentType -StatusCode $requestStatusCode
+<<<<<<< HEAD
+            $responseSent = $true
+        }
+        catch {
+            if (-not $responseSent -and $response.OutputStream.CanWrite) {
+                $requestStatusCode = 500
+                $body = [System.Text.Encoding]::UTF8.GetBytes("Server error: $($_.Exception.Message)")
+                $responseBytes = $body.Length
+                try {
+                    Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
+                    $responseSent = $true
+                }
+                catch {
+                    Write-ServerEvent -Level "ERROR" -Message ("Error response failed: {0}" -f $_.Exception.Message) -LogPath $resolvedLogPath -LogMaxBytes $maxLogBytes -LogRetentionCount $LogRetentionCount -ClientIp $clientIp -Method $request.HttpMethod -Path $requestPath -StatusCode $requestStatusCode
+                }
+=======
         }
         catch {
             if ($response.OutputStream.CanWrite) {
@@ -332,6 +427,7 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Server error: $($_.Exception.Message)")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
+>>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
             }
 
             Write-ServerEvent `

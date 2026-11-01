@@ -33,3 +33,4 @@ Web/.tmp
 .vscode/settings.json
 Thumbs.db
 .DS_Store
+Web/logs/httpserver.log
