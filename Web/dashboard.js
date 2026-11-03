@@ -31,9 +31,12 @@ const TABLE_EXPORT_CONFIG = {
             cleanupStatus: getCleanupStatusLabel(m),
             retentionPolicy: m.retention.retentionPolicy,
 <<<<<<< HEAD
+<<<<<<< HEAD
             permissions: m.permissions.length, recordRefreshedUtc: m.current.sampleTimestamp,
             lastLogonTime: m.current.lastLogonTime, mailboxCreatedUtc: m.whenCreatedUtc
 =======
+=======
+>>>>>>> origin/alternate
             permissions: m.permissions.length, lastLogonTime: m.current.lastLogonTime
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
         }),
@@ -993,10 +996,14 @@ function renderUsageTable(mailboxes) {
 
     if (rows.length === 0) {
 <<<<<<< HEAD
+<<<<<<< HEAD
         tbody.innerHTML = `<tr><td colspan="13" class="empty-state">No mailboxes found matching that search.</td></tr>`;
 =======
         tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No mailboxes found matching that search.</td></tr>`;
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+        tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No mailboxes found matching that search.</td></tr>`;
+>>>>>>> origin/alternate
         return;
     }
 
@@ -1035,10 +1042,14 @@ function renderRetentionPolicyTable() {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     const totalMailboxesBound = catalog.reduce((sum, policy) => sum + safeNumber(policy.mailboxCount), 0);
 =======
     const totalMailboxesBound = catalog.reduce((sum, policy) => sum + (Number(policy.mailboxCount) || 0), 0);
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+    const totalMailboxesBound = catalog.reduce((sum, policy) => sum + (Number(policy.mailboxCount) || 0), 0);
+>>>>>>> origin/alternate
     meta.textContent = `${formatNumber(catalog.length)} policy${catalog.length === 1 ? "" : "ies"} cataloged across ${formatNumber(totalMailboxesBound)} mailbox binding${totalMailboxesBound === 1 ? "" : "s"}.`;
 
     tbody.innerHTML = catalog.map(policy => `
@@ -1067,10 +1078,14 @@ function drawLicensingOverviewCharts(mailboxes) {
     mailboxes.forEach(mailbox => {
         const key = String(mailbox.licensing.licenseType || (mailbox.licensing.hasLicense ? "Assigned (Unknown Type)" : "Unassigned")).trim();
 <<<<<<< HEAD
+<<<<<<< HEAD
         typeCounts.set(key, safeNumber(typeCounts.get(key)) + 1);
 =======
         typeCounts.set(key, (typeCounts.get(key) || 0) + 1);
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+        typeCounts.set(key, (typeCounts.get(key) || 0) + 1);
+>>>>>>> origin/alternate
     });
     const typeBars = Array.from(typeCounts.entries())
         .map(([label, value]) => ({ label: truncateLabel(label, 28), value }))
@@ -1089,10 +1104,14 @@ function renderLicensingTable(mailboxes) {
         const rightGap = right.licensing.licenseRequired === true && right.licensing.hasLicense !== true ? 1 : 0;
         if (rightGap !== leftGap) return rightGap - leftGap;
 <<<<<<< HEAD
+<<<<<<< HEAD
         return safeNumber(right.current.totalGB) - safeNumber(left.current.totalGB);
 =======
         return (right.current.totalGB || 0) - (left.current.totalGB || 0);
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+        return (right.current.totalGB || 0) - (left.current.totalGB || 0);
+>>>>>>> origin/alternate
     });
     state.tableData.licensingTable = rows;
 
@@ -1130,10 +1149,14 @@ function drawRetentionPolicyCharts(mailboxes) {
     mailboxes.forEach(mailbox => {
         const policyName = String(mailbox.retention.retentionPolicy || "Unassigned").trim() || "Unassigned";
 <<<<<<< HEAD
+<<<<<<< HEAD
         policyCounts.set(policyName, safeNumber(policyCounts.get(policyName)) + 1);
 =======
         policyCounts.set(policyName, (policyCounts.get(policyName) || 0) + 1);
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+        policyCounts.set(policyName, (policyCounts.get(policyName) || 0) + 1);
+>>>>>>> origin/alternate
     });
 
     const ringSegments = Array.from(policyCounts.entries())
@@ -1879,10 +1902,14 @@ function normaliseRetentionPolicyCatalog(payload) {
         })
         .filter(policy => policy.name.length > 0)
 <<<<<<< HEAD
+<<<<<<< HEAD
         .sort((left, right) => safeNumber(right.mailboxCount) - safeNumber(left.mailboxCount) || left.name.localeCompare(right.name));
 =======
         .sort((left, right) => (right.mailboxCount || 0) - (left.mailboxCount || 0) || left.name.localeCompare(right.name));
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+        .sort((left, right) => (right.mailboxCount || 0) - (left.mailboxCount || 0) || left.name.localeCompare(right.name));
+>>>>>>> origin/alternate
 }
 
 function buildRetentionPolicyCatalogFromMailboxes(mailboxes) {
@@ -2058,6 +2085,12 @@ function normaliseMailbox(source) {
     const retentionPolicyChangeHistory = normaliseRetentionPolicyChangeHistory(source);
     const licenseAssignmentHistory = normaliseLicenseAssignmentHistory(source);
 
+    const retention = normaliseRetentionProfile(source);
+    const licensing = normaliseLicensingProfile(source);
+    const mailboxMaintenance = normaliseMaintenanceProfile(source);
+    const retentionPolicyChangeHistory = normaliseRetentionPolicyChangeHistory(source);
+    const licenseAssignmentHistory = normaliseLicenseAssignmentHistory(source);
+
     return {
         exchangeGuid: String(source?.ExchangeGuid ?? source?.exchangeGuid ?? ""),
         whenCreatedUtc: source?.WhenCreatedUtc ?? source?.whenCreatedUtc ?? source?.WhenCreated ?? source?.whenCreated ?? null,
@@ -2151,10 +2184,13 @@ function normaliseRetentionProfile(source) {
 function normaliseLicensingProfile(source) {
     const licensingSource = source?.licensing ?? source?.Licensing ?? {};
 <<<<<<< HEAD
+<<<<<<< HEAD
     const hasLicensingData = Object.keys(licensingSource).length > 0 ||
         source?.RecipientTypeDetails != null || source?.recipientTypeDetails != null;
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
     const capabilities = licensingSource.PersistedCapabilities ?? licensingSource.persistedCapabilities;
     const recipientTypeDetails = licensingSource.RecipientTypeDetails ??
         licensingSource.recipientTypeDetails ??
@@ -2177,6 +2213,7 @@ function normaliseLicensingProfile(source) {
         archiveStatus: licensingSource.ArchiveStatus ?? licensingSource.archiveStatus ?? null,
         isInactiveMailbox: getBoolean(licensingSource, ["IsInactiveMailbox", "isInactiveMailbox"]),
 <<<<<<< HEAD
+<<<<<<< HEAD
         licenseRequired: hasLicensingData ? (getBoolean(licensingSource, ["LicenseRequired", "licenseRequired"]) ?? inferredLicenseRequired) : null,
         hasLicense: hasLicensingData ? inferredHasLicense : null,
         licenseTypes,
@@ -2188,13 +2225,18 @@ function normaliseLicensingProfile(source) {
             ? (licensingSource.LicenseRequirementReason ?? licensingSource.licenseRequirementReason ?? getDefaultLicenseRequirementReason(recipientTypeDetails, inferredLicenseRequired))
             : "Licensing data has not been collected."
 =======
+=======
+>>>>>>> origin/alternate
         licenseRequired: getBoolean(licensingSource, ["LicenseRequired", "licenseRequired"]) ?? inferredLicenseRequired,
         hasLicense: inferredHasLicense,
         licenseTypes,
         licenseType: licensingSource.LicenseType ?? licensingSource.licenseType ?? (licenseTypes.length > 0 ? licenseTypes.join(", ") : null),
         isLicenseCompliant: getBoolean(licensingSource, ["IsLicenseCompliant", "isLicenseCompliant"]) ?? ((inferredLicenseRequired !== true) || inferredHasLicense === true),
         licenseRequirementReason: licensingSource.LicenseRequirementReason ?? licensingSource.licenseRequirementReason ?? getDefaultLicenseRequirementReason(recipientTypeDetails, inferredLicenseRequired)
+<<<<<<< HEAD
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
     };
 }
 
@@ -2480,6 +2522,26 @@ function parseByteCount(value) {
 
     const numericValue = Number(match[1].replace(/,/g, ""));
     return Number.isFinite(numericValue) ? numericValue : null;
+}
+
+function getBoolean(record, propertyNames) {
+    for (const propertyName of propertyNames) {
+        const value = record?.[propertyName];
+        if (value === undefined || value === null || value === "") {
+            continue;
+        }
+        if (typeof value === "boolean") {
+            return value;
+        }
+        const text = String(value).trim().toLowerCase();
+        if (text === "true") {
+            return true;
+        }
+        if (text === "false") {
+            return false;
+        }
+    }
+    return null;
 }
 
 function getBoolean(record, propertyNames) {

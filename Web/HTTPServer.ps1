@@ -33,10 +33,14 @@ function Get-NowUtcString {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 function Invoke-LogRotation {
 =======
 function Rotate-LogFile {
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+function Rotate-LogFile {
+>>>>>>> origin/alternate
     param(
         [Parameter(Mandatory)]
         [string]$Path,
@@ -90,10 +94,14 @@ function Write-ServerLog {
     )
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     Invoke-LogRotation -Path $Path -MaxBytes $MaxBytes -RetentionCount $RetentionCount
 =======
     Rotate-LogFile -Path $Path -MaxBytes $MaxBytes -RetentionCount $RetentionCount
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+    Rotate-LogFile -Path $Path -MaxBytes $MaxBytes -RetentionCount $RetentionCount
+>>>>>>> origin/alternate
     Add-Content -LiteralPath $Path -Value $Message -Encoding utf8
 }
 
@@ -202,6 +210,7 @@ function Send-TextResponse {
     $bytes = [System.Text.Encoding]::UTF8.GetBytes($Text)
     Send-Response -Response $Response -Body $bytes -ContentType "text/plain; charset=utf-8" -StatusCode $StatusCode
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 
 function Read-ServedFileBytes {
@@ -248,6 +257,8 @@ function Read-ServedFileBytes {
     throw "Could not read served file '$Path'."
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
 }
 
 $resolvedRootPath = [System.IO.Path]::GetFullPath($RootPath)
@@ -310,9 +321,12 @@ try {
         $requestStatusCode = 500
         $responseBytes = 0L
 <<<<<<< HEAD
+<<<<<<< HEAD
         $responseSent = $false
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
         $requestPath = if ($request.Url) { $request.Url.PathAndQuery } else { "/" }
         $clientIp = if ($request.RemoteEndPoint) { $request.RemoteEndPoint.Address.ToString() } else { "" }
 
@@ -333,9 +347,12 @@ try {
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
 <<<<<<< HEAD
+<<<<<<< HEAD
                 $responseSent = $true
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
                 continue
             }
 
@@ -350,9 +367,12 @@ try {
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
 <<<<<<< HEAD
+<<<<<<< HEAD
                 $responseSent = $true
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
                 break
             }
 
@@ -365,9 +385,12 @@ try {
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
 <<<<<<< HEAD
+<<<<<<< HEAD
                 $responseSent = $true
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
                 continue
             }
 
@@ -377,9 +400,12 @@ try {
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
 <<<<<<< HEAD
+<<<<<<< HEAD
                 $responseSent = $true
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
                 continue
             }
 
@@ -393,9 +419,12 @@ try {
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
 <<<<<<< HEAD
+<<<<<<< HEAD
                 $responseSent = $true
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
                 continue
             }
 
@@ -404,6 +433,7 @@ try {
             $requestStatusCode = 200
             $responseBytes = $bytes.Length
             Send-Response -Response $response -Body $bytes -ContentType $contentType -StatusCode $requestStatusCode
+<<<<<<< HEAD
 <<<<<<< HEAD
             $responseSent = $true
         }
@@ -420,6 +450,8 @@ try {
                     Write-ServerEvent -Level "ERROR" -Message ("Error response failed: {0}" -f $_.Exception.Message) -LogPath $resolvedLogPath -LogMaxBytes $maxLogBytes -LogRetentionCount $LogRetentionCount -ClientIp $clientIp -Method $request.HttpMethod -Path $requestPath -StatusCode $requestStatusCode
                 }
 =======
+=======
+>>>>>>> origin/alternate
         }
         catch {
             if ($response.OutputStream.CanWrite) {
@@ -427,7 +459,10 @@ try {
                 $body = [System.Text.Encoding]::UTF8.GetBytes("Server error: $($_.Exception.Message)")
                 $responseBytes = $body.Length
                 Send-Response -Response $response -Body $body -ContentType "text/plain; charset=utf-8" -StatusCode $requestStatusCode
+<<<<<<< HEAD
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
             }
 
             Write-ServerEvent `

@@ -29,6 +29,7 @@
       "type": "string"
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
     "CollectorLastCompletedUtc": {
       "type": [
         "string",
@@ -37,6 +38,8 @@
     },
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
     "Mailboxes": {
       "type": "array",
       "items": {
@@ -113,6 +116,7 @@
           ]
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
         "sampleTimestamp": {
           "type": [
             "string",
@@ -121,6 +125,8 @@
         },
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
         "archiveEnabled": {
           "type": "boolean"
         },
@@ -483,6 +489,7 @@
           "type": "string"
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
         "WhenCreatedUtc": {
           "type": [
             "string",
@@ -491,6 +498,8 @@
         },
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
         "current": {
           "$ref": "#/$defs/currentMetrics"
         },
@@ -504,6 +513,7 @@
           }
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
         "Retention": {
           "anyOf": [
             { "$ref": "#/$defs/retention" },
@@ -516,12 +526,17 @@
             { "type": "null" }
           ]
 =======
+=======
+>>>>>>> origin/alternate
         "retention": {
           "$ref": "#/$defs/retention"
         },
         "licensing": {
           "$ref": "#/$defs/licensing"
+<<<<<<< HEAD
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
         },
         "mailboxMaintenance": {
           "$ref": "#/$defs/maintenance"
@@ -610,6 +625,7 @@
           "type": "string"
         },
 <<<<<<< HEAD
+<<<<<<< HEAD
         "WhenCreatedUtc": {
           "type": [
             "string",
@@ -618,6 +634,8 @@
         },
 =======
 >>>>>>> 7fd31d1e748a924b310067a7640ae8aed93fe423
+=======
+>>>>>>> origin/alternate
         "Permissions": {
           "type": [
             "array",
