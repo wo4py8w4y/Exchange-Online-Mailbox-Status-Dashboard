@@ -642,7 +642,6 @@ foreach ($identityValue in $identities) {
                 WhenCreatedUtc     = $result.WhenCreatedUtc
                 Retention          = $result.Retention
                 Licensing          = $result.Licensing
-                Retention          = $result.Retention
                 Permissions        = $result.Permissions
                 Samples            = @($result.Sample)
             }
