@@ -1,41 +1,41 @@
 :root {
-    --bg-color: #eef4fb;
+    --bg-color: #f2f5fa;
     --panel-bg: #ffffff;
-    --panel-alt-bg: #f6faff;
-    --text-primary: #172235;
-    --text-secondary: #556882;
-    --border-color: #d3dfec;
-    --header-bg: linear-gradient(135deg, #235ac7, #2b8fd8);
+    --panel-alt-bg: #f6f8fc;
+    --text-primary: #122033;
+    --text-secondary: #55667d;
+    --border-color: #dce4ef;
+    --header-bg: linear-gradient(118deg, #12355b 0%, #1d5275 58%, #176d78 100%);
     --header-text: #ffffff;
-    --nav-link: #235ac7;
-    --nav-link-hover: #1f4fae;
-    --shadow: 0 16px 40px rgba(15, 38, 73, 0.12);
-    --chart-primary: #235ac7;
-    --chart-secondary: #47afe3;
-    --chart-success: #1f9f7a;
-    --chart-warning: #ea9a2d;
-    --chart-danger: #df5968;
-    --chart-muted: #b3c4d9;
+    --nav-link: #2563a7;
+    --nav-link-hover: #174b82;
+    --shadow: 0 12px 32px rgba(16, 37, 64, 0.08);
+    --chart-primary: #3469d5;
+    --chart-secondary: #29a99b;
+    --chart-success: #21836f;
+    --chart-warning: #bc711d;
+    --chart-danger: #c9435b;
+    --chart-muted: #d7e1ec;
 }
 
 [data-theme="dark"] {
-    --bg-color: #09111b;
-    --panel-bg: #111c29;
-    --panel-alt-bg: #162434;
+    --bg-color: #0b1220;
+    --panel-bg: #111b2c;
+    --panel-alt-bg: #172338;
     --text-primary: #edf4ff;
-    --text-secondary: #91a6bf;
-    --border-color: #243446;
-    --header-bg: linear-gradient(135deg, #0a4d98, #1273c7);
+    --text-secondary: #9cacbf;
+    --border-color: #26364c;
+    --header-bg: linear-gradient(118deg, #102744 0%, #123d56 58%, #11515a 100%);
     --header-text: #ffffff;
-    --nav-link: #6cb7ff;
-    --nav-link-hover: #9ad0ff;
-    --shadow: 0 18px 42px rgba(0, 0, 0, 0.35);
-    --chart-primary: #6cb7ff;
-    --chart-secondary: #8fcbff;
-    --chart-success: #49d39a;
-    --chart-warning: #ffca6d;
-    --chart-danger: #ff8f8f;
-    --chart-muted: #415368;
+    --nav-link: #82b8ff;
+    --nav-link-hover: #afd5ff;
+    --shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+    --chart-primary: #7ba6ff;
+    --chart-secondary: #5ed5c5;
+    --chart-success: #67d6ad;
+    --chart-warning: #ffc16a;
+    --chart-danger: #ff8295;
+    --chart-muted: #3e4d62;
 }
 
 * {
@@ -353,6 +353,32 @@ body {
     font-size: 28px;
     line-height: 1.2;
     color: var(--nav-link);
+}
+
+.collection-status {
+    border-left: 6px solid var(--chart-muted);
+}
+
+.collection-status[data-status-state="healthy"] {
+    border-left-color: var(--chart-success);
+}
+
+.collection-status[data-status-state="partial"],
+.collection-status[data-status-state="stale"] {
+    border-left-color: var(--chart-warning);
+}
+
+.collection-status[data-status-state="failed"],
+.collection-status[data-status-state="unavailable"] {
+    border-left-color: var(--chart-danger);
+}
+
+.collection-status h2 {
+    margin-bottom: 8px;
+}
+
+.collection-status p {
+    margin-bottom: 4px;
 }
 
 .selected-mailbox-panel {

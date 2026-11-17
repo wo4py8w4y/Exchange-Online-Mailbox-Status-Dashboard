@@ -36,10 +36,13 @@ function Get-DefaultConfig {
 
         Paths = [ordered]@{
             MailboxesCsv        = "..\Mailboxes\mailboxes.csv"
+            GraphMailboxMappingCsv = ".\Config\graph-mailbox-mapping.csv"
             HistoryJson         = "..\Web\history.json"
             DataJson            = "..\Web\data.json"
             BackupDirectory     = "..\Web\Backups"
             WebRoot             = "..\Web"
+            CollectionStatusJson = "..\Web\collection-status.json"
+            AlertStateJson      = ".\Logs\alert-state.json"
             DemoDataJson        = "..\Web\demo-data.json"
             DemoHistoryJson     = "..\Web\demo-history.json"
             TempDirectory       = ".\Temp"
@@ -57,6 +60,16 @@ function Get-DefaultConfig {
         Thresholds = [ordered]@{
             CriticalPercent = 94.0
             WarningPercent  = 85.0
+        }
+
+        Monitoring = [ordered]@{
+            StaleAfterMinutes = 60
+        }
+
+        Notifications = [ordered]@{
+            Enabled       = $false
+            SenderMailbox = ""
+            Recipients    = @()
         }
 
         Validation = [ordered]@{
@@ -201,6 +214,8 @@ function Import-MailboxDashboardConfig {
     $config.Paths = Merge-ConfigSection -Default $defaults.Paths -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Paths')
     $config.Collection = Merge-ConfigSection -Default $defaults.Collection -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Collection')
     $config.Thresholds = Merge-ConfigSection -Default $defaults.Thresholds -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Thresholds')
+    $config.Monitoring = Merge-ConfigSection -Default $defaults.Monitoring -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Monitoring')
+    $config.Notifications = Merge-ConfigSection -Default $defaults.Notifications -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Notifications')
     $config.Validation = Merge-ConfigSection -Default $defaults.Validation -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Validation')
     $config.Backup = Merge-ConfigSection -Default $defaults.Backup -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Backup')
     $config.Logging = Merge-ConfigSection -Default $defaults.Logging -Supplied (Get-SuppliedSection -Supplied $supplied -Name 'Logging')
@@ -368,7 +383,11 @@ function Test-MailboxDashboardConfig {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
-        $Config
+        $Config,
+
+        [Parameter()]
+        [ValidateSet('ExchangeOnline', 'Graph')]
+        [string]$Collector = 'ExchangeOnline'
     )
 
     $problems = [System.Collections.Generic.List[string]]::new()
@@ -381,7 +400,13 @@ function Test-MailboxDashboardConfig {
         $problems.Add("'AppID' is not set. Run Register-EntraApp.ps1 to create an app registration.")
     }
 
-    switch ($Config.Authentication.Mode) {
+    if ($Collector -eq 'Graph' -and
+        (Test-ConfigPlaceholder -Value $Config.ClientSecret) -and
+        (Test-ConfigPlaceholder -Value $Config.Thumbprint)) {
+        $problems.Add("Graph collection requires ClientSecret or Thumbprint for app-only authentication.")
+    }
+
+    switch ($(if ($Collector -eq 'Graph') { 'Certificate' } else { $Config.Authentication.Mode })) {
         'Certificate' {
             if ((Test-ConfigPlaceholder -Value $Config.ClientSecret) -and (Test-ConfigPlaceholder -Value $Config.Thumbprint)) {
                 $problems.Add("Certificate authentication requires either 'ClientSecret' or 'Thumbprint'.")
@@ -394,16 +419,18 @@ function Test-MailboxDashboardConfig {
         }
     }
 
-    foreach ($pathName in @('MailboxesCsv', 'HistoryJson', 'DataJson')) {
-        $resolvedPath = $Config.ResolvedPaths.PSObject.Properties[$pathName]?.Value
+    $inputPathName = if ($Collector -eq 'Graph') { 'GraphMailboxMappingCsv' } else { 'MailboxesCsv' }
+    foreach ($pathName in @($inputPathName, 'HistoryJson', 'DataJson', 'CollectionStatusJson', 'AlertStateJson')) {
+        $pathProperty = $Config.ResolvedPaths.PSObject.Properties[$pathName]
+        $resolvedPath = if ($null -ne $pathProperty) { $pathProperty.Value } else { $null }
 
         if ([string]::IsNullOrWhiteSpace([string]$resolvedPath)) {
             $problems.Add("Paths.$pathName is required.")
             continue
         }
 
-        if ($pathName -eq 'MailboxesCsv' -and -not (Test-Path -LiteralPath $resolvedPath)) {
-            $problems.Add("Mailbox CSV path '$resolvedPath' does not exist.")
+        if ($pathName -eq $inputPathName -and -not (Test-Path -LiteralPath $resolvedPath -PathType Leaf)) {
+            $problems.Add("$inputPathName path '$resolvedPath' does not exist.")
             continue
         }
 
@@ -414,7 +441,9 @@ function Test-MailboxDashboardConfig {
     }
 
     foreach ($pathName in @('TempDirectory', 'ThreadJobsDirectory', 'LogDirectory')) {
-        $resolvedPath = $Config.ResolvedPaths.PSObject.Properties[$pathName]?.Value
+        if ($Collector -eq 'Graph' -and $pathName -eq 'ThreadJobsDirectory') { continue }
+        $pathProperty = $Config.ResolvedPaths.PSObject.Properties[$pathName]
+        $resolvedPath = if ($null -ne $pathProperty) { $pathProperty.Value } else { $null }
         if ([string]::IsNullOrWhiteSpace([string]$resolvedPath)) {
             continue
         }
@@ -437,6 +466,39 @@ function Test-MailboxDashboardConfig {
 
     if ($warningPercent -ge $criticalPercent) {
         $problems.Add("Thresholds.WarningPercent must be lower than Thresholds.CriticalPercent.")
+    }
+
+    if ([int]$Config.Monitoring.StaleAfterMinutes -lt 1) {
+        $problems.Add("Monitoring.StaleAfterMinutes must be at least 1.")
+    }
+
+    if ([bool]$Config.Notifications.Enabled) {
+        if (Test-ConfigPlaceholder -Value $Config.Notifications.SenderMailbox) {
+            $problems.Add("Notifications.SenderMailbox is required when Notifications.Enabled is true.")
+        }
+
+        $recipients = @($Config.Notifications.Recipients | Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) })
+        if ($recipients.Count -eq 0) {
+            $problems.Add("Notifications.Recipients must contain at least one email address when Notifications.Enabled is true.")
+        }
+
+        $notificationAddresses = @($recipients)
+        if (-not [string]::IsNullOrWhiteSpace([string]$Config.Notifications.SenderMailbox)) {
+            $notificationAddresses += [string]$Config.Notifications.SenderMailbox
+        }
+
+        foreach ($address in $notificationAddresses) {
+            try {
+                $null = [System.Net.Mail.MailAddress]::new([string]$address)
+            }
+            catch {
+                $problems.Add("Notification address '$address' is not a valid email address.")
+            }
+        }
+
+        if ((Test-ConfigPlaceholder -Value $Config.ClientSecret) -and (Test-ConfigPlaceholder -Value $Config.Thumbprint)) {
+            $problems.Add("Graph email notifications require ClientSecret or Thumbprint for app-only authentication.")
+        }
     }
 
     if ([int]$Config.Collection.BatchSize -lt 1) {

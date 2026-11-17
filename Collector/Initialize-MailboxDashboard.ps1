@@ -56,7 +56,7 @@ $script:RepositoryRoot = Split-Path -Path $PSScriptRoot -Parent
 
 $script:RequiredModules = @(
     @{ Name = "ExchangeOnlineManagement";        Reason = "Exchange Online collection"; Required = $true }
-    @{ Name = "Microsoft.Graph.Authentication";  Reason = "interactive sign-in";        Required = $false }
+    @{ Name = "Microsoft.Graph.Authentication";  Reason = "Graph-only collection, interactive sign-in or Graph email notifications"; Required = $false }
     @{ Name = "graph.auth.lite";                 Reason = "interactive OAuth/PKCE";     Required = $false }
     @{ Name = "Microsoft.PowerShell.ThreadJob";  Reason = "parallel collection";        Required = $false }
 )

@@ -13,10 +13,13 @@
 
   "Paths": {
     "MailboxesCsv": "..\\Mailboxes\\mailboxes.csv",
+    "GraphMailboxMappingCsv": ".\\Config\\graph-mailbox-mapping.csv",
     "HistoryJson": "..\\Web\\history.json",
     "DataJson": "..\\Web\\data.json",
     "BackupDirectory": "..\\Web\\Backups",
     "WebRoot": "..\\Web",
+    "CollectionStatusJson": "..\\Web\\collection-status.json",
+    "AlertStateJson": ".\\Logs\\alert-state.json",
     "DemoDataJson": "..\\Web\\demo-data.json",
     "DemoHistoryJson": "..\\Web\\demo-history.json",
     "TempDirectory": ".\\Temp",
@@ -34,6 +37,16 @@
   "Thresholds": {
     "CriticalPercent": 94.0,
     "WarningPercent": 85.0
+  },
+
+  "Monitoring": {
+    "StaleAfterMinutes": 60
+  },
+
+  "Notifications": {
+    "Enabled": false,
+    "SenderMailbox": "",
+    "Recipients": []
   },
 
   "Validation": {

@@ -2,19 +2,20 @@ const DATA_URL = "data.json";
 const HISTORY_URL = "history.json";
 const MAX_SEARCH_RESULTS = 24;
 const MAX_TABLE_ROWS = 250;
+const MAX_ACCESS_MAP_PRINCIPALS = 500;
 const DEFAULT_PAGE_SIZE = 50;
 const WARNING_THRESHOLD = 85;
 const CRITICAL_THRESHOLD = 94;
 const CLEANUP_WARNING_DAYS = 30;
 
 const AVAILABLE_THEMES = [
-    { id: "default-light",  name: "Default Light",   file: null,                         baseTheme: "light" },
-    { id: "default-dark",   name: "Default Dark",    file: null,                         baseTheme: "dark"  },
-    { id: "aurora-night",   name: "Aurora Night",    file: "theme/aurora-night.jsonc",   baseTheme: "dark"  },
-    { id: "nerv",           name: "Nerv",            file: "theme/nerv.jsonc",           baseTheme: "dark"  },
-    { id: "graphite-ocean", name: "Graphite Ocean",  file: "theme/graphite-ocean.jsonc", baseTheme: "dark"  },
-    { id: "summit-light",   name: "Summit Light",    file: "theme/summit-light.jsonc",   baseTheme: "light" },
-    { id: "dusk-rose",      name: "Dusk Rose",       file: "theme/dusk-rose.jsonc",      baseTheme: "light" },
+    { id: "default-light", name: "Default Light", file: null, baseTheme: "light" },
+    { id: "default-dark", name: "Default Dark", file: null, baseTheme: "dark" },
+    { id: "aurora-night", name: "Aurora Night", file: "theme/aurora-night.jsonc", baseTheme: "dark" },
+    { id: "nerv", name: "Nerv", file: "theme/nerv.jsonc", baseTheme: "dark" },
+    { id: "graphite-ocean", name: "Graphite Ocean", file: "theme/graphite-ocean.jsonc", baseTheme: "dark" },
+    { id: "summit-light", name: "Summit Light", file: "theme/summit-light.jsonc", baseTheme: "light" },
+    { id: "dusk-rose", name: "Dusk Rose", file: "theme/dusk-rose.jsonc", baseTheme: "light" },
 ];
 
 const TABLE_EXPORT_CONFIG = {
@@ -30,35 +31,42 @@ const TABLE_EXPORT_CONFIG = {
             licenseType: m.licensing.licenseType,
             cleanupStatus: getCleanupStatusLabel(m),
             retentionPolicy: m.retention.retentionPolicy,
-            permissions: m.permissions.length, lastLogonTime: m.current.lastLogonTime
+            permissions: m.permissions.length, recordRefreshedUtc: m.current.sampleTimestamp,
+            lastLogonTime: m.current.lastLogonTime, mailboxCreatedUtc: m.whenCreatedUtc
         }),
         columns: [
-            { header: "Mailbox",       value: m => m.displayName },
-            { header: "SMTP Address",  value: m => m.primarySmtpAddress },
-            { header: "Storage GB",    value: m => m.current.totalGB },
-            { header: "Items",         value: m => m.current.itemCount },
-            { header: "Quota GB",      value: m => m.current.quotaGB ?? "Unlimited" },
-            { header: "Usage %",       value: m => m.current.usagePercent },
-            { header: "Mailbox Type",  value: m => m.licensing.recipientTypeDetails || "Unknown" },
-            { header: "License",       value: m => getLicenseStatusLabel(m) },
-            { header: "Cleanup",       value: m => getCleanupStatusLabel(m) },
-            { header: "Permissions",   value: m => m.permissions.length },
-            { header: "Last Logon",    value: m => m.current.lastLogonTime ?? "" },
+            { header: "Mailbox", value: m => m.displayName },
+            { header: "SMTP Address", value: m => m.primarySmtpAddress },
+            { header: "Storage GB", value: m => m.current.totalGB },
+            { header: "Items", value: m => m.current.itemCount },
+            { header: "Quota GB", value: m => m.current.quotaGB ?? "Unlimited" },
+            { header: "Usage %", value: m => m.current.usagePercent },
+            { header: "Mailbox Type", value: m => m.licensing.recipientTypeDetails || "Unknown" },
+            { header: "License", value: m => getLicenseStatusLabel(m) },
+            { header: "Cleanup", value: m => getCleanupStatusLabel(m) },
+            { header: "Permissions", value: m => m.permissions.length },
+            { header: "Record Refreshed", value: m => m.current.sampleTimestamp ?? "" },
+            { header: "Last Logon", value: m => m.current.lastLogonTime ?? "" },
+            { header: "Mailbox Created", value: m => m.whenCreatedUtc ?? "" },
         ]
     },
     permsTable: {
         title: "Mailbox Permissions",
         toExportRow: ({ mailbox, permission }) => ({
+            mailboxGuid: permission.MailboxGuid || mailbox.exchangeGuid,
             mailboxName: mailbox.displayName, mailboxAddress: mailbox.primarySmtpAddress,
-            delegateUser: permission.User, accessRights: Array.isArray(permission.AccessRights) ? permission.AccessRights.join(", ") : permission.AccessRights,
+            delegateUser: permission.User, permissionType: permission.PermissionType,
+            accessRights: Array.isArray(permission.AccessRights) ? permission.AccessRights.join(", ") : permission.AccessRights,
             isInherited: permission.IsInherited
         }),
         columns: [
-            { header: "Mailbox",      value: r => r.mailbox.displayName },
+            { header: "Mailbox", value: r => r.mailbox.displayName },
             { header: "SMTP Address", value: r => r.mailbox.primarySmtpAddress },
-            { header: "Delegate",     value: r => r.permission.User },
-            { header: "Rights",       value: r => Array.isArray(r.permission.AccessRights) ? r.permission.AccessRights.join(", ") : String(r.permission.AccessRights || "") },
-            { header: "Inherited",    value: r => r.permission.IsInherited ? "Yes" : "No" },
+            { header: "Mailbox GUID", value: r => r.permission.MailboxGuid || r.mailbox.exchangeGuid },
+            { header: "Delegate", value: r => r.permission.User },
+            { header: "Permission type", value: r => r.permission.PermissionType },
+            { header: "Rights", value: r => Array.isArray(r.permission.AccessRights) ? r.permission.AccessRights.join(", ") : String(r.permission.AccessRights || "") },
+            { header: "Inherited", value: r => r.permission.IsInherited ? "Yes" : "No" },
         ]
     },
     thresholdTable: {
@@ -67,14 +75,14 @@ const TABLE_EXPORT_CONFIG = {
             displayName: m.displayName, primarySmtpAddress: m.primarySmtpAddress,
             storageGB: m.current.totalGB, quotaGB: m.current.quotaGB,
             usagePercent: m.current.usagePercent,
-            status: (m.current.usagePercent || 0) >= CRITICAL_THRESHOLD ? "Critical" : "Warning"
+            status: safeNumber(m.current.usagePercent) >= CRITICAL_THRESHOLD ? "Critical" : "Warning"
         }),
         columns: [
-            { header: "Mailbox",    value: m => m.displayName },
+            { header: "Mailbox", value: m => m.displayName },
             { header: "Storage GB", value: m => m.current.totalGB },
-            { header: "Quota GB",   value: m => m.current.quotaGB ?? "Unlimited" },
-            { header: "Usage %",    value: m => m.current.usagePercent },
-            { header: "Status",     value: m => (m.current.usagePercent || 0) >= CRITICAL_THRESHOLD ? "Critical" : "Warning" },
+            { header: "Quota GB", value: m => m.current.quotaGB ?? "Unlimited" },
+            { header: "Usage %", value: m => m.current.usagePercent },
+            { header: "Status", value: m => safeNumber(m.current.usagePercent) >= CRITICAL_THRESHOLD ? "Critical" : "Warning" },
         ]
     },
     historyTable: {
@@ -82,9 +90,9 @@ const TABLE_EXPORT_CONFIG = {
         toExportRow: p => ({ timestampUtc: p.TimestampUtc, storageGB: p.SizeGB, itemCount: p.ItemCount, usagePercent: p.UsagePercent }),
         columns: [
             { header: "Snapshot Date", value: p => p.TimestampUtc },
-            { header: "Storage GB",    value: p => p.SizeGB },
-            { header: "Items",         value: p => p.ItemCount },
-            { header: "Usage %",       value: p => p.UsagePercent },
+            { header: "Storage GB", value: p => p.SizeGB },
+            { header: "Items", value: p => p.ItemCount },
+            { header: "Usage %", value: p => p.UsagePercent },
         ]
     },
     mailboxSnapshotsTable: {
@@ -92,18 +100,20 @@ const TABLE_EXPORT_CONFIG = {
         toExportRow: p => ({ timestampUtc: p.TimestampUtc, primaryGB: p.SizeGB, archiveGB: p.ArchiveSizeGB, itemCount: p.ItemCount, usagePercent: p.UsagePercent }),
         columns: [
             { header: "Snapshot Date", value: p => p.TimestampUtc },
-            { header: "Primary GB",    value: p => p.SizeGB },
-            { header: "Archive GB",    value: p => p.ArchiveSizeGB },
-            { header: "Items",         value: p => p.ItemCount },
-            { header: "Usage %",       value: p => p.UsagePercent },
+            { header: "Primary GB", value: p => p.SizeGB },
+            { header: "Archive GB", value: p => p.ArchiveSizeGB },
+            { header: "Items", value: p => p.ItemCount },
+            { header: "Usage %", value: p => p.UsagePercent },
         ]
     },
     mailboxPermissionsTable: {
         title: "Explicit Permissions",
-        toExportRow: p => ({ user: p.User, accessRights: Array.isArray(p.AccessRights) ? p.AccessRights.join(", ") : String(p.AccessRights || ""), isInherited: p.IsInherited }),
+        toExportRow: p => ({ mailboxGuid: p.MailboxGuid, user: p.User, permissionType: p.PermissionType, accessRights: Array.isArray(p.AccessRights) ? p.AccessRights.join(", ") : String(p.AccessRights || ""), isInherited: p.IsInherited }),
         columns: [
+            { header: "Mailbox GUID", value: p => p.MailboxGuid },
             { header: "Delegate", value: p => p.User },
-            { header: "Rights",   value: p => Array.isArray(p.AccessRights) ? p.AccessRights.join(", ") : String(p.AccessRights || "") },
+            { header: "Permission type", value: p => p.PermissionType },
+            { header: "Rights", value: p => Array.isArray(p.AccessRights) ? p.AccessRights.join(", ") : String(p.AccessRights || "") },
             { header: "Inherited", value: p => p.IsInherited ? "Yes" : "No" },
         ]
     },
@@ -126,7 +136,7 @@ const TABLE_EXPORT_CONFIG = {
             { header: "Required", value: m => m.licensing.licenseRequired === true ? "Yes" : (m.licensing.licenseRequired === false ? "No" : "Unknown") },
             { header: "Assigned", value: m => m.licensing.hasLicense === true ? "Yes" : (m.licensing.hasLicense === false ? "No" : "Unknown") },
             { header: "License Type", value: m => m.licensing.licenseType || "" },
-            { header: "Compliance", value: m => m.licensing.isLicenseCompliant === true ? "Compliant" : "Gap" },
+            { header: "Compliance", value: m => m.licensing.isLicenseCompliant === true ? "Compliant" : (m.licensing.isLicenseCompliant === false ? "Gap" : "Unknown") },
         ]
     },
     retentionPolicyCatalogTable: {
@@ -153,19 +163,26 @@ let refreshMs = 60000;
 
 const state = {
     historyData: createEmptyHistoryData(),
+    backupStatus: null,
+    backupStatusError: null,
     retentionPolicies: [],
     currentMailboxes: [],
     selectableMailboxes: [],
     mailboxLookup: new Map(),
     selectedMailboxKey: null,
+    scopes: [],
+    activeScopeId: null,
+    scopeCounts: { total: 0, inScope: 0 },
+    filterQuery: "",
+    sort: {},
     pagination: {
-        usageTable:              { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
-        permsTable:              { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
-        thresholdTable:          { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
-        historyTable:            { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
-        mailboxSnapshotsTable:   { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        usageTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        permsTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        thresholdTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        historyTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        mailboxSnapshotsTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
         mailboxPermissionsTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
-        licensingTable:          { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
+        licensingTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 },
         retentionPolicyCatalogTable: { pageSize: DEFAULT_PAGE_SIZE, page: 1 }
     },
     tableData: {}
@@ -174,9 +191,14 @@ const state = {
 window.allMailboxes = [];
 
 document.addEventListener("DOMContentLoaded", () => {
+    ensureLoadingIndicator();
+    readFilterSortFromUrl();
     bindHeaderControls();
     bindSearchControls();
+    bindAccessMapControls();
     bindTableControls();
+    bindSortableHeaders();
+    buildFilterBar();
     loadDashboard().catch(showError);
     resetAutoRefreshTimer();
 });
@@ -242,48 +264,114 @@ function bindSearchControls() {
 }
 
 async function loadDashboard() {
+    setLoadingState(true, "Loading mailbox data");
     const cacheBust = Date.now();
     const dataUrl = `${DATA_URL}?cacheBust=${cacheBust}`;
     const historyUrl = `${HISTORY_URL}?cacheBust=${cacheBust}`;
 
-    const [dataResponse, historyResponse] = await Promise.all([
-        fetch(dataUrl, { cache: "no-store" }),
-        fetch(historyUrl, { cache: "no-store" })
-    ]);
+    try {
+        await ensureScopesLoaded();
 
-    if (!dataResponse.ok) {
-        throw new Error(`Could not load ${DATA_URL}`);
+        const backupStatusRequest = getCurrentPage() === "backups"
+            ? fetch(`Backups/backup-status.json?cacheBust=${cacheBust}`, { cache: "no-store" })
+            : Promise.resolve(null);
+        const [dataResponse, historyResponse, backupStatusResponse] = await Promise.all([
+            fetch(dataUrl, { cache: "no-store" }),
+            fetch(historyUrl, { cache: "no-store" }),
+            backupStatusRequest
+        ]);
+
+        if (!dataResponse.ok) {
+            throw new Error(`Could not load ${DATA_URL}`);
+        }
+
+        const rawDashboardData = await dataResponse.json();
+        const rawHistoryData = historyResponse.ok ? await historyResponse.json() : null;
+        state.backupStatus = null;
+        state.backupStatusError = null;
+        if (backupStatusResponse) {
+            if (!backupStatusResponse.ok) {
+                state.backupStatusError = `Backup status could not be loaded (HTTP ${backupStatusResponse.status}).`;
+            } else {
+                try {
+                    const manifest = await backupStatusResponse.json();
+                    if (!manifest || !Array.isArray(manifest.Backups)) {
+                        state.backupStatusError = "Backup status manifest must contain a Backups array.";
+                    } else {
+                        state.backupStatus = manifest;
+                    }
+                } catch (error) {
+                    state.backupStatusError = `Backup status is not valid JSON: ${error.message}`;
+                }
+            }
+        }
+
+        state.historyData = normaliseHistoryData(rawHistoryData);
+        const retentionPoliciesFromData = normaliseRetentionPolicyCatalog(rawDashboardData);
+        const retentionPoliciesFromHistory = normaliseRetentionPolicyCatalog(rawHistoryData);
+        state.retentionPolicies = retentionPoliciesFromData.length > 0 ? retentionPoliciesFromData : retentionPoliciesFromHistory;
+
+        const currentFromData = extractMailboxArray(rawDashboardData)
+            .map(normaliseMailbox)
+            .filter(isMailboxRenderable);
+
+        const currentFromHistory = state.historyData.mailboxes.filter(isMailboxRenderable);
+
+        const allCurrent = mergeMailboxCollections(currentFromData, currentFromHistory);
+        const allSelectable = mergeMailboxCollections(allCurrent, currentFromHistory);
+
+        const scope = getActiveScope();
+        state.scopeCounts = { total: allCurrent.length, inScope: 0 };
+        state.currentMailboxes = applyScopeFilter(allCurrent, scope);
+        state.selectableMailboxes = applyScopeFilter(allSelectable, scope);
+        state.scopeCounts.inScope = state.currentMailboxes.length;
+
+        state.mailboxLookup = new Map(state.selectableMailboxes.map(mailbox => [getMailboxKey(mailbox), mailbox]));
+        window.allMailboxes = state.currentMailboxes;
+
+        renderScopeIndicator();
+        synchroniseSelection();
+        updateSearchInput();
+        updateNavLinks();
+        updateLastUpdated(
+            rawDashboardData?.CollectorLastCompletedUtc ||
+            rawDashboardData?.collectorLastCompletedUtc ||
+            state.historyData.collectorLastCompletedUtc,
+            rawDashboardData?.GeneratedUtc ||
+            rawDashboardData?.generatedUtc ||
+            state.historyData.generatedUtc
+        );
+        highlightNav();
+        applyFilter();
     }
+    finally {
+        setLoadingState(false);
+    }
+}
 
-    const rawDashboardData = await dataResponse.json();
-    const rawHistoryData = historyResponse.ok ? await historyResponse.json() : null;
+function ensureLoadingIndicator() {
+    if (document.getElementById("dashboardLoading")) return;
 
-    state.historyData = normaliseHistoryData(rawHistoryData);
-    const retentionPoliciesFromData = normaliseRetentionPolicyCatalog(rawDashboardData);
-    const retentionPoliciesFromHistory = normaliseRetentionPolicyCatalog(rawHistoryData);
-    state.retentionPolicies = retentionPoliciesFromData.length > 0 ? retentionPoliciesFromData : retentionPoliciesFromHistory;
+    const indicator = document.createElement("div");
+    indicator.id = "dashboardLoading";
+    indicator.className = "dashboard-loading";
+    indicator.setAttribute("role", "status");
+    indicator.setAttribute("aria-live", "polite");
+    indicator.innerHTML = `
+        <span class="dashboard-spinner" aria-hidden="true"></span>
+        <span class="dashboard-loading-label">Loading mailbox data</span>
+    `;
+    document.body.appendChild(indicator);
+}
 
-    const currentFromData = extractMailboxArray(rawDashboardData)
-        .map(normaliseMailbox)
-        .filter(isMailboxRenderable);
-
-    const currentFromHistory = state.historyData.mailboxes.filter(isMailboxRenderable);
-
-    state.currentMailboxes = mergeMailboxCollections(currentFromData, currentFromHistory);
-    state.selectableMailboxes = mergeMailboxCollections(state.currentMailboxes, currentFromHistory);
-    state.mailboxLookup = new Map(state.selectableMailboxes.map(mailbox => [getMailboxKey(mailbox), mailbox]));
-    window.allMailboxes = state.currentMailboxes;
-
-    synchroniseSelection();
-    updateSearchInput();
-    updateNavLinks();
-    updateLastUpdated(
-        rawDashboardData?.GeneratedUtc ||
-        rawDashboardData?.generatedUtc ||
-        state.historyData.generatedUtc
-    );
-    highlightNav();
-    applyFilter();
+function setLoadingState(isLoading, message = "Loading mailbox data") {
+    const indicator = document.getElementById("dashboardLoading");
+    if (!indicator) return;
+    const label = indicator.querySelector(".dashboard-loading-label");
+    if (label) label.textContent = message;
+    indicator.classList.toggle("is-visible", isLoading);
+    indicator.setAttribute("aria-hidden", String(!isLoading));
+    document.body.classList.toggle("is-loading", isLoading);
 }
 
 function handleSearchInput() {
@@ -366,7 +454,261 @@ function getSelectedMailbox() {
 function getMailboxes() {
     const selected = getSelectedMailbox();
     if (selected) return [selected];
-    return filterMailboxes(state.currentMailboxes, getSearchInputValue());
+    const found = filterMailboxes(state.currentMailboxes, getSearchInputValue());
+    return applyTableFilter(found);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   TABLE FILTER AND SORT
+═══════════════════════════════════════════════════════════════ */
+
+// Columns are described here rather than in the HTML so that any copy of a report
+// page picks up sorting automatically. Order must match the <th> order.
+const SORTABLE_COLUMNS = {
+    usageTable: [
+        { key: "displayName", type: "text", get: m => m.displayName },
+        { key: "smtp", type: "text", get: m => m.primarySmtpAddress },
+        { key: "totalGB", type: "number", get: m => m.current.totalGB },
+        { key: "itemCount", type: "number", get: m => m.current.itemCount },
+        { key: "quotaGB", type: "number", get: m => m.current.quotaGB },
+        { key: "usagePercent", type: "number", get: m => m.current.usagePercent },
+        { key: "permissions", type: "number", get: m => m.permissions.length },
+        { key: "lastLogon", type: "date", get: m => m.current.lastLogonTime }
+    ],
+    thresholdTable: [
+        { key: "displayName", type: "text", get: m => m.displayName },
+        { key: "totalGB", type: "number", get: m => m.current.totalGB },
+        { key: "quotaGB", type: "number", get: m => m.current.quotaGB },
+        { key: "usagePercent", type: "number", get: m => m.current.usagePercent },
+        { key: "status", type: "number", get: m => m.current.usagePercent }
+    ],
+    permsTable: [
+        { key: "displayName", type: "text", get: r => r.mailbox.displayName },
+        { key: "mailboxGuid", type: "text", get: r => r.permission.MailboxGuid || r.mailbox.exchangeGuid },
+        { key: "delegate", type: "text", get: r => r.permission.User || r.permission.user || r.permission.Delegate || "" },
+        { key: "permissionType", type: "text", get: r => r.permission.PermissionType || "Other" },
+        { key: "rights", type: "text", get: r => formatAccessRights(r.permission) },
+        { key: "inherited", type: "number", get: r => (r.permission.IsInherited || r.permission.isInherited) ? 1 : 0 }
+    ]
+};
+
+function formatAccessRights(permission) {
+    const rights = permission.AccessRights || permission.accessRights || permission.Rights;
+    return Array.isArray(rights) ? rights.join(", ") : String(rights || "");
+}
+
+function hasWildcard(text) {
+    return /[*?]/.test(text);
+}
+
+function applyTableFilter(mailboxes) {
+    const query = state.filterQuery.trim();
+    if (!query) return mailboxes;
+    return mailboxes.filter(mailbox => mailboxMatchesFilter(mailbox, query));
+}
+
+// A query containing * or ? is treated as a whole-value wildcard pattern;
+// anything else is a plain substring search, which is what people expect by default.
+function mailboxMatchesFilter(mailbox, query) {
+    const fields = [
+        String(mailbox.displayName || "").toLowerCase(),
+        String(mailbox.alias || "").toLowerCase(),
+        String(mailbox.primarySmtpAddress || "").toLowerCase(),
+        String(mailbox.exchangeGuid || "").toLowerCase()
+    ];
+
+    const lowered = query.toLowerCase();
+
+    if (hasWildcard(lowered)) {
+        return lowered.split(/\s+/).filter(Boolean).every(term =>
+            fields.some(field => matchesPattern(field, term))
+        );
+    }
+
+    return lowered.split(/\s+/).filter(Boolean).every(term =>
+        fields.some(field => field.includes(term))
+    );
+}
+
+function getSortState(tableId) {
+    if (!state.sort[tableId]) {
+        state.sort[tableId] = { key: null, direction: "asc" };
+    }
+    return state.sort[tableId];
+}
+
+function sortRows(tableId, rows) {
+    const sort = getSortState(tableId);
+    if (!sort.key) return rows;
+
+    const column = (SORTABLE_COLUMNS[tableId] || []).find(c => c.key === sort.key);
+    if (!column) return rows;
+
+    const factor = sort.direction === "desc" ? -1 : 1;
+
+    return [...rows].sort((left, right) => {
+        const a = column.get(left);
+        const b = column.get(right);
+
+        // Missing values always sort last, whichever direction is active.
+        const aMissing = a === null || a === undefined || a === "";
+        const bMissing = b === null || b === undefined || b === "";
+        if (aMissing && bMissing) return 0;
+        if (aMissing) return 1;
+        if (bMissing) return -1;
+
+        if (column.type === "number") return (Number(a) - Number(b)) * factor;
+        if (column.type === "date") return (new Date(a) - new Date(b)) * factor;
+        return String(a).localeCompare(String(b), undefined, { sensitivity: "base" }) * factor;
+    });
+}
+
+function bindSortableHeaders() {
+    document.addEventListener("click", event => {
+        const header = event.target.closest("th[data-sort-key]");
+        if (!header) return;
+
+        const table = header.closest("table");
+        if (!table || !SORTABLE_COLUMNS[table.id]) return;
+
+        const key = header.getAttribute("data-sort-key");
+        const sort = getSortState(table.id);
+
+        if (sort.key === key) {
+            sort.direction = sort.direction === "asc" ? "desc" : "asc";
+        } else {
+            sort.key = key;
+            sort.direction = header.getAttribute("data-sort-type") === "text" ? "asc" : "desc";
+        }
+
+        updateFilterSortQueryParams();
+        applyFilter();
+    });
+}
+
+function decorateSortableHeaders() {
+    Object.entries(SORTABLE_COLUMNS).forEach(([tableId, columns]) => {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+
+        const headers = table.querySelectorAll("thead th");
+        const sort = getSortState(tableId);
+
+        headers.forEach((header, index) => {
+            const column = columns[index];
+            if (!column) return;
+
+            header.setAttribute("data-sort-key", column.key);
+            header.setAttribute("data-sort-type", column.type);
+            header.classList.add("sortable");
+            header.classList.toggle("sorted-asc", sort.key === column.key && sort.direction === "asc");
+            header.classList.toggle("sorted-desc", sort.key === column.key && sort.direction === "desc");
+            header.setAttribute("aria-sort",
+                sort.key !== column.key ? "none" : (sort.direction === "asc" ? "ascending" : "descending"));
+            if (!header.title) header.title = "Sort by this column";
+        });
+    });
+}
+
+function buildFilterBar() {
+    const host = document.querySelector(".table-header");
+    if (!host || document.getElementById("tableFilter")) return;
+    if (!Object.keys(SORTABLE_COLUMNS).some(id => document.getElementById(id))) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "table-filter";
+    wrapper.innerHTML = `
+        <label class="sr-only" for="tableFilter">Filter results</label>
+        <input id="tableFilter" type="search" autocomplete="off"
+               placeholder="Filter results - use * and ? for wildcards"
+               value="${escapeHtml(state.filterQuery)}">
+        <button id="clearTableFilter" class="btn-link" type="button" hidden>Clear</button>
+        <span id="tableFilterMeta" class="table-filter-meta"></span>
+    `;
+
+    const controls = host.querySelector(".table-controls");
+    if (controls) {
+        host.insertBefore(wrapper, controls);
+    } else {
+        host.appendChild(wrapper);
+    }
+
+    const input = wrapper.querySelector("#tableFilter");
+    let debounce = null;
+    input.addEventListener("input", () => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+            state.filterQuery = input.value;
+            Object.keys(state.pagination).forEach(k => { state.pagination[k].page = 1; });
+            updateFilterSortQueryParams();
+            applyFilter({ keepPagination: true });
+        }, 200);
+    });
+
+    wrapper.querySelector("#clearTableFilter").addEventListener("click", () => {
+        input.value = "";
+        state.filterQuery = "";
+        updateFilterSortQueryParams();
+        applyFilter();
+        input.focus();
+    });
+}
+
+function renderFilterMeta(shown, total) {
+    const meta = document.getElementById("tableFilterMeta");
+    const clear = document.getElementById("clearTableFilter");
+    if (clear) clear.hidden = !state.filterQuery;
+    if (!meta) return;
+
+    meta.textContent = state.filterQuery
+        ? `${formatNumber(shown)} of ${formatNumber(total)} match`
+        : "";
+}
+
+function readFilterSortFromUrl() {
+    const params = new URL(window.location.href).searchParams;
+
+    state.filterQuery = params.get("q") || "";
+
+    const sortKey = params.get("sort");
+    const direction = params.get("dir") === "desc" ? "desc" : "asc";
+    if (sortKey) {
+        Object.keys(SORTABLE_COLUMNS).forEach(tableId => {
+            if (SORTABLE_COLUMNS[tableId].some(c => c.key === sortKey)) {
+                state.sort[tableId] = { key: sortKey, direction };
+            }
+        });
+    }
+}
+
+function updateFilterSortQueryParams() {
+    const url = new URL(window.location.href);
+
+    if (state.filterQuery) {
+        url.searchParams.set("q", state.filterQuery);
+    } else {
+        url.searchParams.delete("q");
+    }
+
+    const activeSort = getActiveSortForPage();
+    if (activeSort?.key) {
+        url.searchParams.set("sort", activeSort.key);
+        url.searchParams.set("dir", activeSort.direction);
+    } else {
+        url.searchParams.delete("sort");
+        url.searchParams.delete("dir");
+    }
+
+    window.history.replaceState({}, "", `${url.pathname.split("/").pop()}${url.search}`);
+}
+
+function getActiveSortForPage() {
+    for (const tableId of Object.keys(SORTABLE_COLUMNS)) {
+        if (document.getElementById(tableId) && state.sort[tableId]?.key) {
+            return state.sort[tableId];
+        }
+    }
+    return null;
 }
 
 function applyFilter(opts = {}) {
@@ -374,6 +716,7 @@ function applyFilter(opts = {}) {
         Object.keys(state.pagination).forEach(k => { state.pagination[k].page = 1; });
     }
     renderSearchUi();
+    updateNavLinks();
 
     switch (getCurrentPage()) {
         case "overview":
@@ -384,6 +727,12 @@ function applyFilter(opts = {}) {
             break;
         case "permissions":
             renderPermissionsPage();
+            break;
+        case "accessmap":
+            renderAccessMapPage();
+            break;
+        case "backups":
+            renderBackupStatusPage();
             break;
         case "thresholds":
             renderThresholdsPage();
@@ -453,6 +802,9 @@ function renderSelectedMailboxSummary(selected) {
             <div class="summary-metric"><span class="label">Usage</span><strong>${formatPercent(selected.current.usagePercent)}</strong></div>
             <div class="summary-metric"><span class="label">Cleanup</span><strong>${escapeHtml(getCleanupStatusLabel(selected))}</strong></div>
             <div class="summary-metric"><span class="label">Permissions</span><strong>${formatNumber(selected.permissions.length)}</strong></div>
+            <div class="summary-metric"><span class="label">Record refreshed</span><strong>${formatDate(selected.current.sampleTimestamp)}</strong></div>
+            <div class="summary-metric"><span class="label">Last logon</span><strong>${formatDate(selected.current.lastLogonTime)}</strong></div>
+            <div class="summary-metric"><span class="label">Mailbox created</span><strong>${formatDate(selected.whenCreatedUtc)}</strong></div>
         </div>
     `;
 }
@@ -579,6 +931,7 @@ function renderSelectedMailboxPanel(selected) {
     const latestSample = history.length > 0 ? history[history.length - 1] : null;
     const previousSample = history.length > 1 ? history[history.length - 2] : null;
     const deltaGB = latestSample && previousSample ? latestSample.SizeGB - previousSample.SizeGB : null;
+    const storageRate = getLifetimeStorageRate(selected);
 
     panel.hidden = false;
     panel.innerHTML = `
@@ -589,11 +942,14 @@ function renderSelectedMailboxPanel(selected) {
                 <div class="spotlight-metrics">
                     <div class="spotlight-metric"><span class="label">Primary storage</span><strong>${formatGB(selected.current.totalGB)} GB</strong></div>
                     <div class="spotlight-metric"><span class="label">Archive storage</span><strong>${formatGB(selected.current.archiveSizeGB)} GB</strong></div>
+                    <div class="spotlight-metric"><span class="label">Lifetime storage rate (primary + archive)</span><strong>${storageRate == null ? "Unavailable" : `${formatStorageRate(storageRate)} GB/day`}</strong></div>
                     <div class="spotlight-metric"><span class="label">Quota</span><strong>${selected.current.quotaGB == null ? "Unlimited" : `${formatGB(selected.current.quotaGB)} GB`}</strong></div>
                     <div class="spotlight-metric"><span class="label">Usage</span><strong>${formatPercent(selected.current.usagePercent)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Items</span><strong>${formatNumber(selected.current.itemCount)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Permissions</span><strong>${formatNumber(selected.permissions.length)}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Record refreshed</span><strong>${formatDate(selected.current.sampleTimestamp)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Last logon</span><strong>${formatDate(selected.current.lastLogonTime)}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Mailbox created</span><strong>${formatDate(selected.whenCreatedUtc)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Change since last sample</span><strong>${deltaGB == null ? "N/A" : `${deltaGB >= 0 ? "+" : ""}${formatGB(deltaGB)} GB`}</strong></div>
                     <div class="spotlight-metric"><span class="label">Cleanup health</span><strong>${escapeHtml(getCleanupStatusLabel(selected))}</strong></div>
                     <div class="spotlight-metric"><span class="label">Mailbox type</span><strong>${escapeHtml(selected.licensing.recipientTypeDetails || "Unknown")}</strong></div>
@@ -652,8 +1008,14 @@ function renderUsageTable(mailboxes) {
     const tableMeta = document.getElementById("tableMeta");
     if (!tbody) return;
 
-    const sorted = [...mailboxes].sort((a, b) => (b.current.totalGB || 0) - (a.current.totalGB || 0));
+    const sortState = getSortState("usageTable");
+    const sorted = sortState.key
+        ? sortRows("usageTable", mailboxes)
+        : [...mailboxes].sort((a, b) => safeNumber(b.current.totalGB) - safeNumber(a.current.totalGB));
+
     state.tableData.usageTable = sorted;
+    renderFilterMeta(sorted.length, state.currentMailboxes.length);
+    decorateSortableHeaders();
 
     const pg = state.pagination.usageTable;
     const totalPages = Math.max(1, Math.ceil(sorted.length / pg.pageSize));
@@ -669,7 +1031,7 @@ function renderUsageTable(mailboxes) {
     renderPaginationBar("usageTablePagination", "usageTable");
 
     if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="11" class="empty-state">No mailboxes found matching that search.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="13" class="empty-state">No mailboxes found matching that search.</td></tr>`;
         return;
     }
 
@@ -685,7 +1047,9 @@ function renderUsageTable(mailboxes) {
             <td>${licenseBadge(mailbox)}</td>
             <td>${cleanupBadge(mailbox)}</td>
             <td>${formatNumber(mailbox.permissions.length)}</td>
+            <td>${formatDate(mailbox.current.sampleTimestamp)}</td>
             <td>${formatDate(mailbox.current.lastLogonTime)}</td>
+            <td>${formatDate(mailbox.whenCreatedUtc)}</td>
         </tr>
     `).join("");
 }
@@ -705,7 +1069,7 @@ function renderRetentionPolicyTable() {
         return;
     }
 
-    const totalMailboxesBound = catalog.reduce((sum, policy) => sum + (Number(policy.mailboxCount) || 0), 0);
+    const totalMailboxesBound = catalog.reduce((sum, policy) => sum + safeNumber(policy.mailboxCount), 0);
     meta.textContent = `${formatNumber(catalog.length)} policy${catalog.length === 1 ? "" : "ies"} cataloged across ${formatNumber(totalMailboxesBound)} mailbox binding${totalMailboxesBound === 1 ? "" : "s"}.`;
 
     tbody.innerHTML = catalog.map(policy => `
@@ -721,19 +1085,21 @@ function renderRetentionPolicyTable() {
 
 function drawLicensingOverviewCharts(mailboxes) {
     const requiredAndCompliant = mailboxes.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense === true).length;
-    const requiredAndMissing = mailboxes.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense !== true).length;
+    const requiredAndMissing = mailboxes.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense === false).length;
     const notRequired = mailboxes.filter(mailbox => mailbox.licensing.licenseRequired === false).length;
+    const unknown = mailboxes.length - requiredAndCompliant - requiredAndMissing - notRequired;
 
     drawRingChart("licensingComplianceChart", [
         { label: "Required + Assigned", value: requiredAndCompliant, color: getChartColor("success") },
         { label: "Required + Missing", value: requiredAndMissing, color: getChartColor("danger") },
-        { label: "Not Required", value: notRequired, color: getChartColor("muted") }
+        { label: "Not Required", value: notRequired, color: getChartColor("muted") },
+        { label: "Unknown", value: unknown, color: getChartColor("warning") }
     ], [`${formatNumber(mailboxes.length)}`, "mailboxes"]);
 
     const typeCounts = new Map();
     mailboxes.forEach(mailbox => {
-        const key = String(mailbox.licensing.licenseType || (mailbox.licensing.hasLicense ? "Assigned (Unknown Type)" : "Unassigned")).trim();
-        typeCounts.set(key, (typeCounts.get(key) || 0) + 1);
+        const key = String(mailbox.licensing.licenseType || (mailbox.licensing.hasLicense === true ? "Assigned (Unknown Type)" : (mailbox.licensing.hasLicense === false ? "Unassigned" : "Unknown"))).trim();
+        typeCounts.set(key, safeNumber(typeCounts.get(key)) + 1);
     });
     const typeBars = Array.from(typeCounts.entries())
         .map(([label, value]) => ({ label: truncateLabel(label, 28), value }))
@@ -748,10 +1114,10 @@ function renderLicensingTable(mailboxes) {
     if (!tbody || !tableMeta) return;
 
     const rows = [...mailboxes].sort((left, right) => {
-        const leftGap = left.licensing.licenseRequired === true && left.licensing.hasLicense !== true ? 1 : 0;
-        const rightGap = right.licensing.licenseRequired === true && right.licensing.hasLicense !== true ? 1 : 0;
+        const leftGap = left.licensing.licenseRequired === true && left.licensing.hasLicense === false ? 1 : 0;
+        const rightGap = right.licensing.licenseRequired === true && right.licensing.hasLicense === false ? 1 : 0;
         if (rightGap !== leftGap) return rightGap - leftGap;
-        return (right.current.totalGB || 0) - (left.current.totalGB || 0);
+        return safeNumber(right.current.totalGB) - safeNumber(left.current.totalGB);
     });
     state.tableData.licensingTable = rows;
 
@@ -760,7 +1126,7 @@ function renderLicensingTable(mailboxes) {
     pg.page = Math.max(1, Math.min(pg.page, totalPages));
     const pageRows = rows.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
 
-    const gaps = rows.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense !== true).length;
+    const gaps = rows.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense === false).length;
     tableMeta.textContent = `${formatNumber(rows.length)} mailbox${rows.length === 1 ? "" : "es"} in view, ${formatNumber(gaps)} required-license gap${gaps === 1 ? "" : "s"}.`;
 
     renderPaginationBar("licensingTablePagination", "licensingTable");
@@ -788,7 +1154,7 @@ function drawRetentionPolicyCharts(mailboxes) {
     const policyCounts = new Map();
     mailboxes.forEach(mailbox => {
         const policyName = String(mailbox.retention.retentionPolicy || "Unassigned").trim() || "Unassigned";
-        policyCounts.set(policyName, (policyCounts.get(policyName) || 0) + 1);
+        policyCounts.set(policyName, safeNumber(policyCounts.get(policyName)) + 1);
     });
 
     const ringSegments = Array.from(policyCounts.entries())
@@ -896,46 +1262,312 @@ function renderPermissionsTable() {
     const query = getSearchInputValue().trim().toLowerCase();
     const mailboxes = selected ? [selected] : state.currentMailboxes;
     const rows = [];
+    let totalRows = 0;
 
     mailboxes.forEach(mailbox => {
         mailbox.permissions.forEach(permission => {
-            const mailboxName = `${mailbox.displayName} ${mailbox.primarySmtpAddress}`.toLowerCase();
+            totalRows++;
+
+            const mailboxName = `${mailbox.displayName} ${mailbox.alias} ${mailbox.primarySmtpAddress} ${mailbox.exchangeGuid}`.toLowerCase();
             const delegateName = String(permission.User || permission.user || permission.Delegate || "").toLowerCase();
             if (query && !selected && !mailboxName.includes(query) && !delegateName.includes(query)) {
                 return;
             }
+
+            // The wildcard filter also matches the delegate, so a search like *@contoso.com
+            // finds every mailbox that delegate has rights on.
+            if (state.filterQuery && !selected) {
+                const matchesMailbox = mailboxMatchesFilter(mailbox, state.filterQuery);
+                const matchesDelegate = hasWildcard(state.filterQuery)
+                    ? matchesPattern(delegateName, state.filterQuery.toLowerCase())
+                    : delegateName.includes(state.filterQuery.toLowerCase());
+                if (!matchesMailbox && !matchesDelegate) return;
+            }
+
             rows.push({ mailbox, permission });
         });
     });
 
-    state.tableData.permsTable = rows;
+    const sorted = sortRows("permsTable", rows);
+    state.tableData.permsTable = sorted;
+    renderFilterMeta(sorted.length, totalRows);
+    decorateSortableHeaders();
 
     const pg = state.pagination.permsTable;
-    const totalPages = Math.max(1, Math.ceil(rows.length / pg.pageSize));
+    const totalPages = Math.max(1, Math.ceil(sorted.length / pg.pageSize));
     pg.page = Math.max(1, Math.min(pg.page, totalPages));
-    const pageRows = rows.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
+    const pageRows = sorted.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
 
     if (tableMeta) {
         tableMeta.textContent = selected
-            ? `${formatNumber(rows.length)} explicit permission row${rows.length === 1 ? "" : "s"} for the selected mailbox.`
-            : `${formatNumber(rows.length)} explicit permission row${rows.length === 1 ? "" : "s"} in view.`;
+            ? `${formatNumber(sorted.length)} explicit permission row${sorted.length === 1 ? "" : "s"} for the selected mailbox.`
+            : `${formatNumber(sorted.length)} explicit permission row${sorted.length === 1 ? "" : "s"} in view.`;
     }
 
     renderPaginationBar("permsTablePagination", "permsTable");
 
     if (pageRows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" class="empty-state">No explicit permissions found for the current view.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No explicit permissions found for the current view.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = pageRows.map(({ mailbox, permission }) => `
         <tr>
             <td><a class="table-link" href="${escapeHtml(buildMailboxUrl("mailbox.html", mailbox))}">${escapeHtml(mailbox.displayName)}</a></td>
+            <td>${escapeHtml(permission.MailboxGuid || mailbox.exchangeGuid)}</td>
             <td>${escapeHtml(permission.User || permission.user || permission.Delegate || "")}</td>
+            <td>${escapeHtml(permission.PermissionType || "Other")}</td>
             <td>${escapeHtml(Array.isArray(permission.AccessRights || permission.accessRights) ? (permission.AccessRights || permission.accessRights).join(", ") : String(permission.AccessRights || permission.accessRights || permission.Rights || ""))}</td>
             <td>${(permission.IsInherited || permission.isInherited) ? "Yes" : "No"}</td>
+            <td><a class="table-link" href="${escapeHtml(buildAccessMapUrl(mailbox, permission))}">View map</a></td>
         </tr>
     `).join("");
+}
+
+function bindAccessMapControls() {
+    const controls = document.getElementById("accessMapControls");
+    if (!controls) return;
+    controls.addEventListener("change", event => {
+        if (event.target.matches("input")) renderAccessMapPage();
+    });
+    const principalParam = new URL(window.location.href).searchParams.get("principal");
+    if (principalParam) {
+        const search = document.getElementById("mailboxSearch");
+        if (search) search.value = principalParam;
+    }
+}
+
+function renderAccessMapPage() {
+    const container = document.getElementById("accessMap");
+    const summary = document.getElementById("accessMapSummary");
+    if (!container || !summary) return;
+
+    const selected = getSelectedMailbox();
+    const searchText = getSearchInputValue().trim().toLowerCase();
+    const tableFilter = state.filterQuery.trim().toLowerCase();
+    const principalParam = new URL(window.location.href).searchParams.get("principal")?.trim().toLowerCase() || "";
+    const visibleMailboxes = selected
+        ? [selected]
+        : filterMailboxes(state.currentMailboxes, searchText);
+    const visibleMailboxKeys = new Set(visibleMailboxes.map(getMailboxKey));
+    const mailboxIndex = new Map();
+    state.selectableMailboxes.forEach(mailbox => {
+        [mailbox.exchangeGuid, mailbox.alias, mailbox.primarySmtpAddress, mailbox.displayName]
+            .filter(Boolean)
+            .forEach(value => mailboxIndex.set(String(value).trim().toLowerCase(), mailbox));
+    });
+
+    const enabledTypes = new Set(
+        [...document.querySelectorAll("#accessMapControls input[data-permission-type]:checked")]
+            .map(input => input.dataset.permissionType)
+    );
+    const groups = new Map();
+    let edgeCount = 0;
+    let hiddenEdgeCount = 0;
+
+    state.selectableMailboxes.forEach(mailbox => {
+        mailbox.permissions.forEach(permission => {
+            const mailboxGuid = mailbox.exchangeGuid;
+            if (!mailboxGuid || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(mailboxGuid)) return;
+            const type = permission.PermissionType || "Other";
+            if (!enabledTypes.has(type)) return;
+
+            const rawPrincipal = String(permission.User || "").trim();
+            if (!rawPrincipal) return;
+            const canonicalMailbox = mailboxIndex.get(rawPrincipal.toLowerCase());
+            const principalKey = canonicalMailbox?.exchangeGuid
+                ? `mailbox:${canonicalMailbox.exchangeGuid.toLowerCase()}`
+                : `principal:${rawPrincipal.toLowerCase()}`;
+            const group = groups.get(principalKey) || {
+                id: principalKey,
+                label: canonicalMailbox
+                    ? `${canonicalMailbox.displayName}${canonicalMailbox.alias ? ` (${canonicalMailbox.alias})` : ""}`
+                    : rawPrincipal,
+                principalMailbox: canonicalMailbox || null,
+                edges: []
+            };
+            const mailboxIsVisible = visibleMailboxKeys.has(getMailboxKey(mailbox));
+            const principalMatchesFilter = matchesAccessMapQuery(rawPrincipal, tableFilter);
+            const matchesMailboxFilter = mailboxMatchesFilter(mailbox, tableFilter);
+            const principalMatchesSearch = matchesAccessMapQuery(rawPrincipal, searchText);
+            const mailboxMatchesSearch = matchesAccessMapQuery(
+                `${mailbox.displayName} ${mailbox.alias} ${mailbox.primarySmtpAddress} ${mailbox.exchangeGuid}`,
+                searchText
+            );
+            const matchesPrincipalParam = !principalParam ||
+                rawPrincipal.toLowerCase() === principalParam ||
+                canonicalMailbox?.exchangeGuid?.toLowerCase() === principalParam;
+            const filterAllowsEdge = (!tableFilter || matchesMailboxFilter || principalMatchesFilter) &&
+                (!searchText || mailboxMatchesSearch || principalMatchesSearch) &&
+                matchesPrincipalParam;
+            if (mailboxIsVisible && filterAllowsEdge) {
+                group.edges.push({ mailbox, mailboxGuid, permission, type });
+                edgeCount++;
+            } else {
+                hiddenEdgeCount++;
+            }
+            groups.set(principalKey, group);
+        });
+    });
+
+    const showUnlinked = document.getElementById("showUnlinkedPrincipals")?.checked !== false;
+    const matchingGroups = [...groups.values()]
+        .filter(group => {
+            const principalMatches = matchesAccessMapQuery(group.label, searchText) ||
+                matchesAccessMapQuery(group.label, tableFilter) ||
+                !searchText && !tableFilter;
+            return group.edges.length > 0 || (showUnlinked && principalMatches);
+        })
+        .sort((a, b) => a.label.localeCompare(b.label));
+    const displayedGroups = matchingGroups.slice(0, MAX_ACCESS_MAP_PRINCIPALS);
+    const shownEdges = displayedGroups.reduce((count, group) => count + group.edges.length, 0);
+
+    summary.textContent = `${formatNumber(displayedGroups.length)} principal${displayedGroups.length === 1 ? "" : "s"} · ${formatNumber(shownEdges)} visible link${shownEdges === 1 ? "" : "s"}${hiddenEdgeCount ? ` · ${formatNumber(hiddenEdgeCount)} filtered link${hiddenEdgeCount === 1 ? "" : "s"}` : ""}${matchingGroups.length > displayedGroups.length ? ` · showing first ${MAX_ACCESS_MAP_PRINCIPALS}` : ""}.`;
+    if (displayedGroups.length === 0) {
+        container.innerHTML = `<p class="empty-state">No matching mailbox permissions were found for the current filters.</p>`;
+        return;
+    }
+
+    container.innerHTML = displayedGroups.map(group => {
+        const principalLink = group.principalMailbox?.exchangeGuid
+            ? `<a class="table-link" href="${escapeHtml(buildMailboxUrl("mailbox.html", group.principalMailbox))}">Open mailbox</a>`
+            : "";
+        const edgesMarkup = group.edges.length > 0
+            ? group.edges
+                .sort((a, b) => a.mailbox.displayName.localeCompare(b.mailbox.displayName))
+                .map(edge => `
+                    <li class="access-map-edge">
+                        <span class="access-map-connector" aria-hidden="true"></span>
+                        <a class="access-map-mailbox" href="${escapeHtml(buildMailboxUrl("mailbox.html", edge.mailbox))}">
+                            <strong>${escapeHtml(edge.mailbox.displayName)}</strong>
+                            <span>${escapeHtml(edge.mailbox.alias || edge.mailbox.primarySmtpAddress)}</span>
+                            <small>GUID: ${escapeHtml(edge.mailboxGuid)}</small>
+                        </a>
+                        <span class="permission-badge permission-${escapeHtml(accessMapTypeClass(edge.type))}">${escapeHtml(edge.type)}</span>
+                    </li>
+                `).join("")
+            : `<li class="access-map-unlinked">No mailbox links match the current filters.</li>`;
+
+        return `
+            <article class="access-map-principal">
+                <header class="access-map-principal-header">
+                    <div><span class="eyebrow">${group.principalMailbox ? "Mailbox principal" : "User / delegate"}</span><h2>${escapeHtml(group.label)}</h2></div>
+                    ${principalLink}
+                </header>
+                <ul class="access-map-edges">${edgesMarkup}</ul>
+            </article>
+        `;
+    }).join("");
+}
+
+function matchesAccessMapQuery(value, query) {
+    if (!query) return false;
+    const normalized = String(value || "").toLowerCase();
+    return hasWildcard(query)
+        ? matchesPattern(normalized, query)
+        : normalized.includes(query);
+}
+
+function accessMapTypeClass(type) {
+    const normalized = String(type || "").toLowerCase().replace(/[^a-z]/g, "");
+    if (normalized.includes("fullaccess")) return "full-access";
+    if (normalized.includes("sendas")) return "send-as";
+    if (normalized.includes("sendonbehalf")) return "send-on-behalf";
+    return "other";
+}
+
+function renderBackupStatusPage() {
+    const status = document.getElementById("backupStatusSummary");
+    const container = document.getElementById("backupList");
+    if (!status || !container) return;
+
+    if (state.backupStatusError) {
+        status.textContent = state.backupStatusError;
+        status.className = "backup-status-message is-invalid";
+        container.innerHTML = "";
+        return;
+    }
+    const backups = Array.isArray(state.backupStatus?.Backups) ? state.backupStatus.Backups : [];
+    if (!state.backupStatus || backups.length === 0) {
+        status.textContent = "No validated backups are recorded yet.";
+        status.className = "backup-status-message is-neutral";
+        container.innerHTML = "";
+        return;
+    }
+
+    status.textContent = `${formatNumber(backups.length)} backup set${backups.length === 1 ? "" : "s"} recorded. File hashes and sizes are checked against the manifest.`;
+    status.className = "backup-status-message is-neutral";
+    container.innerHTML = backups.slice().reverse().map(backup => {
+        const safeId = /^[A-Za-z0-9_-]+$/.test(String(backup.Id || "")) ? backup.Id : "";
+        const files = Array.isArray(backup.Files) ? backup.Files : [];
+        return `
+            <article class="backup-card" data-manifest-status="${escapeHtml(backup.ValidationStatus || "")}">
+                <header><div><h2>${escapeHtml(backup.Id || "Unknown backup")}</h2><p>${escapeHtml(formatDate(backup.CreatedUtc))}</p></div>
+                    <span class="backup-validity" id="${escapeHtml(`backup-validity-${safeId}`)}">Verifying…</span></header>
+                <p>Manifest validation: <strong>${escapeHtml(backup.ValidationStatus || "Unknown")}</strong></p>
+                <ul>${files.map((file, index) => {
+                    const safeName = ["history.json", "data.json"].includes(String(file.Name || "").toLowerCase()) ? file.Name : "";
+                    const fileId = `backup-file-${safeId}-${index}`;
+                    const download = safeId && safeName
+                        ? `<a class="table-link" href="${escapeHtml(`Backups/${encodeURIComponent(safeId)}/${encodeURIComponent(safeName)}`)}" download>Download</a>`
+                        : "";
+                    return `<li id="${escapeHtml(fileId)}" data-backup-id="${escapeHtml(safeId)}" data-backup-name="${escapeHtml(safeName)}" data-file-status="${escapeHtml(file.ValidationStatus || "")}" data-expected-hash="${escapeHtml(file.SHA256 || "")}" data-expected-size="${Number(file.SizeBytes) || 0}">
+                        <span>${escapeHtml(safeName || "Unsupported file entry")}</span>
+                        <span class="backup-file-validation">Checking copy…</span>${download}
+                    </li>`;
+                }).join("")}</ul>
+            </article>
+        `;
+    }).join("");
+    verifyBackupCopies();
+}
+
+async function verifyBackupCopies() {
+    const rows = [...document.querySelectorAll("#backupList li[data-backup-name]")];
+    for (const row of rows) {
+        const backupId = row.dataset.backupId;
+        const fileName = row.dataset.backupName;
+        const fileStatus = row.dataset.fileStatus.toLowerCase();
+        const expectedHash = row.dataset.expectedHash.toLowerCase();
+        const expectedSize = Number(row.dataset.expectedSize);
+        const result = row.querySelector(".backup-file-validation");
+        if (!backupId || !fileName || fileStatus !== "valid" || !/^[a-f0-9]{64}$/.test(expectedHash) || !Number.isFinite(expectedSize)) {
+            result.textContent = "Invalid manifest entry";
+            result.classList.add("is-invalid");
+            continue;
+        }
+        if (!globalThis.crypto?.subtle?.digest) {
+            result.textContent = "Not verified — SHA-256 requires HTTPS or localhost";
+            result.classList.add("is-unavailable");
+            continue;
+        }
+        try {
+            const response = await fetch(`Backups/${encodeURIComponent(backupId)}/${encodeURIComponent(fileName)}`, { cache: "no-store" });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const content = await response.arrayBuffer();
+            const hashBytes = await crypto.subtle.digest("SHA-256", content);
+            const actualHash = [...new Uint8Array(hashBytes)].map(byte => byte.toString(16).padStart(2, "0")).join("");
+            const valid = content.byteLength === expectedSize && actualHash === expectedHash;
+            result.textContent = valid ? "Valid — size and SHA-256 match" : "Invalid — size or SHA-256 mismatch";
+            result.classList.add(valid ? "is-valid" : "is-invalid");
+            if (!valid) row.closest(".backup-card")?.querySelector(".backup-validity")?.classList.add("is-invalid");
+        } catch (error) {
+            result.textContent = `Unavailable — ${error.message}`;
+            result.classList.add("is-invalid");
+            row.closest(".backup-card")?.querySelector(".backup-validity")?.classList.add("is-invalid");
+        }
+    }
+    document.querySelectorAll(".backup-card").forEach(card => {
+        const badge = card.querySelector(".backup-validity");
+        const fileResults = [...card.querySelectorAll(".backup-file-validation")];
+        const manifestIsValid = card.dataset.manifestStatus.toLowerCase() === "valid";
+        const allValid = manifestIsValid && fileResults.length > 0 && fileResults.every(result => result.classList.contains("is-valid"));
+        const verificationUnavailable = manifestIsValid &&
+            fileResults.some(result => result.classList.contains("is-unavailable")) &&
+            !fileResults.some(result => result.classList.contains("is-invalid"));
+        badge.textContent = allValid ? "Copies valid" : (verificationUnavailable ? "Verification unavailable" : "Invalid / unavailable");
+        badge.classList.add(allValid ? "is-valid" : (verificationUnavailable ? "is-unavailable" : "is-invalid"));
+    });
 }
 
 function renderThresholdsTable() {
@@ -943,11 +1575,17 @@ function renderThresholdsTable() {
     const tableMeta = document.getElementById("tableMeta");
     if (!tbody) return;
 
-    const sorted = getMailboxes()
-        .filter(mailbox => (mailbox.current.usagePercent || 0) >= WARNING_THRESHOLD)
-        .sort((a, b) => (b.current.usagePercent || 0) - (a.current.usagePercent || 0));
+    const overThreshold = getMailboxes()
+        .filter(mailbox => safeNumber(mailbox.current.usagePercent) >= WARNING_THRESHOLD);
+
+    const sortState = getSortState("thresholdTable");
+    const sorted = sortState.key
+        ? sortRows("thresholdTable", overThreshold)
+        : [...overThreshold].sort((a, b) => safeNumber(b.current.usagePercent) - safeNumber(a.current.usagePercent));
 
     state.tableData.thresholdTable = sorted;
+    renderFilterMeta(sorted.length, overThreshold.length);
+    decorateSortableHeaders();
 
     const pg = state.pagination.thresholdTable;
     const totalPages = Math.max(1, Math.ceil(sorted.length / pg.pageSize));
@@ -968,7 +1606,7 @@ function renderThresholdsTable() {
     }
 
     tbody.innerHTML = rows.map(mailbox => {
-        const status = (mailbox.current.usagePercent || 0) >= CRITICAL_THRESHOLD ? "Critical" : "Warning";
+        const status = safeNumber(mailbox.current.usagePercent) >= CRITICAL_THRESHOLD ? "Critical" : "Warning";
         return `
             <tr>
                 <td><a class="table-link" href="${escapeHtml(buildMailboxUrl("mailbox.html", mailbox))}">${escapeHtml(mailbox.displayName)}</a></td>
@@ -1066,15 +1704,18 @@ function renderMailboxPermissionsTable(selected) {
     renderPaginationBar("mailboxPermissionsTablePagination", "mailboxPermissionsTable");
 
     if (!selected || rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="3" class="empty-state">No explicit permissions are available for this mailbox.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No explicit permissions are available for this mailbox.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = rows.map(permission => `
         <tr>
+            <td>${escapeHtml(permission.MailboxGuid || selected.exchangeGuid)}</td>
             <td>${escapeHtml(permission.User || permission.user || permission.Delegate || "")}</td>
+            <td>${escapeHtml(permission.PermissionType || "Other")}</td>
             <td>${escapeHtml(Array.isArray(permission.AccessRights || permission.accessRights) ? (permission.AccessRights || permission.accessRights).join(", ") : String(permission.AccessRights || permission.accessRights || permission.Rights || ""))}</td>
             <td>${(permission.IsInherited || permission.isInherited) ? "Yes" : "No"}</td>
+            <td><a class="table-link" href="${escapeHtml(buildAccessMapUrl(selected, permission))}">View map</a></td>
         </tr>
     `).join("");
 }
@@ -1091,13 +1732,13 @@ function updateTopCards(mailboxes) {
 
     const largest = mailboxes.reduce((winner, mailbox) => {
         if (!winner) return mailbox;
-        return (winner.current.totalGB || 0) >= (mailbox.current.totalGB || 0) ? winner : mailbox;
+        return safeNumber(winner.current.totalGB) >= safeNumber(mailbox.current.totalGB) ? winner : mailbox;
     }, null);
 
     if (countEl) countEl.textContent = formatNumber(mailboxes.length);
     if (totalStorageEl) totalStorageEl.textContent = `${formatGB(sumMailboxes(mailboxes, mailbox => mailbox.current.totalGB))} GB`;
     if (totalArchiveEl) totalArchiveEl.textContent = `${formatGB(sumMailboxes(mailboxes, mailbox => mailbox.current.archiveSizeGB))} GB`;
-    if (thresholdEl) thresholdEl.textContent = formatNumber(mailboxes.filter(mailbox => (mailbox.current.usagePercent || 0) >= WARNING_THRESHOLD).length);
+    if (thresholdEl) thresholdEl.textContent = formatNumber(mailboxes.filter(mailbox => safeNumber(mailbox.current.usagePercent) >= WARNING_THRESHOLD).length);
     if (largestEl) largestEl.textContent = largest ? `${largest.displayName} (${formatGB(largest.current.totalGB)} GB)` : "N/A";
     if (staleCleanupEl) {
         staleCleanupEl.textContent = formatNumber(mailboxes.filter(mailbox => isCleanupStale(mailbox)).length);
@@ -1106,13 +1747,13 @@ function updateTopCards(mailboxes) {
         neverCleanedEl.textContent = formatNumber(mailboxes.filter(mailbox => isNeverCleaned(mailbox)).length);
     }
     if (licenseGapEl) {
-        licenseGapEl.textContent = formatNumber(mailboxes.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense !== true).length);
+        licenseGapEl.textContent = formatNumber(mailboxes.filter(mailbox => mailbox.licensing.licenseRequired === true && mailbox.licensing.hasLicense === false).length);
     }
 }
 
 function drawUsageDonutChart(mailboxes) {
     const totalUsed = sumMailboxes(mailboxes, mailbox => mailbox.current.totalGB);
-    let totalQuota = sumMailboxes(mailboxes, mailbox => mailbox.current.quotaGB || 0);
+    let totalQuota = sumMailboxes(mailboxes, mailbox => safeNumber(mailbox.current.quotaGB));
     if (totalQuota <= 0) totalQuota = 1;
     drawRingChart("usageDonutChart", [
         { label: "Used", value: totalUsed, color: getChartColor("primary") },
@@ -1121,9 +1762,12 @@ function drawUsageDonutChart(mailboxes) {
 }
 
 function drawAlertStatusChart(mailboxes) {
-    const healthy = mailboxes.filter(mailbox => (mailbox.current.usagePercent || 0) < WARNING_THRESHOLD).length;
-    const warning = mailboxes.filter(mailbox => (mailbox.current.usagePercent || 0) >= WARNING_THRESHOLD && (mailbox.current.usagePercent || 0) < CRITICAL_THRESHOLD).length;
-    const critical = mailboxes.filter(mailbox => (mailbox.current.usagePercent || 0) >= CRITICAL_THRESHOLD).length;
+    const healthy = mailboxes.filter(mailbox => safeNumber(mailbox.current.usagePercent) < WARNING_THRESHOLD).length;
+    const warning = mailboxes.filter(mailbox => {
+        const usage = safeNumber(mailbox.current.usagePercent);
+        return usage >= WARNING_THRESHOLD && usage < CRITICAL_THRESHOLD;
+    }).length;
+    const critical = mailboxes.filter(mailbox => safeNumber(mailbox.current.usagePercent) >= CRITICAL_THRESHOLD).length;
 
     drawRingChart("alertStatusChart", [
         { label: "Healthy", value: healthy, color: getChartColor("success") },
@@ -1142,8 +1786,8 @@ function drawMailboxStorageRing(canvasId, selected) {
         return;
     }
 
-    const primary = selected.current.totalGB || 0;
-    const archive = selected.current.archiveSizeGB || 0;
+    const primary = safeNumber(selected.current.totalGB);
+    const archive = safeNumber(selected.current.archiveSizeGB);
     const freeQuota = selected.current.quotaGB == null ? 0 : Math.max(selected.current.quotaGB - primary, 0);
 
     drawRingChart(canvasId, [
@@ -1155,14 +1799,14 @@ function drawMailboxStorageRing(canvasId, selected) {
 
 function drawTopStorageChart(mailboxes) {
     const top = [...mailboxes]
-        .sort((a, b) => (b.current.totalGB || 0) - (a.current.totalGB || 0))
+        .sort((a, b) => safeNumber(b.current.totalGB) - safeNumber(a.current.totalGB))
         .slice(0, 10);
 
     drawHorizontalBarChart(
         "topStorageChart",
         top.map(mailbox => ({
             label: truncateLabel(mailbox.displayName || mailbox.primarySmtpAddress, 26),
-            value: mailbox.current.totalGB || 0
+            value: safeNumber(mailbox.current.totalGB)
         })),
         "GB"
     );
@@ -1178,7 +1822,7 @@ function drawUsageHistogram(mailboxes) {
     ];
 
     mailboxes.forEach(mailbox => {
-        const usage = mailbox.current.usagePercent || 0;
+        const usage = safeNumber(mailbox.current.usagePercent);
         const bucket = buckets.find(item => usage >= item.min && usage < item.max);
         if (bucket) bucket.count += 1;
     });
@@ -1202,7 +1846,7 @@ function drawHistoryMetricChart(histPoints, canvasId, valueSelector, unitLabel, 
     }
 
     const sorted = [...histPoints].sort((a, b) => new Date(a.TimestampUtc) - new Date(b.TimestampUtc));
-    const values = sorted.map(point => Number(valueSelector(point) || 0));
+    const values = sorted.map(point => safeNumber(valueSelector(point)));
     const maxVal = Math.max(...values, 1);
     const minVal = Math.min(...values, 0);
     const padLeft = 56;
@@ -1231,7 +1875,7 @@ function drawHistoryMetricChart(histPoints, canvasId, valueSelector, unitLabel, 
     ctx.beginPath();
     sorted.forEach((point, index) => {
         const x = getX(index);
-        const y = getY(Number(valueSelector(point) || 0));
+        const y = getY(safeNumber(valueSelector(point)));
         if (index === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
     });
@@ -1240,7 +1884,7 @@ function drawHistoryMetricChart(histPoints, canvasId, valueSelector, unitLabel, 
     ctx.fillStyle = color;
     sorted.forEach((point, index) => {
         const x = getX(index);
-        const y = getY(Number(valueSelector(point) || 0));
+        const y = getY(safeNumber(valueSelector(point)));
         ctx.beginPath();
         ctx.arc(x, y, 4, 0, Math.PI * 2);
         ctx.fill();
@@ -1395,7 +2039,10 @@ function drawEmptyCanvasMessage(canvasId, message) {
 }
 
 function sumMailboxes(mailboxes, selector) {
-    return mailboxes.reduce((sum, mailbox) => sum + Number(selector(mailbox) || 0), 0);
+    return mailboxes.reduce((sum, mailbox) => {
+        const numeric = Number(selector(mailbox));
+        return sum + (Number.isFinite(numeric) ? numeric : 0);
+    }, 0);
 }
 
 function mergeMailboxCollections(primary, secondary) {
@@ -1433,7 +2080,7 @@ function mergeMailbox(existing, incoming) {
             quotaGB: pickValue(incoming.current.quotaGB, existing.current.quotaGB),
             usagePercent: pickValue(incoming.current.usagePercent, existing.current.usagePercent),
             lastLogonTime: incoming.current.lastLogonTime || existing.current.lastLogonTime,
-            archiveEnabled: incoming.current.archiveEnabled || existing.current.archiveEnabled,
+            archiveEnabled: incoming.current.archiveEnabled ?? existing.current.archiveEnabled,
             archiveSizeGB: pickValue(incoming.current.archiveSizeGB, existing.current.archiveSizeGB),
             archiveItemCount: pickValue(incoming.current.archiveItemCount, existing.current.archiveItemCount)
         },
@@ -1457,12 +2104,27 @@ function mergeMailbox(existing, incoming) {
 }
 
 function pickValue(primary, fallback) {
-    return primary == null ? fallback : primary;
+    if (primary == null || primary === "") return fallback;
+    if (fallback == null || fallback === "") return primary;
+
+    const primaryNumber = toNumber(primary);
+    const fallbackNumber = toNumber(fallback);
+
+    if (Number.isFinite(primaryNumber) && Number.isFinite(fallbackNumber)) {
+        const primaryIsZero = primaryNumber === 0;
+        const fallbackIsZero = fallbackNumber === 0;
+
+        if (primaryIsZero && !fallbackIsZero) return fallback;
+        if (!primaryIsZero && fallbackIsZero) return primary;
+    }
+
+    return primary;
 }
 
 function createEmptyHistoryData() {
     return {
         generatedUtc: null,
+        collectorLastCompletedUtc: null,
         mailboxes: [],
         byGuid: {},
         bySmtp: {}
@@ -1489,7 +2151,7 @@ function normaliseRetentionPolicyCatalog(payload) {
             };
         })
         .filter(policy => policy.name.length > 0)
-        .sort((left, right) => (right.mailboxCount || 0) - (left.mailboxCount || 0) || left.name.localeCompare(right.name));
+        .sort((left, right) => safeNumber(right.mailboxCount) - safeNumber(left.mailboxCount) || left.name.localeCompare(right.name));
 }
 
 function buildRetentionPolicyCatalogFromMailboxes(mailboxes) {
@@ -1534,6 +2196,7 @@ function normaliseHistoryData(payload) {
     if (!payload || typeof payload !== "object") return history;
 
     history.generatedUtc = payload.GeneratedUtc ?? payload.generatedUtc ?? null;
+    history.collectorLastCompletedUtc = payload.CollectorLastCompletedUtc ?? payload.collectorLastCompletedUtc ?? null;
 
     if (Array.isArray(payload.MailboxHistory) || Array.isArray(payload.mailboxHistory)) {
         const mailboxHistory = Array.isArray(payload.MailboxHistory) ? payload.MailboxHistory : payload.mailboxHistory;
@@ -1560,7 +2223,7 @@ function normaliseHistoryData(payload) {
         });
 
         history.mailboxes.push(mailbox);
-        history.byGuid[mailbox.exchangeGuid] = normalisedSamples;
+        if (mailbox.exchangeGuid) history.byGuid[mailbox.exchangeGuid.toLowerCase()] = normalisedSamples;
         if (mailbox.primarySmtpAddress) history.bySmtp[mailbox.primarySmtpAddress.toLowerCase()] = normalisedSamples;
     });
 
@@ -1574,34 +2237,54 @@ function addHistoryMailboxRecord(history, record) {
     if (!isMailboxRenderable(mailbox) || samples.length === 0) return;
 
     history.mailboxes.push(mailbox);
-    if (mailbox.exchangeGuid) history.byGuid[mailbox.exchangeGuid] = samples;
+    if (mailbox.exchangeGuid) history.byGuid[mailbox.exchangeGuid.toLowerCase()] = samples;
     if (mailbox.primarySmtpAddress) history.bySmtp[mailbox.primarySmtpAddress.toLowerCase()] = samples;
 }
 
 function normaliseHistorySamples(samples) {
     if (!Array.isArray(samples)) return [];
 
-    return samples
+    const normalisedSamples = samples
         .filter(sample => sample && typeof sample === "object")
-        .map(sample => ({
-            TimestampUtc: sample.TimestampUtc ?? sample.timestampUtc ?? sample.Timestamp ?? sample.timestamp ?? null,
-            PrimarySmtpAddress: sample.PrimarySmtpAddress ?? sample.primarySmtpAddress ?? "",
-            DisplayName: sample.DisplayName ?? sample.displayName ?? "",
-            SizeGB: getNumber(sample, ["SizeGB", "sizeGB", "TotalGB", "totalGB", "StorageGB", "MailboxSizeGB"]) ?? 0,
-            ItemCount: getNumber(sample, ["ItemCount", "itemCount", "Items"]) ?? 0,
-            UsagePercent: getNumber(sample, ["UsagePercent", "usagePercent"]) ?? 0,
-            QuotaGB: getNumber(sample, ["QuotaGB", "quotaGB", "ProhibitSendReceiveQuotaGB"]),
-            LastLogonTime: sample.LastLogonTime ?? sample.lastLogonTime ?? null,
-            ArchiveEnabled: Boolean(sample.ArchiveEnabled ?? sample.archiveEnabled),
-            ArchiveSizeGB: getNumber(sample, ["ArchiveSizeGB", "archiveSizeGB"]) ?? 0,
-            ArchiveItemCount: getNumber(sample, ["ArchiveItemCount", "archiveItemCount"]) ?? 0
-        }));
+        .map(sample => {
+            const sizeGb = getNumber(sample, ["SizeGB", "sizeGB", "TotalGB", "totalGB", "StorageGB", "MailboxSizeGB"]) ?? 0;
+            const quotaGb = getNumber(sample, ["QuotaGB", "quotaGB", "ProhibitSendReceiveQuotaGB"]);
+            const usagePercent = getNumber(sample, ["UsagePercent", "usagePercent"]);
+
+            return {
+                TimestampUtc: sample.TimestampUtc ?? sample.timestampUtc ?? sample.Timestamp ?? sample.timestamp ?? null,
+                PrimarySmtpAddress: sample.PrimarySmtpAddress ?? sample.primarySmtpAddress ?? "",
+                DisplayName: sample.DisplayName ?? sample.displayName ?? "",
+                SizeGB: sizeGb,
+                ItemCount: getNumber(sample, ["ItemCount", "itemCount", "Items"]) ?? 0,
+                UsagePercent: usagePercent ?? (quotaGb > 0 ? (sizeGb / quotaGb) * 100 : 0),
+                QuotaGB: quotaGb,
+                LastLogonTime: sample.LastLogonTime ?? sample.lastLogonTime ?? null,
+                ArchiveEnabled: getBoolean(sample, ["ArchiveEnabled", "archiveEnabled"]) ?? false,
+                ArchiveSizeGB: getNumber(sample, ["ArchiveSizeGB", "archiveSizeGB"]) ?? 0,
+                ArchiveItemCount: getNumber(sample, ["ArchiveItemCount", "archiveItemCount"]) ?? 0
+            };
+        });
+
+    normalisedSamples.sort((left, right) => {
+        const leftTime = left.TimestampUtc ? Date.parse(left.TimestampUtc) : Number.NaN;
+        const rightTime = right.TimestampUtc ? Date.parse(right.TimestampUtc) : Number.NaN;
+
+        if (Number.isNaN(leftTime) && Number.isNaN(rightTime)) return 0;
+        if (Number.isNaN(leftTime)) return 1;
+        if (Number.isNaN(rightTime)) return -1;
+
+        return leftTime - rightTime;
+    });
+
+    return normalisedSamples;
 }
 
 function normaliseMailbox(source) {
-    const samples = Array.isArray(source?.Samples)
+    const rawSamples = Array.isArray(source?.Samples)
         ? source.Samples
         : (Array.isArray(source?.samples) ? source.samples : []);
+    const samples = rawSamples.length > 0 ? normaliseHistorySamples(rawSamples) : [];
     const sample = samples.length > 0
         ? samples[samples.length - 1]
         : (source?.current ?? source?.Current ?? {});
@@ -1610,6 +2293,7 @@ function normaliseMailbox(source) {
 
     const displayName = source?.DisplayName ?? source?.displayName ?? source?.MailboxName ?? source?.Mailbox?.DisplayName ?? source?.primarySmtpAddress ?? source?.PrimarySmtpAddress ?? "";
     const primarySmtpAddress = source?.PrimarySmtpAddress ?? source?.primarySmtpAddress ?? source?.SmtpAddress ?? source?.UserPrincipalName ?? source?.Mailbox?.PrimarySmtpAddress ?? "";
+    const exchangeGuid = String(source?.ExchangeGuid ?? source?.exchangeGuid ?? "");
     const permissions = normalisePermissions(
         source?.permissions ??
         source?.Permissions ??
@@ -1617,17 +2301,23 @@ function normaliseMailbox(source) {
         sample?.permissions ??
         sample?.Permissions
     );
+    permissions.forEach(permission => {
+        if (exchangeGuid) permission.MailboxGuid = exchangeGuid;
+    });
 
     const totalGB = getNumber(sample, ["SizeGB", "sizeGB", "TotalGB", "totalGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) ??
-        getNumber(currentSource, ["SizeGB", "sizeGB", "TotalGB", "totalGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) ??
+        getNumber(currentSource, ["totalGB", "TotalGB", "SizeGB", "sizeGB", "StorageGB", "TotalItemSizeGB", "MailboxSizeGB"]) ??
         0;
     const quotaGB = getNumber(sample, ["QuotaGB", "quotaGB", "ProhibitSendReceiveQuotaGB"]) ??
-        getNumber(currentSource, ["QuotaGB", "quotaGB", "ProhibitSendReceiveQuotaGB", "ProhibitSendQuotaGB"]) ??
+        getNumber(currentSource, ["quotaGB", "QuotaGB", "ProhibitSendReceiveQuotaGB", "ProhibitSendQuotaGB"]) ??
         parseStorageValueInGb(currentSource?.ProhibitSendReceiveQuota ?? currentSource?.prohibitSendReceiveQuota ?? currentSource?.ProhibitSendQuota ?? currentSource?.prohibitSendQuota) ??
         null;
     const usagePercent = getNumber(sample, ["UsagePercent", "usagePercent"]) ??
-        getNumber(currentSource, ["UsagePercent", "usagePercent"]) ??
+        getNumber(currentSource, ["usagePercent", "UsagePercent"]) ??
         (quotaGB > 0 ? (totalGB / quotaGB) * 100 : 0);
+    const archiveEnabled = getBoolean(sample, ["ArchiveEnabled", "archiveEnabled"]) ??
+        getBoolean(currentSource, ["ArchiveEnabled", "archiveEnabled"]) ??
+        (getNumber(archiveSource, ["TotalGB", "totalGB", "ArchiveSizeGB", "archiveSizeGB"]) ?? 0) > 0;
 
     const retention = normaliseRetentionProfile(source);
     const licensing = normaliseLicensingProfile(source);
@@ -1636,30 +2326,35 @@ function normaliseMailbox(source) {
     const licenseAssignmentHistory = normaliseLicenseAssignmentHistory(source);
 
     return {
-        exchangeGuid: String(source?.ExchangeGuid ?? source?.exchangeGuid ?? ""),
+        exchangeGuid,
+        whenCreatedUtc: source?.WhenCreatedUtc ?? source?.whenCreatedUtc ?? source?.WhenCreated ?? source?.whenCreated ??
+            source?.CreatedUtc ?? source?.createdUtc ?? null,
         displayName: String(displayName || primarySmtpAddress || source?.ExchangeGuid || "Unknown mailbox"),
         primarySmtpAddress: String(primarySmtpAddress || ""),
+        alias: String(source?.Alias ?? source?.alias ?? ""),
+        recipientTypeDetails: String(source?.RecipientTypeDetails ?? source?.recipientTypeDetails ?? ""),
+        createdUtc: source?.CreatedUtc ?? source?.createdUtc ?? source?.WhenCreatedUtc ?? source?.whenCreatedUtc ?? null,
         current: {
             totalGB,
-            itemCount: getNumber(sample, ["ItemCount", "itemCount", "Items"]) ?? getNumber(currentSource, ["ItemCount", "itemCount", "Items"]) ?? 0,
+            itemCount: getNumber(sample, ["ItemCount", "itemCount", "Items"]) ??
+                getNumber(currentSource, ["itemCount", "ItemCount", "Items"]) ??
+                0,
             quotaGB,
             usagePercent,
-            lastLogonTime: sample?.LastLogonTime ?? sample?.lastLogonTime ?? currentSource?.LastLogonTime ?? currentSource?.lastLogonTime ?? null,
-            archiveEnabled: Boolean(
-                sample?.ArchiveEnabled ??
-                sample?.archiveEnabled ??
-                currentSource?.ArchiveEnabled ??
-                currentSource?.archiveEnabled ??
-                getNumber(archiveSource, ["TotalGB", "totalGB", "ArchiveSizeGB", "archiveSizeGB"])
-            ),
+            lastLogonTime: sample?.LastLogonTime ?? sample?.lastLogonTime ??
+                currentSource?.LastLogonTime ?? currentSource?.lastLogonTime ??
+                currentSource?.lastLogonTime ?? null,
+            sampleTimestamp: sample?.TimestampUtc ?? sample?.timestampUtc ?? currentSource?.sampleTimestamp ?? currentSource?.SampleTimestamp ?? null,
+            archiveEnabled,
             archiveSizeGB: getNumber(sample, ["ArchiveSizeGB", "archiveSizeGB"]) ??
-                getNumber(currentSource, ["ArchiveSizeGB", "archiveSizeGB"]) ??
+                getNumber(currentSource, ["archiveSizeGB", "ArchiveSizeGB"]) ??
                 getNumber(archiveSource, ["TotalGB", "totalGB", "ArchiveSizeGB", "archiveSizeGB"]) ??
                 0,
             archiveItemCount: getNumber(sample, ["ArchiveItemCount", "archiveItemCount"]) ??
-                getNumber(currentSource, ["ArchiveItemCount", "archiveItemCount"]) ??
+                getNumber(currentSource, ["archiveItemCount", "ArchiveItemCount"]) ??
                 getNumber(archiveSource, ["ItemCount", "itemCount"]) ??
-                0
+                0,
+            sampleTimestamp: sample?.TimestampUtc ?? sample?.timestampUtc ?? currentSource?.sampleTimestamp ?? null
         },
         retention,
         licensing,
@@ -1727,6 +2422,8 @@ function normaliseRetentionProfile(source) {
 
 function normaliseLicensingProfile(source) {
     const licensingSource = source?.licensing ?? source?.Licensing ?? {};
+    const hasLicensingData = Object.keys(licensingSource).length > 0 ||
+        source?.RecipientTypeDetails != null || source?.recipientTypeDetails != null;
     const capabilities = licensingSource.PersistedCapabilities ?? licensingSource.persistedCapabilities;
     const recipientTypeDetails = licensingSource.RecipientTypeDetails ??
         licensingSource.recipientTypeDetails ??
@@ -1735,8 +2432,9 @@ function normaliseLicensingProfile(source) {
         null;
 
     const inferredLicenseRequired = inferLicenseRequired(recipientTypeDetails, getBoolean(licensingSource, ["IsInactiveMailbox", "isInactiveMailbox"]));
+    const licenseRequired = hasLicensingData ? (getBoolean(licensingSource, ["LicenseRequired", "licenseRequired"]) ?? inferredLicenseRequired) : null;
     const hasLicenseFromSource = getBoolean(licensingSource, ["HasLicense", "hasLicense"]);
-    const inferredHasLicense = hasLicenseFromSource ?? (getBoolean(licensingSource, ["SKUAssigned", "skuAssigned"]) === true || (Array.isArray(capabilities) && capabilities.length > 0));
+    const inferredHasLicense = getBoolean(licensingSource, ["SKUAssigned", "skuAssigned"]) ?? hasLicenseFromSource;
     const licenseTypes = Array.isArray(licensingSource.LicenseTypes ?? licensingSource.licenseTypes)
         ? (licensingSource.LicenseTypes ?? licensingSource.licenseTypes).map(item => String(item || "")).filter(Boolean)
         : (Array.isArray(capabilities) ? capabilities.map(item => String(item || "")).filter(Boolean) : []);
@@ -1748,12 +2446,14 @@ function normaliseLicensingProfile(source) {
         persistedCapabilities: Array.isArray(capabilities) ? capabilities.map(item => String(item || "")).filter(Boolean) : [],
         archiveStatus: licensingSource.ArchiveStatus ?? licensingSource.archiveStatus ?? null,
         isInactiveMailbox: getBoolean(licensingSource, ["IsInactiveMailbox", "isInactiveMailbox"]),
-        licenseRequired: getBoolean(licensingSource, ["LicenseRequired", "licenseRequired"]) ?? inferredLicenseRequired,
-        hasLicense: inferredHasLicense,
+        licenseRequired,
+        hasLicense: hasLicensingData ? inferredHasLicense : null,
         licenseTypes,
         licenseType: licensingSource.LicenseType ?? licensingSource.licenseType ?? (licenseTypes.length > 0 ? licenseTypes.join(", ") : null),
-        isLicenseCompliant: getBoolean(licensingSource, ["IsLicenseCompliant", "isLicenseCompliant"]) ?? ((inferredLicenseRequired !== true) || inferredHasLicense === true),
-        licenseRequirementReason: licensingSource.LicenseRequirementReason ?? licensingSource.licenseRequirementReason ?? getDefaultLicenseRequirementReason(recipientTypeDetails, inferredLicenseRequired)
+        isLicenseCompliant: licenseRequired === false ? true : (licenseRequired === true ? inferredHasLicense : null),
+        licenseRequirementReason: hasLicensingData
+            ? (licensingSource.LicenseRequirementReason ?? licensingSource.licenseRequirementReason ?? getDefaultLicenseRequirementReason(recipientTypeDetails, inferredLicenseRequired))
+            : "Licensing data has not been collected."
     };
 }
 
@@ -1784,23 +2484,35 @@ function normalisePermissions(permissionSource) {
     if (!Array.isArray(permissionSource)) return [];
     return permissionSource
         .filter(Boolean)
-        .map(permission => ({
-            User: permission.User ?? permission.user ?? permission.Delegate ?? "",
-            AccessRights: Array.isArray(permission.AccessRights ?? permission.accessRights ?? permission.Rights)
+        .map(permission => {
+            const accessRights = Array.isArray(permission.AccessRights ?? permission.accessRights ?? permission.Rights)
                 ? (permission.AccessRights ?? permission.accessRights ?? permission.Rights)
                 : String(permission.AccessRights ?? permission.accessRights ?? permission.Rights ?? "")
                     .split(",")
                     .map(part => part.trim())
-                    .filter(Boolean),
-            IsInherited: Boolean(permission.IsInherited ?? permission.isInherited),
-            Deny: Boolean(permission.Deny ?? permission.deny)
-        }));
+                    .filter(Boolean);
+            const user = permission.User ?? permission.user ?? permission.Delegate ?? "";
+            const rightsText = accessRights.join(" ").toLowerCase();
+            const permissionType = permission.PermissionType ?? permission.permissionType ??
+                (rightsText.includes("sendas") ? "SendAs" :
+                    (rightsText.includes("sendonbehalf") ? "SendOnBehalf" :
+                        (rightsText.includes("fullaccess") ? "FullAccess" : "Other")));
+            return {
+                MailboxGuid: permission.MailboxGuid ?? permission.mailboxGuid ?? "",
+                User: user,
+                PermissionType: String(permissionType),
+                AccessRights: accessRights,
+                IsInherited: getBoolean(permission, ["IsInherited", "isInherited"]) ?? false,
+                Deny: getBoolean(permission, ["Deny", "deny"]) ?? false
+            };
+        });
 }
 
 function getHistoryPointsForMailbox(mailbox) {
     if (!mailbox) return [];
-    if (mailbox.exchangeGuid && Array.isArray(state.historyData.byGuid[mailbox.exchangeGuid])) {
-        return state.historyData.byGuid[mailbox.exchangeGuid];
+    const exchangeGuid = String(mailbox.exchangeGuid || "").toLowerCase();
+    if (exchangeGuid && Array.isArray(state.historyData.byGuid[exchangeGuid])) {
+        return state.historyData.byGuid[exchangeGuid];
     }
     const smtpAddress = String(mailbox.primarySmtpAddress || "").toLowerCase();
     if (smtpAddress && Array.isArray(state.historyData.bySmtp[smtpAddress])) {
@@ -1814,7 +2526,7 @@ function filterMailboxes(mailboxes, searchText) {
     if (!query) return [...mailboxes];
 
     return mailboxes.filter(mailbox => {
-        const haystack = `${mailbox.displayName} ${mailbox.primarySmtpAddress}`.toLowerCase();
+        const haystack = `${mailbox.displayName} ${mailbox.alias} ${mailbox.primarySmtpAddress} ${mailbox.exchangeGuid}`.toLowerCase();
         return query.split(/\s+/).every(token => haystack.includes(token));
     });
 }
@@ -1827,15 +2539,17 @@ function getRankedMailboxes(searchText, limit) {
     const ranked = state.selectableMailboxes
         .map(mailbox => ({ mailbox, score: scoreMailbox(mailbox, query, tokens) }))
         .filter(item => item.score > 0)
-        .sort((left, right) => right.score - left.score || (right.mailbox.current.totalGB || 0) - (left.mailbox.current.totalGB || 0));
+        .sort((left, right) => right.score - left.score || safeNumber(right.mailbox.current.totalGB) - safeNumber(left.mailbox.current.totalGB));
 
     return ranked.slice(0, limit).map(item => item.mailbox);
 }
 
 function scoreMailbox(mailbox, query, tokens) {
     const display = String(mailbox.displayName || "").toLowerCase();
+    const alias = String(mailbox.alias || "").toLowerCase();
     const smtp = String(mailbox.primarySmtpAddress || "").toLowerCase();
-    const combined = `${display} ${smtp}`;
+    const guid = String(mailbox.exchangeGuid || "").toLowerCase();
+    const combined = `${display} ${alias} ${smtp} ${guid}`;
     if (!combined.includes(query)) {
         const everyTokenPresent = tokens.every(token => combined.includes(token));
         if (!everyTokenPresent) return 0;
@@ -1844,13 +2558,19 @@ function scoreMailbox(mailbox, query, tokens) {
     let score = 0;
     if (smtp === query) score += 1200;
     if (display === query) score += 1150;
+    if (alias === query) score += 1140;
     if (display.startsWith(query)) score += 950;
+    if (alias.startsWith(query)) score += 940;
     if (smtp.startsWith(query)) score += 930;
+    if (guid.startsWith(query)) score += 920;
     if (display.includes(query)) score += 700;
+    if (alias.includes(query)) score += 690;
     if (smtp.includes(query)) score += 680;
+    if (guid.includes(query)) score += 670;
     if (tokens.every(token => display.includes(token))) score += 540;
     if (tokens.every(token => smtp.includes(token))) score += 520;
-    score += Math.min(mailbox.current.totalGB || 0, 500) / 10;
+    const totalGb = Number(mailbox?.current?.totalGB);
+    score += Math.min(Number.isFinite(totalGb) ? totalGb : 0, 500) / 10;
     return score;
 }
 
@@ -1858,8 +2578,9 @@ function isMailboxRenderable(mailbox) {
     return Boolean(mailbox && (mailbox.primarySmtpAddress || mailbox.exchangeGuid || mailbox.displayName));
 }
 
+// ExchangeGuid is the durable identity; SMTP addresses change and must never key a record.
 function getMailboxKey(mailbox) {
-    return String(mailbox.primarySmtpAddress || mailbox.exchangeGuid || mailbox.displayName || "").toLowerCase();
+    return String(mailbox.exchangeGuid || mailbox.primarySmtpAddress || mailbox.displayName || "").toLowerCase();
 }
 
 function getMailboxSearchLabel(mailbox) {
@@ -1868,10 +2589,30 @@ function getMailboxSearchLabel(mailbox) {
 
 function buildMailboxUrl(pageName, mailbox) {
     const url = new URL(pageName, window.location.href);
-    if (mailbox) {
-        url.searchParams.set("mailbox", mailbox.primarySmtpAddress || mailbox.exchangeGuid);
+    if (mailbox?.exchangeGuid) {
+        url.searchParams.set("mailbox", mailbox.exchangeGuid);
     }
     return `${url.pathname.split("/").pop()}${url.search}`;
+}
+
+function buildAccessMapUrl(mailbox, permission) {
+    const url = new URL("accessmap.html", window.location.href);
+    const mailboxGuid = permission?.MailboxGuid || mailbox?.exchangeGuid;
+    if (mailboxGuid) url.searchParams.set("mailbox", mailboxGuid);
+    const principal = permission?.User || permission?.user || permission?.Delegate;
+    if (principal) url.searchParams.set("principal", principal);
+    return `${url.pathname.split("/").pop()}${url.search}`;
+}
+
+function getLifetimeStorageRate(mailbox) {
+    const created = Date.parse(mailbox?.createdUtc || "");
+    const sampled = Date.parse(mailbox?.current?.sampleTimestamp || state.historyData.generatedUtc || "");
+    if (!Number.isFinite(created) || !Number.isFinite(sampled) || sampled <= created) return null;
+
+    const days = (sampled - created) / 86400000;
+    const primaryAndArchiveGb = (mailbox.current.totalGB || 0) + (mailbox.current.archiveSizeGB || 0);
+    const rate = primaryAndArchiveGb / days;
+    return Number.isFinite(rate) ? rate : null;
 }
 
 function navigateToMailboxPage(mailbox) {
@@ -1885,6 +2626,7 @@ function getRequestedMailboxValue() {
 function findMailboxByRequestedValue(value) {
     const needle = String(value || "").trim().toLowerCase();
     if (!needle) return null;
+    // Still matches an SMTP address so links bookmarked before the switch keep working.
     return state.selectableMailboxes.find(mailbox =>
         getMailboxKey(mailbox) === needle ||
         String(mailbox.primarySmtpAddress || "").toLowerCase() === needle ||
@@ -1897,7 +2639,7 @@ function updateMailboxQueryParam(mailboxOrNull, replace) {
     if (!mailboxOrNull) {
         url.searchParams.delete("mailbox");
     } else {
-        url.searchParams.set("mailbox", mailboxOrNull.primarySmtpAddress || mailboxOrNull.exchangeGuid);
+        url.searchParams.set("mailbox", mailboxOrNull.exchangeGuid || mailboxOrNull.primarySmtpAddress);
     }
 
     const method = replace ? "replaceState" : "pushState";
@@ -1906,13 +2648,39 @@ function updateMailboxQueryParam(mailboxOrNull, replace) {
 
 function updateNavLinks() {
     const selected = getSelectedMailbox();
+    const scopeId = state.activeScopeId;
+    const activeSort = getActiveSortForPage();
+
     document.querySelectorAll("nav.view-nav a").forEach(link => {
         const url = new URL(link.getAttribute("href"), window.location.href);
         if (selected) {
-            url.searchParams.set("mailbox", selected.primarySmtpAddress || selected.exchangeGuid);
+            url.searchParams.set("mailbox", selected.exchangeGuid || selected.primarySmtpAddress);
         } else {
             url.searchParams.delete("mailbox");
         }
+
+        // Carry the scope across pages so a scoped report stays scoped.
+        if (scopeId && scopeId !== ALL_SCOPE.id && !isScopePinned()) {
+            url.searchParams.set("scope", scopeId);
+        } else {
+            url.searchParams.delete("scope");
+        }
+
+        // Carry the filter and sort so a narrowed result set survives navigation.
+        if (state.filterQuery) {
+            url.searchParams.set("q", state.filterQuery);
+        } else {
+            url.searchParams.delete("q");
+        }
+
+        if (activeSort?.key) {
+            url.searchParams.set("sort", activeSort.key);
+            url.searchParams.set("dir", activeSort.direction);
+        } else {
+            url.searchParams.delete("sort");
+            url.searchParams.delete("dir");
+        }
+
         link.setAttribute("href", `${url.pathname.split("/").pop()}${url.search}`);
     });
 }
@@ -1922,10 +2690,12 @@ function resetAutoRefreshTimer() {
     refreshTimer = setInterval(() => loadDashboard().catch(showError), refreshMs);
 }
 
-function updateLastUpdated(utcString) {
+function updateLastUpdated(collectorUtc, recordUtc) {
     const el = document.getElementById("lastUpdated");
     if (!el) return;
-    el.textContent = utcString ? `Last updated: ${new Date(utcString).toLocaleString()}` : "Data loaded";
+    const collectorText = collectorUtc ? new Date(collectorUtc).toLocaleString() : "Unknown";
+    const recordText = recordUtc ? new Date(recordUtc).toLocaleString() : "Unknown";
+    el.textContent = `Collector last completed: ${collectorText} | Latest record refreshed: ${recordText}`;
 }
 
 function highlightNav() {
@@ -1941,10 +2711,89 @@ function highlightNav() {
 
 function getNumber(record, propertyNames) {
     for (const propertyName of propertyNames) {
+        const parsed = toNumber(record?.[propertyName]);
+        if (parsed !== null) return parsed;
+    }
+    return null;
+}
+
+function toNumber(value) {
+    if (value === undefined || value === null || value === "") return null;
+
+    if (typeof value === "number") {
+        if (!Number.isFinite(value)) return null;
+        return Math.abs(value) >= 1_000_000 ? value / (1024 ** 3) : value;
+    }
+
+    if (typeof value === "bigint") {
+        return Number(value) >= 1_000_000 ? Number(value) / (1024 ** 3) : Number(value);
+    }
+
+    const source = String(value).trim();
+    if (source === "") return null;
+    if (/^(unlimited|n\/a|not available|null|none)$/i.test(source)) return null;
+
+    const percentMatch = source.match(/^([-+]?\d+(?:\.\d+)?)\s*%$/i);
+    if (percentMatch) {
+        return Number(percentMatch[1]);
+    }
+
+    const directNumber = Number(source);
+    if (Number.isFinite(directNumber)) {
+        const numericValue = Number(source.replace(/,/g, ""));
+        const isLikelyByteCount = /^\d{4,}(?:\.\d+)?$/.test(source.replace(/,/g, "")) && Math.abs(numericValue) >= 1_000_000;
+        if (isLikelyByteCount) {
+            return numericValue / (1024 ** 3);
+        }
+        return directNumber;
+    }
+
+    const storageValue = parseStorageValueInGb(source);
+    if (storageValue !== null) return storageValue;
+
+    const bytesValue = parseByteCount(source);
+    if (bytesValue !== null) return bytesValue / (1024 ** 3);
+
+    return null;
+}
+
+function parseByteCount(value) {
+    if (value == null || value === "") return null;
+
+    const text = String(value).trim();
+    if (!text) return null;
+
+    const pureNumeric = text.replace(/,/g, "");
+    if (/^\d+(?:\.\d+)?$/.test(pureNumeric)) {
+        const numericValue = Number(pureNumeric);
+        if (Number.isFinite(numericValue) && Math.abs(numericValue) >= 1_000_000) {
+            return numericValue;
+        }
+        return null;
+    }
+
+    const match = text.match(/([\d,]+(?:\.\d+)?)\s*(?:bytes?|B)\b/i);
+    if (!match) return null;
+
+    const numericValue = Number(match[1].replace(/,/g, ""));
+    return Number.isFinite(numericValue) ? numericValue : null;
+}
+
+function getBoolean(record, propertyNames) {
+    for (const propertyName of propertyNames) {
         const value = record?.[propertyName];
-        if (value !== undefined && value !== null && value !== "") {
-            const number = Number(value);
-            if (Number.isFinite(number)) return number;
+        if (value === undefined || value === null || value === "") {
+            continue;
+        }
+        if (typeof value === "boolean") {
+            return value;
+        }
+        const text = String(value).trim().toLowerCase();
+        if (text === "true") {
+            return true;
+        }
+        if (text === "false") {
+            return false;
         }
     }
     return null;
@@ -1973,19 +2822,37 @@ function getBoolean(record, propertyNames) {
 function parseStorageValueInGb(value) {
     if (value == null || value === "") return null;
 
-    const directNumber = Number(value);
-    if (Number.isFinite(directNumber)) return directNumber;
-
     const text = String(value).trim();
-    const bytesMatch = text.match(/\(([\d,]+)\s+bytes\)/i);
-    if (bytesMatch) {
-        return Number((Number(bytesMatch[1].replace(/,/g, "")) / (1024 ** 3)).toFixed(2));
+    if (text === "") return null;
+    if (/^(unlimited|n\/a|not available|null|none)$/i.test(text)) return null;
+
+    const percentMatch = text.match(/^([-+]?\d+(?:\.\d+)?)\s*%$/i);
+    if (percentMatch) {
+        return Number(percentMatch[1]);
     }
 
-    const unitMatch = text.match(/^([\d.]+)\s*(KB|MB|GB|TB)\b/i);
+    const directNumber = Number(text.replace(/[%]/g, ""));
+    if (Number.isFinite(directNumber)) {
+        const numericValue = Number(text.replace(/[%]/g, "").replace(/,/g, ""));
+        const isLikelyByteCount = /^\d{4,}(?:\.\d+)?$/.test(text.replace(/[%]/g, "").replace(/,/g, "")) && Math.abs(numericValue) >= 1_000_000;
+        if (isLikelyByteCount) {
+            return Number((numericValue / (1024 ** 3)).toFixed(2));
+        }
+        return Number(directNumber.toFixed(2));
+    }
+
+    const bytesMatch = text.match(/\(([^)]+)\s+bytes\)/i) || text.match(/([\d,]+(?:\.\d+)?)\s*(?:bytes|B)\b/i);
+    if (bytesMatch) {
+        const byteCount = Number((bytesMatch[1] ?? bytesMatch[0]).replace(/,/g, ""));
+        if (Number.isFinite(byteCount)) {
+            return Number((byteCount / (1024 ** 3)).toFixed(2));
+        }
+    }
+
+    const unitMatch = text.match(/([\d,]+(?:\.\d+)?)\s*(KB|MB|GB|TB)\b/i);
     if (!unitMatch) return null;
 
-    const amount = Number(unitMatch[1]);
+    const amount = Number(unitMatch[1].replace(/,/g, ""));
     if (!Number.isFinite(amount)) return null;
 
     const unit = unitMatch[2].toUpperCase();
@@ -2005,19 +2872,32 @@ function truncateLabel(text, maxLength) {
 }
 
 function formatGB(value) {
-    return Number(value || 0).toFixed(2);
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric.toFixed(2) : "0.00";
+}
+
+function formatStorageRate(value) {
+    return Number(value).toLocaleString(undefined, { maximumFractionDigits: 4 });
 }
 
 function formatPercent(value) {
-    return `${Number(value || 0).toFixed(1)}%`;
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? `${numeric.toFixed(1)}%` : "0.0%";
+}
+
+function safeNumber(value, fallback = 0) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : fallback;
 }
 
 function formatCompactNumber(value) {
-    return new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 }).format(value || 0);
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 }).format(numeric) : "0";
 }
 
 function formatNumber(value) {
-    return Number(value || 0).toLocaleString();
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric.toLocaleString() : "0";
 }
 
 function formatDate(value) {
@@ -2086,7 +2966,7 @@ function getLicenseStatusLabel(mailbox) {
     if (required === true && hasLicense === true) {
         return type ? `Assigned (${type})` : "Assigned";
     }
-    if (required === true && hasLicense !== true) {
+    if (required === true && hasLicense === false) {
         return "Missing required license";
     }
     if (required === false && hasLicense === true) {
@@ -2127,7 +3007,7 @@ function formatRetentionPolicyProperties(policy) {
 }
 
 function usageBadge(percent) {
-    const value = Number(percent || 0);
+    const value = safeNumber(percent);
     if (value >= CRITICAL_THRESHOLD) return `<span class="badge danger">${formatPercent(value)}</span>`;
     if (value >= WARNING_THRESHOLD) return `<span class="badge warning">${formatPercent(value)}</span>`;
     return formatPercent(value);
@@ -2201,6 +3081,171 @@ function showError(error) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   MAILBOX SCOPES
+═══════════════════════════════════════════════════════════════ */
+
+const SCOPES_URL = "scopes.json";
+const ALL_SCOPE = { id: "all", name: "All Mailboxes", description: "Every mailbox in the dataset.", rules: {} };
+
+async function ensureScopesLoaded() {
+    if (state.scopes.length) return;
+
+    try {
+        const response = await fetch(SCOPES_URL, { cache: "no-store" });
+        if (!response.ok) throw new Error(`Could not load ${SCOPES_URL}`);
+
+        const config = await response.json();
+        const defined = Array.isArray(config.scopes) ? config.scopes.filter(s => s && s.id) : [];
+
+        state.scopes = defined.length ? defined : [ALL_SCOPE];
+        state.activeScopeId = resolveRequestedScopeId(config.defaultScope);
+    } catch (err) {
+        console.warn("Scope config unavailable, showing all mailboxes:", err.message);
+        state.scopes = [ALL_SCOPE];
+        state.activeScopeId = ALL_SCOPE.id;
+    }
+
+    buildScopeSelector();
+}
+
+// A page can pin its scope with <body data-scope="..."> so a site report needs no query string.
+function resolveRequestedScopeId(configuredDefault) {
+    const pinned = document.body?.dataset?.scope;
+    const requested = new URL(window.location.href).searchParams.get("scope");
+    const candidates = [pinned, requested, configuredDefault, state.scopes[0]?.id];
+
+    for (const candidate of candidates) {
+        if (candidate && state.scopes.some(s => s.id === candidate)) return candidate;
+    }
+    return state.scopes[0]?.id || ALL_SCOPE.id;
+}
+
+function isScopePinned() {
+    return Boolean(document.body?.dataset?.scope);
+}
+
+function getActiveScope() {
+    return state.scopes.find(s => s.id === state.activeScopeId) || ALL_SCOPE;
+}
+
+function applyScopeFilter(mailboxes, scope) {
+    const rules = scope?.rules;
+    if (!rules || !Object.keys(rules).length) return mailboxes;
+    return mailboxes.filter(mailbox => matchesScope(mailbox, rules));
+}
+
+function matchesScope(mailbox, rules) {
+    const smtp = String(mailbox.primarySmtpAddress || "").toLowerCase();
+    const name = String(mailbox.displayName || "").toLowerCase();
+    const guid = String(mailbox.exchangeGuid || "").toLowerCase();
+    const current = mailbox.current || {};
+    const totalGb = toNumber(current.totalGB);
+    const usagePercent = toNumber(current.usagePercent);
+
+    if (matchesAnyPattern(smtp, rules.excludeSmtp)) return false;
+    if (matchesAnyPattern(name, rules.excludeDisplayName)) return false;
+
+    if (Number.isFinite(rules.minSizeGB) && Number.isFinite(totalGb) && totalGb < rules.minSizeGB) return false;
+    if (Number.isFinite(rules.minUsagePercent) && Number.isFinite(usagePercent) && usagePercent < rules.minUsagePercent) return false;
+
+    const hasIncludeRules =
+        (rules.includeGuids?.length || 0) +
+        (rules.includeSmtp?.length || 0) +
+        (rules.includeDisplayName?.length || 0) > 0;
+
+    if (!hasIncludeRules) return true;
+
+    if (rules.includeGuids?.some(g => String(g).toLowerCase() === guid)) return true;
+    if (matchesAnyPattern(smtp, rules.includeSmtp)) return true;
+    if (matchesAnyPattern(name, rules.includeDisplayName)) return true;
+
+    return false;
+}
+
+function matchesAnyPattern(value, patterns) {
+    if (!Array.isArray(patterns) || !patterns.length || !value) return false;
+    return patterns.some(pattern => matchesPattern(value, pattern));
+}
+
+function matchesPattern(value, pattern) {
+    const raw = String(pattern || "");
+    if (!raw) return false;
+
+    if (raw.toLowerCase().startsWith("re:")) {
+        try {
+            return new RegExp(raw.slice(3), "i").test(value);
+        } catch {
+            return false;
+        }
+    }
+
+    const escaped = raw.toLowerCase().replace(/[.+^${}()|[\]\\]/g, "\\$&");
+    const expression = `^${escaped.replace(/\*/g, ".*").replace(/\?/g, ".")}$`;
+    try {
+        return new RegExp(expression).test(value);
+    } catch {
+        return false;
+    }
+}
+
+function buildScopeSelector() {
+    const host = document.querySelector(".header-actions");
+    if (!host || document.getElementById("scopeSelect")) return;
+    if (state.scopes.length < 2 || isScopePinned()) return;
+
+    const select = document.createElement("select");
+    select.id = "scopeSelect";
+    select.className = "theme-select scope-select";
+    select.title = "Limit this report to a group of mailboxes";
+
+    state.scopes.forEach(scope => {
+        const option = document.createElement("option");
+        option.value = scope.id;
+        option.textContent = scope.name || scope.id;
+        if (scope.description) option.title = scope.description;
+        select.appendChild(option);
+    });
+
+    select.value = state.activeScopeId;
+    select.addEventListener("change", () => {
+        state.activeScopeId = select.value;
+        clearMailboxSelection();
+        updateScopeQueryParam(state.activeScopeId);
+        loadDashboard().catch(showError);
+    });
+
+    host.insertBefore(select, host.firstChild);
+}
+
+function updateScopeQueryParam(scopeId) {
+    const url = new URL(window.location.href);
+    if (!scopeId || scopeId === ALL_SCOPE.id) {
+        url.searchParams.delete("scope");
+    } else {
+        url.searchParams.set("scope", scopeId);
+    }
+    window.history.replaceState({}, "", `${url.pathname.split("/").pop()}${url.search}`);
+}
+
+function renderScopeIndicator() {
+    const banner = document.getElementById("scopeBanner");
+    if (!banner) return;
+
+    const scope = getActiveScope();
+    const { total, inScope } = state.scopeCounts;
+    const isFiltered = inScope !== total;
+
+    banner.hidden = false;
+    banner.innerHTML = `
+        <div class="scope-banner-main">
+            <span class="scope-banner-name">${escapeHtml(scope.name || scope.id)}</span>
+            <span class="scope-banner-count">${inScope.toLocaleString()}${isFiltered ? ` of ${total.toLocaleString()}` : ""} mailboxes</span>
+        </div>
+        ${scope.description ? `<p class="scope-banner-description">${escapeHtml(scope.description)}</p>` : ""}
+    `;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    THEME SYSTEM
 ═══════════════════════════════════════════════════════════════ */
 
@@ -2208,22 +3253,113 @@ function initThemeSelector() {
     const sel = document.getElementById("themeSelect");
     if (!sel) return;
 
-    AVAILABLE_THEMES.forEach(theme => {
-        const opt = document.createElement("option");
-        opt.value = theme.id;
-        opt.textContent = theme.name;
-        sel.appendChild(opt);
-    });
+    renderThemeOptions(sel);
 
     const savedId = localStorage.getItem("dashboardThemeId") || "default-light";
     sel.value = savedId;
     applyThemeById(savedId);
 
     sel.addEventListener("change", () => applyThemeById(sel.value));
+
+    // Themes from themes.json arrive asynchronously; re-render once they land.
+    loadCustomThemes().then(() => {
+        const current = sel.value;
+        renderThemeOptions(sel);
+        sel.value = AVAILABLE_THEMES.some(t => t.id === savedId) ? savedId : current;
+        applyThemeById(sel.value);
+    });
+}
+
+function renderThemeOptions(sel) {
+    sel.innerHTML = "";
+    AVAILABLE_THEMES.forEach(theme => {
+        const opt = document.createElement("option");
+        opt.value = theme.id;
+        opt.textContent = theme.name;
+        sel.appendChild(opt);
+    });
+}
+
+const CUSTOM_THEMES_URL = "theme/themes.json";
+let customThemesPromise = null;
+
+function loadCustomThemes() {
+    if (customThemesPromise) return customThemesPromise;
+
+    customThemesPromise = fetch(CUSTOM_THEMES_URL, { cache: "no-store" })
+        .then(response => {
+            if (!response.ok) throw new Error(`Could not load ${CUSTOM_THEMES_URL}`);
+            return response.json();
+        })
+        .then(config => {
+            const themes = Array.isArray(config.themes) ? config.themes : [];
+            themes.forEach(theme => {
+                if (!theme?.id || !theme.colors) return;
+                if (AVAILABLE_THEMES.some(t => t.id === theme.id)) return;
+                AVAILABLE_THEMES.push({
+                    id: theme.id,
+                    name: theme.name || theme.id,
+                    file: null,
+                    baseTheme: theme.type === "light" ? "light" : "dark",
+                    colors: theme.colors
+                });
+            });
+        })
+        .catch(err => console.warn("Custom themes unavailable:", err.message));
+
+    return customThemesPromise;
+}
+
+// Maps the friendly colour names in themes.json onto the stylesheet variables.
+function applyNativeTheme(theme) {
+    const root = document.documentElement;
+    const c = theme.colors;
+
+    root.setAttribute("data-theme", theme.baseTheme);
+
+    const MAPPING = {
+        "--bg-color": c.bg,
+        "--panel-bg": c.panel,
+        "--panel-alt-bg": c.panelAlt,
+        "--text-primary": c.textPrimary,
+        "--text-secondary": c.textSecondary,
+        "--border-color": c.border,
+        "--header-text": c.headerText,
+        "--nav-link": c.navLink,
+        "--nav-link-hover": c.navLinkHover,
+        "--chart-primary": c.chartPrimary,
+        "--chart-secondary": c.chartSecondary,
+        "--chart-success": c.chartSuccess,
+        "--chart-warning": c.chartWarning,
+        "--chart-danger": c.chartDanger,
+        "--chart-muted": c.chartMuted
+    };
+
+    Object.entries(MAPPING).forEach(([cssVar, value]) => {
+        if (value) root.style.setProperty(cssVar, value);
+    });
+
+    const from = c.headerFrom || c.panel;
+    const to = c.headerTo || from;
+    if (from) {
+        root.style.setProperty("--header-bg", from === to ? from : `linear-gradient(135deg, ${from}, ${to})`);
+    }
+
+    root.style.setProperty("--shadow", theme.baseTheme === "dark"
+        ? "0 18px 42px rgba(0,0,0,0.45)"
+        : "0 18px 42px rgba(14,40,74,0.1)");
 }
 
 async function applyThemeById(themeId) {
     const theme = AVAILABLE_THEMES.find(t => t.id === themeId) || AVAILABLE_THEMES[0];
+
+    if (theme.colors) {
+        clearAppliedThemeVars();
+        applyNativeTheme(theme);
+        localStorage.setItem("dashboardThemeId", theme.id);
+        localStorage.setItem("dashboardTheme", theme.baseTheme);
+        return;
+    }
 
     if (!theme.file) {
         clearAppliedThemeVars();
@@ -2248,10 +3384,10 @@ async function applyThemeById(themeId) {
 }
 
 function clearAppliedThemeVars() {
-    ["--bg-color","--panel-bg","--panel-alt-bg","--text-primary","--text-secondary",
-     "--border-color","--header-bg","--header-text","--nav-link","--nav-link-hover",
-     "--shadow","--chart-primary","--chart-secondary","--chart-success",
-     "--chart-warning","--chart-danger","--chart-muted"]
+    ["--bg-color", "--panel-bg", "--panel-alt-bg", "--text-primary", "--text-secondary",
+        "--border-color", "--header-bg", "--header-text", "--nav-link", "--nav-link-hover",
+        "--shadow", "--chart-primary", "--chart-secondary", "--chart-success",
+        "--chart-warning", "--chart-danger", "--chart-muted"]
         .forEach(v => document.documentElement.style.removeProperty(v));
 }
 
@@ -2285,21 +3421,21 @@ function applyVSCodeTheme({ type, colors }) {
     const root = document.documentElement;
 
     const MAPPING = [
-        ["--bg-color",        ["editor.background"]],
-        ["--panel-bg",        ["sideBar.background","panel.background","editorWidget.background","breadcrumbPicker.background"]],
-        ["--panel-alt-bg",    ["list.hoverBackground","editor.lineHighlightBackground","list.focusBackground"]],
-        ["--text-primary",    ["editor.foreground","foreground"]],
-        ["--text-secondary",  ["descriptionForeground","activityBar.inactiveForeground","editorLineNumber.foreground","breadcrumb.foreground"]],
-        ["--border-color",    ["panel.border","editorGroup.border","activityBar.border","checkbox.border","input.border"]],
-        ["--header-text",     ["activityBar.foreground","titleBar.activeForeground"]],
-        ["--nav-link",        ["list.highlightForeground","textLink.foreground","focusBorder","activityBarBadge.background"]],
-        ["--nav-link-hover",  ["button.hoverBackground","button.background","focusBorder"]],
-        ["--chart-primary",   ["badge.background","activityBarBadge.background","focusBorder","button.background"]],
-        ["--chart-secondary", ["terminal.ansiBlue","terminal.ansiCyan","editorBracketHighlight.foreground1","editorInfo.foreground"]],
-        ["--chart-success",   ["gitDecoration.addedResourceForeground","terminal.ansiGreen","terminal.ansiBrightGreen","debugTokenExpression.boolean"]],
-        ["--chart-warning",   ["debugConsole.warningForeground","terminal.ansiYellow","gitDecoration.modifiedResourceForeground","editorWarning.foreground"]],
-        ["--chart-danger",    ["errorForeground","debugIcon.breakpointForeground","terminal.ansiRed","gitDecoration.deletedResourceForeground"]],
-        ["--chart-muted",     ["editorLineNumber.foreground","activityBar.inactiveForeground","breadcrumb.foreground"]],
+        ["--bg-color", ["editor.background"]],
+        ["--panel-bg", ["sideBar.background", "panel.background", "editorWidget.background", "breadcrumbPicker.background"]],
+        ["--panel-alt-bg", ["list.hoverBackground", "editor.lineHighlightBackground", "list.focusBackground"]],
+        ["--text-primary", ["editor.foreground", "foreground"]],
+        ["--text-secondary", ["descriptionForeground", "activityBar.inactiveForeground", "editorLineNumber.foreground", "breadcrumb.foreground"]],
+        ["--border-color", ["panel.border", "editorGroup.border", "activityBar.border", "checkbox.border", "input.border"]],
+        ["--header-text", ["activityBar.foreground", "titleBar.activeForeground"]],
+        ["--nav-link", ["list.highlightForeground", "textLink.foreground", "focusBorder", "activityBarBadge.background"]],
+        ["--nav-link-hover", ["button.hoverBackground", "button.background", "focusBorder"]],
+        ["--chart-primary", ["badge.background", "activityBarBadge.background", "focusBorder", "button.background"]],
+        ["--chart-secondary", ["terminal.ansiBlue", "terminal.ansiCyan", "editorBracketHighlight.foreground1", "editorInfo.foreground"]],
+        ["--chart-success", ["gitDecoration.addedResourceForeground", "terminal.ansiGreen", "terminal.ansiBrightGreen", "debugTokenExpression.boolean"]],
+        ["--chart-warning", ["debugConsole.warningForeground", "terminal.ansiYellow", "gitDecoration.modifiedResourceForeground", "editorWarning.foreground"]],
+        ["--chart-danger", ["errorForeground", "debugIcon.breakpointForeground", "terminal.ansiRed", "gitDecoration.deletedResourceForeground"]],
+        ["--chart-muted", ["editorLineNumber.foreground", "activityBar.inactiveForeground", "breadcrumb.foreground"]],
     ];
 
     MAPPING.forEach(([cssVar, keys]) => {
@@ -2308,8 +3444,8 @@ function applyVSCodeTheme({ type, colors }) {
     });
 
     // Header gradient from title bar + status bar colors
-    const hStart = pickVSCodeColor(colors, ["titleBar.activeBackground","activityBar.background","statusBar.background"]);
-    const hEnd   = pickVSCodeColor(colors, ["statusBar.background","activityBar.background","titleBar.activeBackground"]);
+    const hStart = pickVSCodeColor(colors, ["titleBar.activeBackground", "activityBar.background", "statusBar.background"]);
+    const hEnd = pickVSCodeColor(colors, ["statusBar.background", "activityBar.background", "titleBar.activeBackground"]);
     if (hStart) {
         const s = stripColorAlpha(hStart);
         const e = hEnd ? stripColorAlpha(hEnd) : s;

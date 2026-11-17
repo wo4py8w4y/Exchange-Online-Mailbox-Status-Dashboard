@@ -22,6 +22,7 @@
     </header>
 
     <main>
+        <section id="dataAvailabilityStatus" class="data-availability-status" role="status" hidden></section>
         <div id="valSummary" class="val-summary" hidden>
             <div class="val-summary-item">
                 <span class="val-count val-count-pass" id="countPass">0</span>
@@ -164,6 +165,15 @@
             const json = await r.json();
             const hasMailboxArray = Array.isArray(json?.Mailboxes) || Array.isArray(json?.mailboxes);
             const mailboxes = getMailboxArray(json);
+            const graphMetadata = mailboxes.map(mailbox => mailbox.DataAvailability ?? mailbox.dataAvailability)
+                .filter(metadata => metadata?.Source === "MicrosoftGraph");
+            const sourceNotice = document.getElementById("dataAvailabilityStatus");
+            sourceNotice.hidden = graphMetadata.length === 0;
+            if (graphMetadata.length > 0) {
+                const dates = [...new Set(graphMetadata.map(metadata => metadata.ReportRefreshDate))].sort();
+                const fields = [...new Set(graphMetadata.flatMap(metadata => metadata.UnavailableFields || []))];
+                sourceNotice.textContent = `Graph usage report refresh: ${dates.join(", ")}. Reports are delayed, not live statistics. Unavailable fields (not zero): ${fields.join(", ")}.`;
+            }
             const count = mailboxes.length;
             if (!hasMailboxArray) {
                 addResult("checksSchema", "data.json — Mailboxes array", "fail", "Missing Mailboxes array");
@@ -191,13 +201,17 @@
             addResult("checksSchema", "data.json — quota metrics", hasQuota ? "pass" : "warn",
                 hasQuota ? "Quota metrics present in sampled records" : "Quota metrics missing in sampled records");
 
+            const archiveUnavailable = mailboxes.some(m =>
+                (m.DataAvailability ?? m.dataAvailability)?.UnavailableFields?.includes("ArchiveSizeGB"));
             const hasArchive = mailboxes.slice(0, 3).every(m => {
                 const current = getCurrentRecord(m);
                 return hasAnyProperty(current, ["archiveSizeGB", "ArchiveSizeGB", "Archive"]) ||
                     hasAnyProperty(m, ["archiveSizeGB", "ArchiveSizeGB", "Archive"]);
             });
             addResult("checksSchema", "data.json — archive metrics", hasArchive ? "pass" : "warn",
-                hasArchive ? "Archive metrics present in sampled records" : "Archive metrics missing in sampled records");
+                hasArchive ? "Archive metrics present in sampled records" : archiveUnavailable
+                    ? "Archive metrics explicitly unavailable from Graph; null is not zero."
+                    : "Archive metrics missing in sampled records");
 
             const hasUsage = mailboxes.slice(0, 3).every(m => {
                 const current = getCurrentRecord(m);
@@ -526,6 +540,7 @@
 
     async function runAllChecks() {
         results = [];
+        document.getElementById("dataAvailabilityStatus").hidden = true;
         document.getElementById("runBtn").disabled = true;
         document.getElementById("runStatus").textContent = "Running…";
         document.getElementById("runStatus").style.color = "";

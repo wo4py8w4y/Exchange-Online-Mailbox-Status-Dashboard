@@ -48,6 +48,20 @@
     }
   },
   "$defs": {
+    "dataAvailability": {
+      "type": "object",
+      "required": ["Source", "ReportRefreshDate", "UnavailableFields"],
+      "properties": {
+        "Source": { "const": "MicrosoftGraph" },
+        "ReportRefreshDate": { "type": "string", "format": "date" },
+        "UnavailableFields": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
     "permission": {
       "type": "object",
       "properties": {
@@ -104,19 +118,19 @@
           ]
         },
         "archiveEnabled": {
-          "type": "boolean"
+          "type": ["boolean", "null"]
         },
         "archiveSizeGB": {
-          "type": "number"
+          "type": ["number", "null"]
         },
         "archiveItemCount": {
-          "type": "number"
+          "type": ["number", "null"]
         }
       },
       "additionalProperties": true
     },
     "retention": {
-      "type": "object",
+      "type": ["object", "null"],
       "properties": {
         "RetentionPolicy": {
           "type": [
@@ -455,6 +469,7 @@
         "current"
       ],
       "properties": {
+        "DataAvailability": { "$ref": "#/$defs/dataAvailability" },
         "ExchangeGuid": {
           "type": "string"
         },
@@ -508,6 +523,8 @@
         "ItemCount"
       ],
       "properties": {
+        "DataAvailability": { "$ref": "#/$defs/dataAvailability" },
+        "LastActivityDate": { "type": ["string", "null"] },
         "TimestampUtc": {
           "type": "string"
         },
@@ -518,7 +535,7 @@
           "type": "number"
         },
         "PermissionCount": {
-          "type": "number"
+          "type": ["number", "null"]
         },
         "QuotaGB": {
           "type": [
@@ -539,13 +556,13 @@
           ]
         },
         "ArchiveEnabled": {
-          "type": "boolean"
+          "type": ["boolean", "null"]
         },
         "ArchiveSizeGB": {
-          "type": "number"
+          "type": ["number", "null"]
         },
         "ArchiveItemCount": {
-          "type": "number"
+          "type": ["number", "null"]
         }
       },
       "additionalProperties": true
@@ -559,6 +576,7 @@
         "Samples"
       ],
       "properties": {
+        "DataAvailability": { "$ref": "#/$defs/dataAvailability" },
         "ExchangeGuid": {
           "type": "string"
         },

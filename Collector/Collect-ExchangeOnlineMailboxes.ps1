@@ -630,6 +630,8 @@ foreach ($identityValue in $identities) {
                 Add-Member -InputObject $entry -NotePropertyName 'Licensing' -NotePropertyValue $result.Licensing
             }
             $entry.Permissions = $result.Permissions
+            Add-Member -InputObject $entry -NotePropertyName 'Retention' -NotePropertyValue $result.Retention -Force
+            $entry.PSObject.Properties.Remove('DataAvailability')
             $entry.Samples = @($samples)
         }
         else {
@@ -640,6 +642,7 @@ foreach ($identityValue in $identities) {
                 WhenCreatedUtc     = $result.WhenCreatedUtc
                 Retention          = $result.Retention
                 Licensing          = $result.Licensing
+                Retention          = $result.Retention
                 Permissions        = $result.Permissions
                 Samples            = @($result.Sample)
             }

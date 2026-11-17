@@ -145,12 +145,12 @@ function ConvertTo-NumberOrNull {
     Coerces a value to a double, accepting numeric strings and common Exchange Online
     displays such as "4.993 GB", "82.4%", and "1.5 GB (1,610,612,736 bytes)".
 #>
-    param($Value)
+    param($Value, [switch]$PreserveNumericValue)
 
     if ($null -eq $Value) { return $null }
     if ($Value -is [double] -or $Value -is [int] -or $Value -is [long] -or $Value -is [decimal]) {
         $asDouble = [double]$Value
-        if ([math]::Abs($asDouble) -ge 1000000) {
+        if (-not $PreserveNumericValue -and [math]::Abs($asDouble) -ge 1000000) {
             return $asDouble / 1GB
         }
 
@@ -232,13 +232,17 @@ function Test-NumericField {
         [Parameter(Mandatory)] [string]$Label,
         [Parameter(Mandatory)] $Report,
         [Parameter()] [switch]$ApplyRepair,
+        [Parameter()] [switch]$AllowUnavailableNull,
         [Parameter()] [switch]$MustBePositive,
         [Parameter()] [double]$Maximum = [double]::MaxValue,
         [Parameter()] [double]$DefaultValue = 0.0
     )
 
     $raw = Get-PropertyOrNull -Object $Container -Name $Name
-    $number = ConvertTo-NumberOrNull -Value $raw
+    if ($AllowUnavailableNull -and $null -eq $raw -and $null -ne $Container.PSObject.Properties[$Name]) {
+        return $true
+    }
+    $number = ConvertTo-NumberOrNull -Value $raw -PreserveNumericValue:($Name -match '(?i)(item|permission)Count$')
 
     if ($null -eq $number) {
         Add-Problem $Report "$Label - '$Name' is missing or not numeric (value: '$raw')."
@@ -293,7 +297,7 @@ function Set-FieldValue {
     param(
         [Parameter(Mandatory)] $Container,
         [Parameter(Mandatory)] [string]$Name,
-        [Parameter(Mandatory)] $Value
+        [Parameter(Mandatory)] [AllowNull()] $Value
     )
 
     if ($Container.PSObject.Properties.Name -contains $Name) {
@@ -302,6 +306,14 @@ function Set-FieldValue {
     else {
         Add-Member -InputObject $Container -NotePropertyName $Name -NotePropertyValue $Value -Force
     }
+}
+
+function Test-GraphUnavailableField {
+    param($Container, [string]$Name)
+    $availability = Get-PropertyOrNull -Object $Container -Name 'DataAvailability'
+    return $null -ne $availability -and
+        (Get-PropertyOrNull -Object $availability -Name 'Source') -eq 'MicrosoftGraph' -and
+        @(Get-PropertyOrNull -Object $availability -Name 'UnavailableFields') -contains $Name
 }
 
 #endregion
@@ -346,10 +358,14 @@ function Test-HistorySample {
         }
     }
 
-    $null = Test-NumericField -Container $Sample -Name 'ItemCount' -Label $Label -Report $Report -ApplyRepair:$ApplyRepair
-    $null = Test-NumericField -Container $Sample -Name 'PermissionCount' -Label $Label -Report $Report -ApplyRepair:$ApplyRepair
-    $null = Test-NumericField -Container $Sample -Name 'ArchiveSizeGB' -Label $Label -Report $Report -ApplyRepair:$ApplyRepair
-    $null = Test-NumericField -Container $Sample -Name 'ArchiveItemCount' -Label $Label -Report $Report -ApplyRepair:$ApplyRepair
+    if (-not (Test-NumericField -Container $Sample -Name 'ItemCount' -Label $Label -Report $Report -ApplyRepair:$ApplyRepair)) {
+        $isUsable = $false
+    }
+    foreach ($field in @('PermissionCount', 'ArchiveSizeGB', 'ArchiveItemCount')) {
+        $availabilityField = if ($field -eq 'PermissionCount') { 'Permissions' } else { $field }
+        $allowNull = Test-GraphUnavailableField -Container $Sample -Name $availabilityField
+        $null = Test-NumericField -Container $Sample -Name $field -Label $Label -Report $Report -ApplyRepair:$ApplyRepair -AllowUnavailableNull:$allowNull
+    }
 
     if (-not $isUsable) {
         return $false
@@ -654,8 +670,8 @@ function Test-DataDocument {
         $quotaOk = $isUnlimited -or (Test-NumericField -Container $current -Name 'quotaGB' -Label $label -Report $Report -ApplyRepair:$ApplyRepair -MustBePositive)
 
         $null = Test-NumericField -Container $current -Name 'itemCount' -Label $label -Report $Report -ApplyRepair:$ApplyRepair
-        $null = Test-NumericField -Container $current -Name 'archiveSizeGB' -Label $label -Report $Report -ApplyRepair:$ApplyRepair
-        $null = Test-NumericField -Container $current -Name 'archiveItemCount' -Label $label -Report $Report -ApplyRepair:$ApplyRepair
+        $null = Test-NumericField -Container $current -Name 'archiveSizeGB' -Label $label -Report $Report -ApplyRepair:$ApplyRepair -AllowUnavailableNull:(Test-GraphUnavailableField $record 'ArchiveSizeGB')
+        $null = Test-NumericField -Container $current -Name 'archiveItemCount' -Label $label -Report $Report -ApplyRepair:$ApplyRepair -AllowUnavailableNull:(Test-GraphUnavailableField $record 'ArchiveItemCount')
 
         if ($sizeOk -and $quotaOk -and -not $isUnlimited) {
             $totalGb = [double](ConvertTo-NumberOrNull -Value $current.totalGB)
@@ -744,7 +760,7 @@ function Restore-HistorySamplesFromData {
 
         $timestamp = ConvertTo-IsoTimestampOrNull -Value (Get-PropertyOrNull -Object $current -Name 'sampleTimestamp')
         $sizeGb = ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'totalGB')
-        $itemCount = ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'itemCount')
+        $itemCount = ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'itemCount') -PreserveNumericValue
         $quotaRaw = Get-PropertyOrNull -Object $current -Name 'quotaGB'
         $quotaGb = if ($null -eq $quotaRaw) { $null } else { ConvertTo-NumberOrNull -Value $quotaRaw }
 
@@ -770,6 +786,24 @@ function Restore-HistorySamplesFromData {
             ArchiveEnabled   = [bool](Get-PropertyOrNull -Object $current -Name 'archiveEnabled')
             ArchiveSizeGB    = [double](ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'archiveSizeGB'))
             ArchiveItemCount = [int64](ConvertTo-NumberOrNull -Value (Get-PropertyOrNull -Object $current -Name 'archiveItemCount'))
+        }
+
+        $snapshotRecord = $dataIndex[$key]
+        $availability = Get-PropertyOrNull -Object $snapshotRecord -Name 'DataAvailability'
+        if ($null -ne $availability -and (Get-PropertyOrNull -Object $availability -Name 'Source') -eq 'MicrosoftGraph') {
+            Set-FieldValue -Container $sample -Name 'DataAvailability' -Value $availability
+            Set-FieldValue -Container $record -Name 'DataAvailability' -Value $availability
+            Set-FieldValue -Container $sample -Name 'ArchiveEnabled' -Value (Get-PropertyOrNull -Object $current -Name 'archiveEnabled')
+            Set-FieldValue -Container $sample -Name 'LastActivityDate' -Value (Get-PropertyOrNull -Object $current -Name 'lastActivityDate')
+            foreach ($field in @('PermissionCount', 'ArchiveSizeGB', 'ArchiveItemCount')) {
+                $availabilityField = if ($field -eq 'PermissionCount') { 'Permissions' } else { $field }
+                if (Test-GraphUnavailableField $snapshotRecord $availabilityField) {
+                    Set-FieldValue -Container $sample -Name $field -Value $null
+                }
+            }
+            foreach ($field in @('Permissions', 'Retention', 'Licensing')) {
+                Set-FieldValue -Container $record -Name $field -Value (Get-PropertyOrNull -Object $snapshotRecord -Name $field)
+            }
         }
 
         Set-FieldValue -Container $record -Name 'ExchangeGuid' -Value $key
