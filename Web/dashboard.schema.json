@@ -28,12 +28,6 @@
     "GeneratedUtc": {
       "type": "string"
     },
-    "CollectorLastCompletedUtc": {
-      "type": [
-        "string",
-        "null"
-      ]
-    },
     "Mailboxes": {
       "type": "array",
       "items": {
@@ -58,13 +52,6 @@
       "type": "object",
       "properties": {
         "User": {
-          "type": "string"
-        },
-        "MailboxGuid": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "PermissionType": {
           "type": "string"
         },
         "AccessRights": {
@@ -111,12 +98,6 @@
           ]
         },
         "lastLogonTime": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "sampleTimestamp": {
           "type": [
             "string",
             "null"
@@ -483,21 +464,6 @@
         "DisplayName": {
           "type": "string"
         },
-        "WhenCreatedUtc": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "Alias": {
-          "type": "string"
-        },
-        "RecipientTypeDetails": {
-          "type": "string"
-        },
-        "CreatedUtc": {
-          "type": ["string", "null"]
-        },
         "current": {
           "$ref": "#/$defs/currentMetrics"
         },
@@ -510,17 +476,11 @@
             "$ref": "#/$defs/permission"
           }
         },
-        "Retention": {
-          "anyOf": [
-            { "$ref": "#/$defs/retention" },
-            { "type": "null" }
-          ]
+        "retention": {
+          "$ref": "#/$defs/retention"
         },
-        "Licensing": {
-          "anyOf": [
-            { "$ref": "#/$defs/licensing" },
-            { "type": "null" }
-          ]
+        "licensing": {
+          "$ref": "#/$defs/licensing"
         },
         "mailboxMaintenance": {
           "$ref": "#/$defs/maintenance"
@@ -607,21 +567,6 @@
         },
         "DisplayName": {
           "type": "string"
-        },
-        "WhenCreatedUtc": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "Alias": {
-          "type": "string"
-        },
-        "RecipientTypeDetails": {
-          "type": "string"
-        },
-        "CreatedUtc": {
-          "type": ["string", "null"]
         },
         "Permissions": {
           "type": [
