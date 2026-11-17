@@ -113,12 +113,17 @@ Set-Content (Join-Path $PSScriptRoot "graph-invoked.txt") ($Identity -join ',')
                 SKUAssigned = $true
                 PersistedCapabilities = @("EXO_P2")
                 RetentionPolicy = "Live policy"
+                WhenCreated = [datetime]'2026-01-01T00:00:00Z'
             }
         }
         function Get-EXOMailboxStatistics {
             [CmdletBinding()]
-            param($Identity)
+            param($Identity, $Properties)
             [pscustomobject]@{ TotalItemSize = 1073741824; ItemCount = 10 }
+        }
+        function Get-EXORecipientPermission {
+            [CmdletBinding()]
+            param($Identity, $AccessRights, $ResultSize)
         }
         function Get-EXOMailboxPermission {
             [CmdletBinding()]
