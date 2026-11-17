@@ -1,5 +1,6 @@
 const DATA_URL = "data.json";
 const HISTORY_URL = "history.json";
+const COLLECTION_STATUS_URL = "collection-status.json";
 const MAX_SEARCH_RESULTS = 24;
 const MAX_TABLE_ROWS = 250;
 const MAX_ACCESS_MAP_PRINCIPALS = 500;
@@ -24,6 +25,8 @@ const TABLE_EXPORT_CONFIG = {
         toExportRow: m => ({
             displayName: m.displayName, primarySmtpAddress: m.primarySmtpAddress,
             storageGB: m.current.totalGB, itemCount: m.current.itemCount,
+            archiveSizeGB: m.current.archiveSizeGB, archiveItemCount: m.current.archiveItemCount,
+            archiveEnabled: m.current.archiveEnabled, lastActivityDate: m.current.lastActivityDate,
             quotaGB: m.current.quotaGB, usagePercent: m.current.usagePercent,
             mailboxType: m.licensing.recipientTypeDetails,
             licenseRequired: m.licensing.licenseRequired,
@@ -31,7 +34,7 @@ const TABLE_EXPORT_CONFIG = {
             licenseType: m.licensing.licenseType,
             cleanupStatus: getCleanupStatusLabel(m),
             retentionPolicy: m.retention.retentionPolicy,
-            permissions: m.permissions.length, recordRefreshedUtc: m.current.sampleTimestamp,
+            permissions: getPermissionCount(m), recordRefreshedUtc: m.current.sampleTimestamp,
             lastLogonTime: m.current.lastLogonTime, mailboxCreatedUtc: m.whenCreatedUtc
         }),
         columns: [
@@ -44,7 +47,7 @@ const TABLE_EXPORT_CONFIG = {
             { header: "Mailbox Type", value: m => m.licensing.recipientTypeDetails || "Unknown" },
             { header: "License", value: m => getLicenseStatusLabel(m) },
             { header: "Cleanup", value: m => getCleanupStatusLabel(m) },
-            { header: "Permissions", value: m => m.permissions.length },
+            { header: "Permissions", value: m => getPermissionCount(m) },
             { header: "Record Refreshed", value: m => m.current.sampleTimestamp ?? "" },
             { header: "Last Logon", value: m => m.current.lastLogonTime ?? "" },
             { header: "Mailbox Created", value: m => m.whenCreatedUtc ?? "" },
@@ -136,7 +139,7 @@ const TABLE_EXPORT_CONFIG = {
             { header: "Required", value: m => m.licensing.licenseRequired === true ? "Yes" : (m.licensing.licenseRequired === false ? "No" : "Unknown") },
             { header: "Assigned", value: m => m.licensing.hasLicense === true ? "Yes" : (m.licensing.hasLicense === false ? "No" : "Unknown") },
             { header: "License Type", value: m => m.licensing.licenseType || "" },
-            { header: "Compliance", value: m => m.licensing.isLicenseCompliant === true ? "Compliant" : (m.licensing.isLicenseCompliant === false ? "Gap" : "Unknown") },
+            { header: "Compliance", value: m => m.licensing.isLicenseCompliant == null ? "Unknown" : (m.licensing.isLicenseCompliant ? "Compliant" : "Gap") },
         ]
     },
     retentionPolicyCatalogTable: {
@@ -165,6 +168,7 @@ const state = {
     historyData: createEmptyHistoryData(),
     backupStatus: null,
     backupStatusError: null,
+    collectionStatus: null,
     retentionPolicies: [],
     currentMailboxes: [],
     selectableMailboxes: [],
@@ -268,9 +272,29 @@ async function loadDashboard() {
     const cacheBust = Date.now();
     const dataUrl = `${DATA_URL}?cacheBust=${cacheBust}`;
     const historyUrl = `${HISTORY_URL}?cacheBust=${cacheBust}`;
+    const statusUrl = `${COLLECTION_STATUS_URL}?cacheBust=${cacheBust}`;
 
     try {
         await ensureScopesLoaded();
+
+
+        const statusPromise = fetch(statusUrl, { cache: "no-store" })
+            .then(async response => {
+                if (!response.ok) throw new Error(`Could not load ${COLLECTION_STATUS_URL} (HTTP ${response.status})`);
+                return response.json();
+            })
+            .then(payload => {
+                if (!isCollectionStatusValid(payload)) {
+                    throw new Error(`${COLLECTION_STATUS_URL} has an invalid status record`);
+                }
+                state.collectionStatus = payload;
+                return payload;
+            })
+            .catch(error => {
+                console.warn("Collection status unavailable:", error);
+                state.collectionStatus = null;
+                return null;
+            });
 
         const backupStatusRequest = getCurrentPage() === "backups"
             ? fetch(`Backups/backup-status.json?cacheBust=${cacheBust}`, { cache: "no-store" })
@@ -278,7 +302,8 @@ async function loadDashboard() {
         const [dataResponse, historyResponse, backupStatusResponse] = await Promise.all([
             fetch(dataUrl, { cache: "no-store" }),
             fetch(historyUrl, { cache: "no-store" }),
-            backupStatusRequest
+            backupStatusRequest,
+            statusPromise
         ]);
 
         if (!dataResponse.ok) {
@@ -341,6 +366,7 @@ async function loadDashboard() {
             rawDashboardData?.generatedUtc ||
             state.historyData.generatedUtc
         );
+        renderCollectionStatus();
         highlightNav();
         applyFilter();
     }
@@ -372,6 +398,60 @@ function setLoadingState(isLoading, message = "Loading mailbox data") {
     indicator.classList.toggle("is-visible", isLoading);
     indicator.setAttribute("aria-hidden", String(!isLoading));
     document.body.classList.toggle("is-loading", isLoading);
+}
+
+function isCollectionStatusValid(status) {
+    return Boolean(
+        status &&
+        typeof status === "object" &&
+        ["Succeeded", "Partial", "Failed"].includes(status.status) &&
+        Number.isFinite(Date.parse(status.completedUtc)) &&
+        Number.isFinite(Number(status.staleAfterMinutes)) &&
+        Number(status.staleAfterMinutes) > 0 &&
+        Number.isFinite(Number(status.durationSeconds))
+    );
+}
+
+function renderCollectionStatus() {
+    const panel = document.getElementById("collectionStatusPanel");
+    const summary = document.getElementById("collectionStatusSummary");
+    const details = document.getElementById("collectionStatusDetails");
+    if (!panel || !summary || !details) return;
+
+    const status = state.collectionStatus;
+    if (!status) {
+        panel.setAttribute("data-status-state", "unavailable");
+        summary.textContent = "Collection status unavailable. Mailbox data is still shown.";
+        details.textContent = "Run the collector and confirm collection-status.json is readable by this site.";
+        return;
+    }
+
+    const completed = new Date(status.completedUtc);
+    const ageMinutes = Math.max(0, (Date.now() - completed.getTime()) / 60000);
+    const stale = ageMinutes > Number(status.staleAfterMinutes);
+    const stateName = status.status === "Failed" ? "failed" : status.status === "Partial" ? "partial" : stale ? "stale" : "healthy";
+    const labels = {
+        Succeeded: "Completed successfully",
+        Partial: "Completed with partial results",
+        Failed: "Collection failed"
+    };
+    panel.setAttribute("data-status-state", stateName);
+    summary.textContent = `Last collection: ${labels[status.status]}.`;
+    const ageText = ageMinutes < 1
+        ? "less than a minute ago"
+        : `${Math.floor(ageMinutes)} minute${Math.floor(ageMinutes) === 1 ? "" : "s"} ago`;
+    const staleText = stale ? ` Data is stale (limit: ${status.staleAfterMinutes} minutes).` : "";
+    details.textContent = `Finished ${completed.toLocaleString()} (${ageText}); duration ${formatCollectionDuration(status.durationSeconds)}.${staleText}`;
+}
+
+function formatCollectionDuration(durationSeconds) {
+    const seconds = Math.max(0, Math.round(Number(durationSeconds)));
+    if (seconds < 60) return `${seconds} second${seconds === 1 ? "" : "s"}`;
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return remainingSeconds === 0
+        ? `${minutes} minute${minutes === 1 ? "" : "s"}`
+        : `${minutes}m ${remainingSeconds}s`;
 }
 
 function handleSearchInput() {
@@ -458,9 +538,9 @@ function getMailboxes() {
     return applyTableFilter(found);
 }
 
-/* ═══════════════════════════════════════════════════════════════
+/* ---------------------------------------------------------------
    TABLE FILTER AND SORT
-═══════════════════════════════════════════════════════════════ */
+--------------------------------------------------------------- */
 
 // Columns are described here rather than in the HTML so that any copy of a report
 // page picks up sorting automatically. Order must match the <th> order.
@@ -472,7 +552,7 @@ const SORTABLE_COLUMNS = {
         { key: "itemCount", type: "number", get: m => m.current.itemCount },
         { key: "quotaGB", type: "number", get: m => m.current.quotaGB },
         { key: "usagePercent", type: "number", get: m => m.current.usagePercent },
-        { key: "permissions", type: "number", get: m => m.permissions.length },
+        { key: "permissions", type: "number", get: m => getPermissionCount(m) },
         { key: "lastLogon", type: "date", get: m => m.current.lastLogonTime }
     ],
     thresholdTable: [
@@ -717,6 +797,7 @@ function applyFilter(opts = {}) {
     }
     renderSearchUi();
     updateNavLinks();
+    renderDataAvailability();
 
     switch (getCurrentPage()) {
         case "overview":
@@ -801,7 +882,7 @@ function renderSelectedMailboxSummary(selected) {
             <div class="summary-metric"><span class="label">Archive</span><strong>${formatGB(selected.current.archiveSizeGB)} GB</strong></div>
             <div class="summary-metric"><span class="label">Usage</span><strong>${formatPercent(selected.current.usagePercent)}</strong></div>
             <div class="summary-metric"><span class="label">Cleanup</span><strong>${escapeHtml(getCleanupStatusLabel(selected))}</strong></div>
-            <div class="summary-metric"><span class="label">Permissions</span><strong>${formatNumber(selected.permissions.length)}</strong></div>
+            <div class="summary-metric"><span class="label">Permissions</span><strong>${formatNumber(getPermissionCount(selected))}</strong></div>
             <div class="summary-metric"><span class="label">Record refreshed</span><strong>${formatDate(selected.current.sampleTimestamp)}</strong></div>
             <div class="summary-metric"><span class="label">Last logon</span><strong>${formatDate(selected.current.lastLogonTime)}</strong></div>
             <div class="summary-metric"><span class="label">Mailbox created</span><strong>${formatDate(selected.whenCreatedUtc)}</strong></div>
@@ -946,17 +1027,18 @@ function renderSelectedMailboxPanel(selected) {
                     <div class="spotlight-metric"><span class="label">Quota</span><strong>${selected.current.quotaGB == null ? "Unlimited" : `${formatGB(selected.current.quotaGB)} GB`}</strong></div>
                     <div class="spotlight-metric"><span class="label">Usage</span><strong>${formatPercent(selected.current.usagePercent)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Items</span><strong>${formatNumber(selected.current.itemCount)}</strong></div>
-                    <div class="spotlight-metric"><span class="label">Permissions</span><strong>${formatNumber(selected.permissions.length)}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Permissions</span><strong>${formatNumber(getPermissionCount(selected))}</strong></div>
                     <div class="spotlight-metric"><span class="label">Record refreshed</span><strong>${formatDate(selected.current.sampleTimestamp)}</strong></div>
-                    <div class="spotlight-metric"><span class="label">Last logon</span><strong>${formatDate(selected.current.lastLogonTime)}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Last logon</span><strong>${isFieldUnavailable(selected, "LastLogonTime") ? "Unavailable" : formatDate(selected.current.lastLogonTime)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Mailbox created</span><strong>${formatDate(selected.whenCreatedUtc)}</strong></div>
+                    ${selected.dataAvailability ? `<div class="spotlight-metric"><span class="label">Last activity (report)</span><strong>${formatShortDate(selected.current.lastActivityDate)}</strong></div>` : ""}
                     <div class="spotlight-metric"><span class="label">Change since last sample</span><strong>${deltaGB == null ? "N/A" : `${deltaGB >= 0 ? "+" : ""}${formatGB(deltaGB)} GB`}</strong></div>
                     <div class="spotlight-metric"><span class="label">Cleanup health</span><strong>${escapeHtml(getCleanupStatusLabel(selected))}</strong></div>
                     <div class="spotlight-metric"><span class="label">Mailbox type</span><strong>${escapeHtml(selected.licensing.recipientTypeDetails || "Unknown")}</strong></div>
                     <div class="spotlight-metric"><span class="label">License required</span><strong>${selected.licensing.licenseRequired === true ? "Yes" : (selected.licensing.licenseRequired === false ? "No" : "Unknown")}</strong></div>
                     <div class="spotlight-metric"><span class="label">License assigned</span><strong>${selected.licensing.hasLicense === true ? "Yes" : (selected.licensing.hasLicense === false ? "No" : "Unknown")}</strong></div>
                     <div class="spotlight-metric"><span class="label">License type</span><strong>${escapeHtml(selected.licensing.licenseType || "N/A")}</strong></div>
-                    <div class="spotlight-metric"><span class="label">Retention policy</span><strong>${escapeHtml(selected.retention.retentionPolicy || "None")}</strong></div>
+                    <div class="spotlight-metric"><span class="label">Retention policy</span><strong>${escapeHtml(getRetentionLabel(selected))}</strong></div>
                     <div class="spotlight-metric"><span class="label">Policy mailbox bindings</span><strong>${selected.retention.retentionPolicyDetails?.mailboxCount == null ? "N/A" : formatNumber(selected.retention.retentionPolicyDetails.mailboxCount)}</strong></div>
                     <div class="spotlight-metric"><span class="label">Retention policy changed</span><strong>${escapeHtml(getChangeAgeLabel(selected.retentionPolicyChangeHistory))}</strong></div>
                     <div class="spotlight-metric"><span class="label">License state changed</span><strong>${escapeHtml(getChangeAgeLabel(selected.licenseAssignmentHistory))}</strong></div>
@@ -995,7 +1077,7 @@ function renderMailboxMetricCards(selected) {
         <article><span class="label">License required</span><strong>${selected.licensing.licenseRequired === true ? "Yes" : (selected.licensing.licenseRequired === false ? "No" : "Unknown")}</strong></article>
         <article><span class="label">License assigned</span><strong>${selected.licensing.hasLicense === true ? "Yes" : (selected.licensing.hasLicense === false ? "No" : "Unknown")}</strong></article>
         <article><span class="label">License type</span><strong>${escapeHtml(selected.licensing.licenseType || "N/A")}</strong></article>
-        <article><span class="label">Retention policy</span><strong>${escapeHtml(selected.retention.retentionPolicy || "None")}</strong></article>
+        <article><span class="label">Retention policy</span><strong>${escapeHtml(getRetentionLabel(selected))}</strong></article>
         <article><span class="label">Policy mailbox bindings</span><strong>${selected.retention.retentionPolicyDetails?.mailboxCount == null ? "N/A" : formatNumber(selected.retention.retentionPolicyDetails.mailboxCount)}</strong></article>
         <article><span class="label">Retention policy changed</span><strong>${escapeHtml(getChangeAgeLabel(selected.retentionPolicyChangeHistory))}</strong></article>
         <article><span class="label">License state changed</span><strong>${escapeHtml(getChangeAgeLabel(selected.licenseAssignmentHistory))}</strong></article>
@@ -1046,9 +1128,9 @@ function renderUsageTable(mailboxes) {
             <td>${escapeHtml(mailbox.licensing.recipientTypeDetails || "Unknown")}</td>
             <td>${licenseBadge(mailbox)}</td>
             <td>${cleanupBadge(mailbox)}</td>
-            <td>${formatNumber(mailbox.permissions.length)}</td>
+            <td>${formatNumber(getPermissionCount(mailbox))}</td>
             <td>${formatDate(mailbox.current.sampleTimestamp)}</td>
-            <td>${formatDate(mailbox.current.lastLogonTime)}</td>
+            <td>${isFieldUnavailable(mailbox, "LastLogonTime") ? "Unavailable" : formatDate(mailbox.current.lastLogonTime)}</td>
             <td>${formatDate(mailbox.whenCreatedUtc)}</td>
         </tr>
     `).join("");
@@ -1151,6 +1233,7 @@ function renderLicensingTable(mailboxes) {
 }
 
 function drawRetentionPolicyCharts(mailboxes) {
+    mailboxes = mailboxes.filter(mailbox => !isFieldUnavailable(mailbox, "Retention"));
     const policyCounts = new Map();
     mailboxes.forEach(mailbox => {
         const policyName = String(mailbox.retention.retentionPolicy || "Unassigned").trim() || "Unassigned";
@@ -1202,7 +1285,7 @@ function renderRetentionPolicyCatalogTable(mailboxes) {
     const pageRows = filtered.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
 
     tableMeta.textContent = selected
-        ? `Catalog details for selected mailbox policy (${selected.retention.retentionPolicy || "Unassigned"}).`
+        ? `Catalog details for selected mailbox policy (${getRetentionLabel(selected)}).`
         : `${formatNumber(filtered.length)} retention policy catalog entr${filtered.length === 1 ? "y" : "ies"}.`;
 
     renderPaginationBar("retentionPolicyCatalogPagination", "retentionPolicyCatalogTable");
@@ -1299,7 +1382,9 @@ function renderPermissionsTable() {
     const pageRows = sorted.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
 
     if (tableMeta) {
-        tableMeta.textContent = selected
+        tableMeta.textContent = selected && isFieldUnavailable(selected, "Permissions")
+            ? "Permissions unavailable from Microsoft Graph."
+            : selected
             ? `${formatNumber(sorted.length)} explicit permission row${sorted.length === 1 ? "" : "s"} for the selected mailbox.`
             : `${formatNumber(sorted.length)} explicit permission row${sorted.length === 1 ? "" : "s"} in view.`;
     }
@@ -1307,7 +1392,8 @@ function renderPermissionsTable() {
     renderPaginationBar("permsTablePagination", "permsTable");
 
     if (pageRows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No explicit permissions found for the current view.</td></tr>`;
+        const unknown = (selected ? [selected] : getMailboxes()).some(mailbox => isFieldUnavailable(mailbox, "Permissions"));
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">${unknown ? "Permissions unavailable from Microsoft Graph." : "No explicit permissions found for the current view."}</td></tr>`;
         return;
     }
 
@@ -1422,7 +1508,7 @@ function renderAccessMapPage() {
     const displayedGroups = matchingGroups.slice(0, MAX_ACCESS_MAP_PRINCIPALS);
     const shownEdges = displayedGroups.reduce((count, group) => count + group.edges.length, 0);
 
-    summary.textContent = `${formatNumber(displayedGroups.length)} principal${displayedGroups.length === 1 ? "" : "s"} · ${formatNumber(shownEdges)} visible link${shownEdges === 1 ? "" : "s"}${hiddenEdgeCount ? ` · ${formatNumber(hiddenEdgeCount)} filtered link${hiddenEdgeCount === 1 ? "" : "s"}` : ""}${matchingGroups.length > displayedGroups.length ? ` · showing first ${MAX_ACCESS_MAP_PRINCIPALS}` : ""}.`;
+    summary.textContent = `${formatNumber(displayedGroups.length)} principal${displayedGroups.length === 1 ? "" : "s"} ? ${formatNumber(shownEdges)} visible link${shownEdges === 1 ? "" : "s"}${hiddenEdgeCount ? ` ? ${formatNumber(hiddenEdgeCount)} filtered link${hiddenEdgeCount === 1 ? "" : "s"}` : ""}${matchingGroups.length > displayedGroups.length ? ` ? showing first ${MAX_ACCESS_MAP_PRINCIPALS}` : ""}.`;
     if (displayedGroups.length === 0) {
         container.innerHTML = `<p class="empty-state">No matching mailbox permissions were found for the current filters.</p>`;
         return;
@@ -1503,7 +1589,7 @@ function renderBackupStatusPage() {
         return `
             <article class="backup-card" data-manifest-status="${escapeHtml(backup.ValidationStatus || "")}">
                 <header><div><h2>${escapeHtml(backup.Id || "Unknown backup")}</h2><p>${escapeHtml(formatDate(backup.CreatedUtc))}</p></div>
-                    <span class="backup-validity" id="${escapeHtml(`backup-validity-${safeId}`)}">Verifying…</span></header>
+                    <span class="backup-validity" id="${escapeHtml(`backup-validity-${safeId}`)}">Verifying?</span></header>
                 <p>Manifest validation: <strong>${escapeHtml(backup.ValidationStatus || "Unknown")}</strong></p>
                 <ul>${files.map((file, index) => {
                     const safeName = ["history.json", "data.json"].includes(String(file.Name || "").toLowerCase()) ? file.Name : "";
@@ -1513,7 +1599,7 @@ function renderBackupStatusPage() {
                         : "";
                     return `<li id="${escapeHtml(fileId)}" data-backup-id="${escapeHtml(safeId)}" data-backup-name="${escapeHtml(safeName)}" data-file-status="${escapeHtml(file.ValidationStatus || "")}" data-expected-hash="${escapeHtml(file.SHA256 || "")}" data-expected-size="${Number(file.SizeBytes) || 0}">
                         <span>${escapeHtml(safeName || "Unsupported file entry")}</span>
-                        <span class="backup-file-validation">Checking copy…</span>${download}
+                        <span class="backup-file-validation">Checking copy?</span>${download}
                     </li>`;
                 }).join("")}</ul>
             </article>
@@ -1537,7 +1623,7 @@ async function verifyBackupCopies() {
             continue;
         }
         if (!globalThis.crypto?.subtle?.digest) {
-            result.textContent = "Not verified — SHA-256 requires HTTPS or localhost";
+            result.textContent = "Not verified ? SHA-256 requires HTTPS or localhost";
             result.classList.add("is-unavailable");
             continue;
         }
@@ -1548,11 +1634,11 @@ async function verifyBackupCopies() {
             const hashBytes = await crypto.subtle.digest("SHA-256", content);
             const actualHash = [...new Uint8Array(hashBytes)].map(byte => byte.toString(16).padStart(2, "0")).join("");
             const valid = content.byteLength === expectedSize && actualHash === expectedHash;
-            result.textContent = valid ? "Valid — size and SHA-256 match" : "Invalid — size or SHA-256 mismatch";
+            result.textContent = valid ? "Valid ? size and SHA-256 match" : "Invalid ? size or SHA-256 mismatch";
             result.classList.add(valid ? "is-valid" : "is-invalid");
             if (!valid) row.closest(".backup-card")?.querySelector(".backup-validity")?.classList.add("is-invalid");
         } catch (error) {
-            result.textContent = `Unavailable — ${error.message}`;
+            result.textContent = `Unavailable ? ${error.message}`;
             result.classList.add("is-invalid");
             row.closest(".backup-card")?.querySelector(".backup-validity")?.classList.add("is-invalid");
         }
@@ -1699,12 +1785,14 @@ function renderMailboxPermissionsTable(selected) {
     pg.page = Math.max(1, Math.min(pg.page, totalPages));
     const rows = permissions.slice((pg.page - 1) * pg.pageSize, pg.page * pg.pageSize);
 
-    meta.textContent = `${formatNumber(permissions.length)} explicit permission row${permissions.length === 1 ? "" : "s"}.`;
+    meta.textContent = selected && isFieldUnavailable(selected, "Permissions")
+        ? "Permissions unavailable from Microsoft Graph."
+        : `${formatNumber(permissions.length)} explicit permission row${permissions.length === 1 ? "" : "s"}.`;
 
     renderPaginationBar("mailboxPermissionsTablePagination", "mailboxPermissionsTable");
 
     if (!selected || rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No explicit permissions are available for this mailbox.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${selected && isFieldUnavailable(selected, "Permissions") ? "Permissions unavailable from Microsoft Graph." : "No explicit permissions are available for this mailbox."}</td></tr>`;
         return;
     }
 
@@ -1737,7 +1825,8 @@ function updateTopCards(mailboxes) {
 
     if (countEl) countEl.textContent = formatNumber(mailboxes.length);
     if (totalStorageEl) totalStorageEl.textContent = `${formatGB(sumMailboxes(mailboxes, mailbox => mailbox.current.totalGB))} GB`;
-    if (totalArchiveEl) totalArchiveEl.textContent = `${formatGB(sumMailboxes(mailboxes, mailbox => mailbox.current.archiveSizeGB))} GB`;
+    if (totalArchiveEl) totalArchiveEl.textContent = mailboxes.some(mailbox => mailbox.current.archiveSizeGB == null)
+        ? "Unavailable" : `${formatGB(sumMailboxes(mailboxes, mailbox => mailbox.current.archiveSizeGB))} GB`;
     if (thresholdEl) thresholdEl.textContent = formatNumber(mailboxes.filter(mailbox => safeNumber(mailbox.current.usagePercent) >= WARNING_THRESHOLD).length);
     if (largestEl) largestEl.textContent = largest ? `${largest.displayName} (${formatGB(largest.current.totalGB)} GB)` : "N/A";
     if (staleCleanupEl) {
@@ -1787,14 +1876,14 @@ function drawMailboxStorageRing(canvasId, selected) {
     }
 
     const primary = safeNumber(selected.current.totalGB);
-    const archive = safeNumber(selected.current.archiveSizeGB);
+    const archive = selected.current.archiveSizeGB;
     const freeQuota = selected.current.quotaGB == null ? 0 : Math.max(selected.current.quotaGB - primary, 0);
 
     drawRingChart(canvasId, [
         { label: "Primary", value: primary, color: getChartColor("primary") },
-        { label: "Archive", value: archive, color: getChartColor("secondary") },
+        ...(archive == null ? [] : [{ label: "Archive", value: archive, color: getChartColor("secondary") }]),
         { label: "Free quota", value: freeQuota, color: getChartColor("muted") }
-    ], [`${formatGB(primary + archive)} GB`, "primary + archive"]);
+    ], [`${formatGB(primary + (archive ?? 0))} GB`, archive == null ? "primary only; archive unknown" : "primary + archive"]);
 }
 
 function drawTopStorageChart(mailboxes) {
@@ -1834,6 +1923,19 @@ function drawUsageHistogram(mailboxes) {
     );
 }
 
+function fillRoundedRect(ctx, x, y, width, height, radius) {
+    if (width <= 0 || height <= 0) return;
+    const corner = Math.min(radius, width / 2, height / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + corner, y);
+    ctx.arcTo(x + width, y, x + width, y + height, corner);
+    ctx.arcTo(x + width, y + height, x, y + height, corner);
+    ctx.arcTo(x, y + height, x, y, corner);
+    ctx.arcTo(x, y, x + width, y, corner);
+    ctx.closePath();
+    ctx.fill();
+}
+
 function drawHistoryMetricChart(histPoints, canvasId, valueSelector, unitLabel, color) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
@@ -1849,62 +1951,89 @@ function drawHistoryMetricChart(histPoints, canvasId, valueSelector, unitLabel, 
     const values = sorted.map(point => safeNumber(valueSelector(point)));
     const maxVal = Math.max(...values, 1);
     const minVal = Math.min(...values, 0);
-    const padLeft = 56;
-    const padRight = 28;
-    const padTop = 24;
+    const padLeft = 68;
+    const padRight = 24;
+    const padTop = 22;
     const padBottom = 42;
     const chartW = canvas.width - padLeft - padRight;
     const chartH = canvas.height - padTop - padBottom;
-
+    const bottomY = canvas.height - padBottom;
+    const range = Math.max(maxVal - minVal, 1);
     const getX = index => padLeft + (index / (sorted.length - 1)) * chartW;
-    const getY = value => {
-        const range = Math.max(maxVal - minVal, 1);
-        return canvas.height - padBottom - ((value - minVal) / range) * chartH;
-    };
+    const getY = value => bottomY - ((value - minVal) / range) * chartH;
 
+    ctx.save();
+    ctx.font = "12px 'Segoe UI', sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
     ctx.strokeStyle = getChartColor("muted");
     ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(padLeft, padTop);
-    ctx.lineTo(padLeft, canvas.height - padBottom);
-    ctx.lineTo(canvas.width - padRight, canvas.height - padBottom);
-    ctx.stroke();
-
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    sorted.forEach((point, index) => {
-        const x = getX(index);
-        const y = getY(safeNumber(valueSelector(point)));
-        if (index === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-
-    ctx.fillStyle = color;
-    sorted.forEach((point, index) => {
-        const x = getX(index);
-        const y = getY(safeNumber(valueSelector(point)));
+    ctx.globalAlpha = 0.62;
+    for (let tick = 0; tick <= 4; tick++) {
+        const y = padTop + (chartH * tick) / 4;
+        const value = maxVal - (range * tick) / 4;
         ctx.beginPath();
-        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(canvas.width - padRight, y);
+        ctx.stroke();
+        ctx.fillText(`${value.toFixed(1)} ${unitLabel}`, padLeft - 10, y);
+    }
+    ctx.globalAlpha = 1;
+
+    const points = sorted.map((point, index) => ({
+        x: getX(index),
+        y: getY(safeNumber(valueSelector(point)))
+    }));
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, bottomY);
+    points.forEach(point => ctx.lineTo(point.x, point.y));
+    ctx.lineTo(points[points.length - 1].x, bottomY);
+    ctx.closePath();
+    ctx.globalAlpha = 0.13;
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    ctx.beginPath();
+    points.forEach((point, index) => {
+        if (index === 0) ctx.moveTo(point.x, point.y);
+        else ctx.lineTo(point.x, point.y);
+    });
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3.5;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 7;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    points.forEach((point, index) => {
+        if (points.length > 18 && index % 3 !== 0 && index !== points.length - 1) return;
+        ctx.beginPath();
+        ctx.arc(point.x, point.y, index === points.length - 1 ? 4.5 : 3, 0, Math.PI * 2);
+        ctx.fillStyle = getCssVariable("--panel-bg") || "#fff";
         ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = color;
+        ctx.stroke();
     });
 
     ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
-    ctx.font = "12px sans-serif";
-    ctx.textAlign = "right";
-    ctx.fillText(`${maxVal.toFixed(1)} ${unitLabel}`, padLeft - 8, padTop + 4);
-    ctx.fillText(`${minVal.toFixed(1)} ${unitLabel}`, padLeft - 8, canvas.height - padBottom);
-    ctx.textAlign = "center";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
     ctx.fillText(formatShortDate(sorted[0].TimestampUtc), padLeft, canvas.height - 12);
+    ctx.textAlign = "right";
     ctx.fillText(formatShortDate(sorted[sorted.length - 1].TimestampUtc), canvas.width - padRight, canvas.height - 12);
+    ctx.restore();
 }
 
 function drawRingChart(canvasId, segments, centerLines) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
 
-    const validSegments = segments.filter(segment => segment.value > 0);
+    const validSegments = segments.filter(segment => Number.isFinite(segment.value) && segment.value > 0);
     if (validSegments.length === 0) {
         drawEmptyCanvasMessage(canvasId, "No data available for this chart.");
         return;
@@ -1914,41 +2043,58 @@ function drawRingChart(canvasId, segments, centerLines) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const total = validSegments.reduce((sum, segment) => sum + segment.value, 0);
-    const cx = canvas.width * 0.36;
+    const cx = canvas.width * 0.34;
     const cy = canvas.height / 2;
-    const radius = Math.min(canvas.width, canvas.height) * 0.24;
-    const lineWidth = Math.max(22, radius * 0.34);
+    const radius = Math.min(canvas.width * 0.29, canvas.height * 0.32);
+    const lineWidth = Math.max(22, radius * 0.31);
     let startAngle = -Math.PI / 2;
+
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.strokeStyle = getChartColor("muted");
+    ctx.globalAlpha = 0.45;
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.lineCap = "round";
 
     validSegments.forEach(segment => {
         const angle = (segment.value / total) * Math.PI * 2;
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, startAngle, startAngle + angle);
-        ctx.strokeStyle = segment.color;
-        ctx.lineWidth = lineWidth;
-        ctx.stroke();
+        const gap = Math.min(0.035, angle * 0.12);
+        if (angle > gap) {
+            ctx.beginPath();
+            ctx.arc(cx, cy, radius, startAngle + gap / 2, startAngle + angle - gap / 2);
+            ctx.strokeStyle = segment.color;
+            ctx.lineWidth = lineWidth;
+            ctx.stroke();
+        }
         startAngle += angle;
     });
 
     ctx.fillStyle = getCssVariable("--text-primary") || "#222";
     ctx.textAlign = "center";
-    ctx.font = "bold 22px sans-serif";
-    ctx.fillText(centerLines[0] || "", cx, cy - 4);
+    ctx.textBaseline = "alphabetic";
+    ctx.font = "700 24px 'Segoe UI', sans-serif";
+    ctx.fillText(centerLines[0] || "", cx, cy - 2);
     ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
-    ctx.font = "13px sans-serif";
-    ctx.fillText(centerLines[1] || "", cx, cy + 18);
+    ctx.font = "12px 'Segoe UI', sans-serif";
+    ctx.fillText(centerLines[1] || "", cx, cy + 19);
 
-    const legendX = canvas.width * 0.66;
-    let legendY = cy - ((validSegments.length - 1) * 22) / 2;
-    validSegments.forEach(segment => {
+    const legendX = canvas.width * 0.64;
+    const legendYStart = cy - ((validSegments.length - 1) * 27) / 2;
+    ctx.textAlign = "left";
+    validSegments.forEach((segment, index) => {
+        const y = legendYStart + index * 27;
+        ctx.beginPath();
+        ctx.arc(legendX + 5, y - 4, 5, 0, Math.PI * 2);
         ctx.fillStyle = segment.color;
-        ctx.fillRect(legendX, legendY - 10, 12, 12);
+        ctx.fill();
         ctx.fillStyle = getCssVariable("--text-primary") || "#222";
-        ctx.textAlign = "left";
-        ctx.font = "13px sans-serif";
-        ctx.fillText(`${segment.label}: ${formatCompactNumber(segment.value)}`, legendX + 18, legendY);
-        legendY += 24;
+        ctx.font = "12px 'Segoe UI', sans-serif";
+        ctx.fillText(`${segment.label}: ${formatCompactNumber(segment.value)}`, legendX + 17, y);
     });
+    ctx.restore();
 }
 
 function drawHorizontalBarChart(canvasId, items, unitLabel) {
@@ -1961,30 +2107,40 @@ function drawHorizontalBarChart(canvasId, items, unitLabel) {
 
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
 
-    const leftPad = 190;
-    const rightPad = 44;
-    const topPad = 26;
-    const barHeight = 24;
-    const gap = 12;
+    ctx.font = "12px 'Segoe UI', sans-serif";
+    const measuredLabel = Math.max(...items.map(item => ctx.measureText(item.label).width), 96);
+    const leftPad = Math.min(250, measuredLabel + 18);
+    const rightPad = 78;
+    const topPad = 24;
+    const rowHeight = (canvas.height - topPad - 16) / items.length;
+    const barHeight = Math.min(22, rowHeight * 0.58);
     const maxValue = Math.max(...items.map(item => item.value), 1);
+    const barWidth = canvas.width - leftPad - rightPad;
 
     items.forEach((item, index) => {
-        const y = topPad + index * (barHeight + gap);
-        const width = ((canvas.width - leftPad - rightPad) * item.value) / maxValue;
-
+        const y = topPad + index * rowHeight + (rowHeight - barHeight) / 2;
+        const width = Math.max(0, (barWidth * item.value) / maxValue);
         ctx.fillStyle = getChartColor("muted");
-        ctx.fillRect(leftPad, y, canvas.width - leftPad - rightPad, barHeight);
-        ctx.fillStyle = getChartColor(index < 3 ? "secondary" : "primary");
-        ctx.fillRect(leftPad, y, width, barHeight);
+        fillRoundedRect(ctx, leftPad, y, barWidth, barHeight, barHeight / 2);
+
+        const gradient = ctx.createLinearGradient(leftPad, y, leftPad + Math.max(width, 1), y);
+        gradient.addColorStop(0, getChartColor(index < 3 ? "primary" : "secondary"));
+        gradient.addColorStop(1, getChartColor("secondary"));
+        ctx.fillStyle = gradient;
+        fillRoundedRect(ctx, leftPad, y, width, barHeight, barHeight / 2);
 
         ctx.fillStyle = getCssVariable("--text-primary") || "#222";
         ctx.textAlign = "right";
-        ctx.font = "13px sans-serif";
-        ctx.fillText(item.label, leftPad - 10, y + 17);
-        ctx.textAlign = "left";
-        ctx.fillText(`${item.value.toFixed(2)} ${unitLabel}`, leftPad + width + 8, y + 17);
+        ctx.textBaseline = "middle";
+        ctx.fillText(item.label, leftPad - 12, y + barHeight / 2);
+        ctx.textAlign = "right";
+        ctx.font = "600 12px 'Segoe UI', sans-serif";
+        ctx.fillText(`${item.value.toFixed(2)} ${unitLabel}`, canvas.width - 8, y + barHeight / 2);
+        ctx.font = "12px 'Segoe UI', sans-serif";
     });
+    ctx.restore();
 }
 
 function drawVerticalBarChart(canvasId, items, unitLabel) {
@@ -1999,32 +2155,61 @@ function drawVerticalBarChart(canvasId, items, unitLabel) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const maxValue = Math.max(...items.map(item => item.value), 1);
-    const leftPad = 40;
-    const bottomPad = 48;
-    const topPad = 24;
+    const leftPad = 48;
+    const rightPad = 16;
+    const bottomPad = 52;
+    const topPad = 26;
     const chartHeight = canvas.height - topPad - bottomPad;
-    const barSpace = (canvas.width - leftPad - 20) / items.length;
-    const barWidth = barSpace * 0.62;
+    const chartWidth = canvas.width - leftPad - rightPad;
+    const barSpace = chartWidth / items.length;
+    const barWidth = barSpace * 0.56;
+
+    ctx.save();
+    ctx.font = "11px 'Segoe UI', sans-serif";
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
+    ctx.strokeStyle = getChartColor("muted");
+    ctx.globalAlpha = 0.62;
+    for (let tick = 0; tick <= 4; tick++) {
+        const value = maxValue - (maxValue * tick) / 4;
+        const y = topPad + (chartHeight * tick) / 4;
+        ctx.beginPath();
+        ctx.moveTo(leftPad, y);
+        ctx.lineTo(canvas.width - rightPad, y);
+        ctx.stroke();
+        ctx.fillText(formatCompactNumber(value), leftPad - 8, y);
+    }
+    ctx.globalAlpha = 1;
 
     items.forEach((item, index) => {
         const barHeight = (item.value / maxValue) * chartHeight;
         const x = leftPad + index * barSpace + (barSpace - barWidth) / 2;
         const y = canvas.height - bottomPad - barHeight;
-
-        ctx.fillStyle = getChartColor(index >= items.length - 1 ? "danger" : index >= items.length - 2 ? "warning" : "primary");
-        ctx.fillRect(x, y, barWidth, barHeight);
+        const color = getChartColor(
+            index >= items.length - 1 ? "danger" : index >= items.length - 2 ? "warning" : "primary"
+        );
+        const gradient = ctx.createLinearGradient(x, y, x, canvas.height - bottomPad);
+        gradient.addColorStop(0, color);
+        gradient.addColorStop(1, getChartColor(index >= items.length - 2 ? "warning" : "secondary"));
+        ctx.fillStyle = gradient;
+        fillRoundedRect(ctx, x, y, barWidth, barHeight, 7);
 
         ctx.fillStyle = getCssVariable("--text-primary") || "#222";
         ctx.textAlign = "center";
-        ctx.font = "13px sans-serif";
-        ctx.fillText(String(item.value), x + barWidth / 2, y - 6);
+        ctx.textBaseline = "alphabetic";
+        ctx.font = "600 12px 'Segoe UI', sans-serif";
+        ctx.fillText(String(item.value), x + barWidth / 2, Math.max(topPad + 12, y - 8));
         ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
-        ctx.fillText(item.label, x + barWidth / 2, canvas.height - 18);
+        ctx.font = "11px 'Segoe UI', sans-serif";
+        ctx.fillText(item.label, x + barWidth / 2, canvas.height - 17);
     });
 
     ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
-    ctx.textAlign = "right";
-    ctx.fillText(`${maxValue} ${unitLabel}`, leftPad - 6, topPad + 4);
+    ctx.textAlign = "left";
+    ctx.font = "11px 'Segoe UI', sans-serif";
+    ctx.fillText(unitLabel, leftPad, canvas.height - 3);
+    ctx.restore();
 }
 
 function drawEmptyCanvasMessage(canvasId, message) {
@@ -2033,9 +2218,10 @@ function drawEmptyCanvasMessage(canvasId, message) {
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = getCssVariable("--text-secondary") || "#666";
-    ctx.font = "14px sans-serif";
+    ctx.font = "14px 'Segoe UI', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+    ctx.textBaseline = "middle";
+    ctx.fillText(message, canvas.width / 2, canvas.height / 2, canvas.width - 36);
 }
 
 function sumMailboxes(mailboxes, selector) {
@@ -2043,6 +2229,46 @@ function sumMailboxes(mailboxes, selector) {
         const numeric = Number(selector(mailbox));
         return sum + (Number.isFinite(numeric) ? numeric : 0);
     }, 0);
+}
+
+function getDataAvailability(source) {
+    const metadata = source?.DataAvailability ?? source?.dataAvailability;
+    return metadata?.Source === "MicrosoftGraph" ? metadata : null;
+}
+
+function isFieldUnavailable(mailbox, field) {
+    return mailbox?.dataAvailability?.UnavailableFields?.includes(field) === true;
+}
+
+function getPermissionCount(mailbox) {
+    return isFieldUnavailable(mailbox, "Permissions") ? null : mailbox.permissions.length;
+}
+
+function getRetentionLabel(mailbox) {
+    return isFieldUnavailable(mailbox, "Retention") ? "Unavailable (Microsoft Graph)" : (mailbox.retention.retentionPolicy || "None");
+}
+
+function renderDataAvailability() {
+    let banner = document.getElementById("dataAvailabilityStatus");
+    const graphMailboxes = state.currentMailboxes.filter(mailbox => mailbox.dataAvailability);
+    if (!banner && graphMailboxes.length > 0) {
+        banner = document.createElement("div");
+        banner.id = "dataAvailabilityStatus";
+        banner.className = "data-availability-status";
+        banner.setAttribute("role", "status");
+        banner.setAttribute("aria-live", "polite");
+        const main = document.querySelector("main") || document.body;
+        main.prepend(banner);
+    }
+    if (!banner) return;
+    banner.hidden = graphMailboxes.length === 0;
+    const dates = [...new Set(graphMailboxes.map(mailbox => mailbox.dataAvailability.ReportRefreshDate))].sort();
+    const ages = dates.map(date => {
+        const days = Math.max(0, Math.floor((Date.now() - Date.parse(`${date}T00:00:00Z`)) / 86400000));
+        return `${date} (${days} days old)`;
+    });
+    const fields = [...new Set(graphMailboxes.flatMap(mailbox => mailbox.dataAvailability.UnavailableFields || []))];
+    banner.textContent = `Microsoft Graph report data: ${ages.join(", ")}. GeneratedUtc is the file generation time, not a live mailbox measurement. Unavailable: ${fields.join(", ")}. Last activity is not last logon.`;
 }
 
 function mergeMailboxCollections(primary, secondary) {
@@ -2069,6 +2295,15 @@ function mergeMailboxCollections(primary, secondary) {
 }
 
 function mergeMailbox(existing, incoming) {
+    // Report nulls represent unknowns, not gaps to fill from older Exchange data.
+    if (existing.dataAvailability || incoming.dataAvailability) {
+        const existingTime = Date.parse(existing.current.sampleTimestamp);
+        const incomingTime = Date.parse(incoming.current.sampleTimestamp);
+        const latest = Number.isFinite(existingTime) && (!Number.isFinite(incomingTime) || existingTime > incomingTime)
+            ? existing : incoming;
+        return { ...latest, displayName: incoming.displayName || existing.displayName,
+            primarySmtpAddress: incoming.primarySmtpAddress || existing.primarySmtpAddress };
+    }
     return {
         ...existing,
         ...incoming,
@@ -2253,6 +2488,9 @@ function normaliseHistorySamples(samples) {
 
             return {
                 TimestampUtc: sample.TimestampUtc ?? sample.timestampUtc ?? sample.Timestamp ?? sample.timestamp ?? null,
+                DataAvailability: getDataAvailability(sample),
+                Licensing: sample.Licensing ?? sample.licensing ?? null,
+                RecipientTypeDetails: sample.RecipientTypeDetails ?? sample.recipientTypeDetails ?? null,
                 PrimarySmtpAddress: sample.PrimarySmtpAddress ?? sample.primarySmtpAddress ?? "",
                 DisplayName: sample.DisplayName ?? sample.displayName ?? "",
                 SizeGB: sizeGb,
@@ -2260,9 +2498,11 @@ function normaliseHistorySamples(samples) {
                 UsagePercent: usagePercent ?? (quotaGb > 0 ? (sizeGb / quotaGb) * 100 : 0),
                 QuotaGB: quotaGb,
                 LastLogonTime: sample.LastLogonTime ?? sample.lastLogonTime ?? null,
-                ArchiveEnabled: getBoolean(sample, ["ArchiveEnabled", "archiveEnabled"]) ?? false,
-                ArchiveSizeGB: getNumber(sample, ["ArchiveSizeGB", "archiveSizeGB"]) ?? 0,
-                ArchiveItemCount: getNumber(sample, ["ArchiveItemCount", "archiveItemCount"]) ?? 0
+                LastActivityDate: sample.LastActivityDate ?? sample.lastActivityDate ?? null,
+                PermissionCount: getNumber(sample, ["PermissionCount", "permissionCount"]) ?? (getDataAvailability(sample) ? null : 0),
+                ArchiveEnabled: getBoolean(sample, ["ArchiveEnabled", "archiveEnabled"]) ?? (getDataAvailability(sample) ? null : false),
+                ArchiveSizeGB: getNumber(sample, ["ArchiveSizeGB", "archiveSizeGB"]) ?? (getDataAvailability(sample) ? null : 0),
+                ArchiveItemCount: getNumber(sample, ["ArchiveItemCount", "archiveItemCount"]) ?? (getDataAvailability(sample) ? null : 0)
             };
         });
 
@@ -2289,12 +2529,14 @@ function normaliseMailbox(source) {
         ? samples[samples.length - 1]
         : (source?.current ?? source?.Current ?? {});
     const currentSource = source?.current ?? source?.Current ?? source ?? {};
+    const dataAvailability = samples.length > 0 ? getDataAvailability(sample) : getDataAvailability(source);
+    const unavailable = field => dataAvailability?.UnavailableFields?.includes(field) === true;
     const archiveSource = sample?.Archive ?? sample?.archive ?? currentSource?.Archive ?? currentSource?.archive ?? {};
 
     const displayName = source?.DisplayName ?? source?.displayName ?? source?.MailboxName ?? source?.Mailbox?.DisplayName ?? source?.primarySmtpAddress ?? source?.PrimarySmtpAddress ?? "";
     const primarySmtpAddress = source?.PrimarySmtpAddress ?? source?.primarySmtpAddress ?? source?.SmtpAddress ?? source?.UserPrincipalName ?? source?.Mailbox?.PrimarySmtpAddress ?? "";
     const exchangeGuid = String(source?.ExchangeGuid ?? source?.exchangeGuid ?? "");
-    const permissions = normalisePermissions(
+    const permissions = unavailable("Permissions") ? [] : normalisePermissions(
         source?.permissions ??
         source?.Permissions ??
         source?.CurrentPermissions ??
@@ -2315,17 +2557,23 @@ function normaliseMailbox(source) {
     const usagePercent = getNumber(sample, ["UsagePercent", "usagePercent"]) ??
         getNumber(currentSource, ["usagePercent", "UsagePercent"]) ??
         (quotaGB > 0 ? (totalGB / quotaGB) * 100 : 0);
-    const archiveEnabled = getBoolean(sample, ["ArchiveEnabled", "archiveEnabled"]) ??
+    const archiveEnabled = dataAvailability ? getBoolean(sample, ["ArchiveEnabled", "archiveEnabled"]) : getBoolean(sample, ["ArchiveEnabled", "archiveEnabled"]) ??
         getBoolean(currentSource, ["ArchiveEnabled", "archiveEnabled"]) ??
         (getNumber(archiveSource, ["TotalGB", "totalGB", "ArchiveSizeGB", "archiveSizeGB"]) ?? 0) > 0;
 
-    const retention = normaliseRetentionProfile(source);
-    const licensing = normaliseLicensingProfile(source);
+    const retention = normaliseRetentionProfile(unavailable("Retention") ? {} : source);
+    const licensing = normaliseLicensingProfile({
+        ...source,
+        ...(dataAvailability && sample.Licensing ? { Licensing: sample.Licensing, licensing: sample.Licensing } : {}),
+        ...(dataAvailability && sample.RecipientTypeDetails ? { RecipientTypeDetails: sample.RecipientTypeDetails } : {}),
+        DataAvailability: dataAvailability
+    });
     const mailboxMaintenance = normaliseMaintenanceProfile(source);
     const retentionPolicyChangeHistory = normaliseRetentionPolicyChangeHistory(source);
     const licenseAssignmentHistory = normaliseLicenseAssignmentHistory(source);
 
     return {
+        dataAvailability,
         exchangeGuid,
         whenCreatedUtc: source?.WhenCreatedUtc ?? source?.whenCreatedUtc ?? source?.WhenCreated ?? source?.whenCreated ??
             source?.CreatedUtc ?? source?.createdUtc ?? null,
@@ -2335,22 +2583,24 @@ function normaliseMailbox(source) {
         recipientTypeDetails: String(source?.RecipientTypeDetails ?? source?.recipientTypeDetails ?? ""),
         createdUtc: source?.CreatedUtc ?? source?.createdUtc ?? source?.WhenCreatedUtc ?? source?.whenCreatedUtc ?? null,
         current: {
+            sampleTimestamp: sample.TimestampUtc ?? currentSource.sampleTimestamp ?? null,
+            lastActivityDate: sample.LastActivityDate ?? currentSource.lastActivityDate ?? null,
             totalGB,
             itemCount: getNumber(sample, ["ItemCount", "itemCount", "Items"]) ??
                 getNumber(currentSource, ["itemCount", "ItemCount", "Items"]) ??
                 0,
             quotaGB,
             usagePercent,
-            lastLogonTime: sample?.LastLogonTime ?? sample?.lastLogonTime ??
+            lastLogonTime: unavailable("LastLogonTime") ? null : sample?.LastLogonTime ?? sample?.lastLogonTime ??
                 currentSource?.LastLogonTime ?? currentSource?.lastLogonTime ??
                 currentSource?.lastLogonTime ?? null,
             sampleTimestamp: sample?.TimestampUtc ?? sample?.timestampUtc ?? currentSource?.sampleTimestamp ?? currentSource?.SampleTimestamp ?? null,
             archiveEnabled,
-            archiveSizeGB: getNumber(sample, ["ArchiveSizeGB", "archiveSizeGB"]) ??
+            archiveSizeGB: unavailable("ArchiveSizeGB") ? null : getNumber(sample, ["ArchiveSizeGB", "archiveSizeGB"]) ??
                 getNumber(currentSource, ["archiveSizeGB", "ArchiveSizeGB"]) ??
                 getNumber(archiveSource, ["TotalGB", "totalGB", "ArchiveSizeGB", "archiveSizeGB"]) ??
                 0,
-            archiveItemCount: getNumber(sample, ["ArchiveItemCount", "archiveItemCount"]) ??
+            archiveItemCount: unavailable("ArchiveItemCount") ? null : getNumber(sample, ["ArchiveItemCount", "archiveItemCount"]) ??
                 getNumber(currentSource, ["archiveItemCount", "ArchiveItemCount"]) ??
                 getNumber(archiveSource, ["ItemCount", "itemCount"]) ??
                 0,
@@ -2421,11 +2671,12 @@ function normaliseRetentionProfile(source) {
 }
 
 function normaliseLicensingProfile(source) {
+    const graph = getDataAvailability(source);
     const licensingSource = source?.licensing ?? source?.Licensing ?? {};
     const hasLicensingData = Object.keys(licensingSource).length > 0 ||
         source?.RecipientTypeDetails != null || source?.recipientTypeDetails != null;
     const capabilities = licensingSource.PersistedCapabilities ?? licensingSource.persistedCapabilities;
-    const recipientTypeDetails = licensingSource.RecipientTypeDetails ??
+    const recipientTypeDetails = graph?.UnavailableFields?.includes("RecipientTypeDetails") ? null : licensingSource.RecipientTypeDetails ??
         licensingSource.recipientTypeDetails ??
         source?.RecipientTypeDetails ??
         source?.recipientTypeDetails ??
@@ -2441,17 +2692,17 @@ function normaliseLicensingProfile(source) {
 
     return {
         recipientTypeDetails,
-        isSharedMailbox: getBoolean(licensingSource, ["IsSharedMailbox", "isSharedMailbox"]) ?? (recipientTypeDetails === "SharedMailbox"),
+        isSharedMailbox: getBoolean(licensingSource, ["IsSharedMailbox", "isSharedMailbox"]) ?? (graph && recipientTypeDetails == null ? null : recipientTypeDetails === "SharedMailbox"),
         skuAssigned: getBoolean(licensingSource, ["SKUAssigned", "skuAssigned"]),
         persistedCapabilities: Array.isArray(capabilities) ? capabilities.map(item => String(item || "")).filter(Boolean) : [],
         archiveStatus: licensingSource.ArchiveStatus ?? licensingSource.archiveStatus ?? null,
         isInactiveMailbox: getBoolean(licensingSource, ["IsInactiveMailbox", "isInactiveMailbox"]),
-        licenseRequired,
-        hasLicense: hasLicensingData ? inferredHasLicense : null,
+        licenseRequired: graph ? null : licenseRequired,
+        hasLicense: graph ? hasLicenseFromSource : (hasLicensingData ? inferredHasLicense : null),
         licenseTypes,
         licenseType: licensingSource.LicenseType ?? licensingSource.licenseType ?? (licenseTypes.length > 0 ? licenseTypes.join(", ") : null),
-        isLicenseCompliant: licenseRequired === false ? true : (licenseRequired === true ? inferredHasLicense : null),
-        licenseRequirementReason: hasLicensingData
+        isLicenseCompliant: graph ? null : (licenseRequired === false ? true : (licenseRequired === true ? inferredHasLicense : null)),
+        licenseRequirementReason: graph ? "License requirement and compliance are unavailable from Microsoft Graph." : hasLicensingData
             ? (licensingSource.LicenseRequirementReason ?? licensingSource.licenseRequirementReason ?? getDefaultLicenseRequirementReason(recipientTypeDetails, inferredLicenseRequired))
             : "Licensing data has not been collected."
     };
@@ -2868,10 +3119,11 @@ function parseStorageValueInGb(value) {
 
 function truncateLabel(text, maxLength) {
     const value = String(text || "");
-    return value.length > maxLength ? `${value.slice(0, maxLength - 1)}…` : value;
+    return value.length > maxLength ? `${value.slice(0, maxLength - 1)}?` : value;
 }
 
 function formatGB(value) {
+    if (value == null) return "Unavailable";
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric.toFixed(2) : "0.00";
 }
@@ -2896,6 +3148,7 @@ function formatCompactNumber(value) {
 }
 
 function formatNumber(value) {
+    if (value == null) return "Unavailable";
     const numeric = Number(value);
     return Number.isFinite(numeric) ? numeric.toLocaleString() : "0";
 }
@@ -2979,6 +3232,10 @@ function getLicenseStatusLabel(mailbox) {
 }
 
 function licenseBadge(mailbox) {
+    if (isFieldUnavailable(mailbox, "LicenseRequired")) {
+        const assigned = mailbox.licensing.hasLicense === true ? "Assigned" : (mailbox.licensing.hasLicense === false ? "Unassigned" : "Unknown");
+        return `<span class="badge warning">${assigned}; requirement unknown</span>`;
+    }
     const label = getLicenseStatusLabel(mailbox);
     if (label === "Missing required license") {
         return `<span class="badge danger">${escapeHtml(label)}</span>`;
@@ -3080,9 +3337,9 @@ function showError(error) {
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════
+/* ---------------------------------------------------------------
    MAILBOX SCOPES
-═══════════════════════════════════════════════════════════════ */
+--------------------------------------------------------------- */
 
 const SCOPES_URL = "scopes.json";
 const ALL_SCOPE = { id: "all", name: "All Mailboxes", description: "Every mailbox in the dataset.", rules: {} };
@@ -3245,9 +3502,9 @@ function renderScopeIndicator() {
     `;
 }
 
-/* ═══════════════════════════════════════════════════════════════
+/* ---------------------------------------------------------------
    THEME SYSTEM
-═══════════════════════════════════════════════════════════════ */
+--------------------------------------------------------------- */
 
 function initThemeSelector() {
     const sel = document.getElementById("themeSelect");
@@ -3472,9 +3729,9 @@ function stripColorAlpha(hex) {
     return hex;
 }
 
-/* ═══════════════════════════════════════════════════════════════
+/* ---------------------------------------------------------------
    PAGINATION
-═══════════════════════════════════════════════════════════════ */
+--------------------------------------------------------------- */
 
 function bindTableControls() {
     document.addEventListener("change", event => {
@@ -3523,20 +3780,20 @@ function renderPaginationBar(containerId, paginationKey) {
     const nextDis = pg.page >= totalPages ? "disabled" : "";
 
     container.innerHTML = `
-        <span class="pg-info">Rows ${formatNumber(start)}–${formatNumber(end)} of ${formatNumber(total)}</span>
+        <span class="pg-info">Rows ${formatNumber(start)}?${formatNumber(end)} of ${formatNumber(total)}</span>
         <div class="pg-controls">
-            <button class="btn-pg" onclick="goToPage('${paginationKey}',1)" ${prevDis} title="First">«</button>
-            <button class="btn-pg" onclick="goToPage('${paginationKey}',${pg.page - 1})" ${prevDis} title="Previous">‹</button>
+            <button class="btn-pg" onclick="goToPage('${paginationKey}',1)" ${prevDis} title="First">?</button>
+            <button class="btn-pg" onclick="goToPage('${paginationKey}',${pg.page - 1})" ${prevDis} title="Previous">?</button>
             <span class="pg-current">Page ${pg.page} of ${totalPages}</span>
-            <button class="btn-pg" onclick="goToPage('${paginationKey}',${pg.page + 1})" ${nextDis} title="Next">›</button>
-            <button class="btn-pg" onclick="goToPage('${paginationKey}',${totalPages})" ${nextDis} title="Last">»</button>
+            <button class="btn-pg" onclick="goToPage('${paginationKey}',${pg.page + 1})" ${nextDis} title="Next">?</button>
+            <button class="btn-pg" onclick="goToPage('${paginationKey}',${totalPages})" ${nextDis} title="Last">?</button>
         </div>
     `;
 }
 
-/* ═══════════════════════════════════════════════════════════════
+/* ---------------------------------------------------------------
    EXPORT (JSON / CSV / PDF)
-═══════════════════════════════════════════════════════════════ */
+--------------------------------------------------------------- */
 
 function exportTable(tableId, format) {
     const data = state.tableData[tableId];
@@ -3579,7 +3836,7 @@ function exportTable(tableId, format) {
             </style>
         </head><body>
             <h1>${escapeHtml(config.title)}</h1>
-            <p>Exported ${new Date().toLocaleString()} — ${formatNumber(data.length)} records</p>
+            <p>Exported ${new Date().toLocaleString()} ? ${formatNumber(data.length)} records</p>
             ${tableEl.outerHTML}
             <script>window.onload=()=>window.print()<\/script>
         </body></html>`);
