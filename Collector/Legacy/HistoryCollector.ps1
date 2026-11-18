@@ -124,7 +124,7 @@ function Convert-StringArray {
     )
 }
 
-function Try-ConvertToBoolean {
+function ConvertTo-Boolean {
     param(
         [Parameter()]
         $InputObject
@@ -257,7 +257,7 @@ function Get-RetentionPolicyCatalog {
         }
 
         $isDefaultPolicy = if ($policy.PSObject.Properties.Name -contains "IsDefault") {
-            Try-ConvertToBoolean -InputObject $policy.IsDefault
+            ConvertTo-Boolean -InputObject $policy.IsDefault
         }
         else {
             $null
@@ -343,7 +343,7 @@ function Build-RetentionPolicyCatalog {
     return @($catalog | Sort-Object -Property @{ Expression = { -1 * [int]$_.MailboxCount } }, @{ Expression = { [string]$_.Name } })
 }
 
-function Apply-RetentionPolicyDetailsToMailboxHistory {
+function Set-RetentionPolicyDetailsToMailboxHistory {
     param(
         [Parameter(Mandatory)]
         [psobject[]]$MailboxHistory,
@@ -778,18 +778,18 @@ foreach ($mailbox in $mailboxes) {
 
         $retentionProfile = [pscustomobject]@{
             RetentionPolicy = if ($mailboxInfo.PSObject.Properties.Name -contains "RetentionPolicy") { [string]$mailboxInfo.RetentionPolicy } else { $null }
-            RetentionHoldEnabled = if ($mailboxInfo.PSObject.Properties.Name -contains "RetentionHoldEnabled") { Try-ConvertToBoolean -InputObject $mailboxInfo.RetentionHoldEnabled } else { $null }
-            LitigationHoldEnabled = if ($mailboxInfo.PSObject.Properties.Name -contains "LitigationHoldEnabled") { Try-ConvertToBoolean -InputObject $mailboxInfo.LitigationHoldEnabled } else { $null }
+            RetentionHoldEnabled = if ($mailboxInfo.PSObject.Properties.Name -contains "RetentionHoldEnabled") { ConvertTo-Boolean -InputObject $mailboxInfo.RetentionHoldEnabled } else { $null }
+            LitigationHoldEnabled = if ($mailboxInfo.PSObject.Properties.Name -contains "LitigationHoldEnabled") { ConvertTo-Boolean -InputObject $mailboxInfo.LitigationHoldEnabled } else { $null }
             LitigationHoldDurationDays = if ($mailboxInfo.PSObject.Properties.Name -contains "LitigationHoldDuration" -and $null -ne $mailboxInfo.LitigationHoldDuration) { [int]$mailboxInfo.LitigationHoldDuration } else { $null }
             InPlaceHolds = if ($mailboxInfo.PSObject.Properties.Name -contains "InPlaceHolds") { Convert-StringArray -InputObject $mailboxInfo.InPlaceHolds } else { @() }
-            SingleItemRecoveryEnabled = if ($mailboxInfo.PSObject.Properties.Name -contains "SingleItemRecoveryEnabled") { Try-ConvertToBoolean -InputObject $mailboxInfo.SingleItemRecoveryEnabled } else { $null }
+            SingleItemRecoveryEnabled = if ($mailboxInfo.PSObject.Properties.Name -contains "SingleItemRecoveryEnabled") { ConvertTo-Boolean -InputObject $mailboxInfo.SingleItemRecoveryEnabled } else { $null }
             RetainDeletedItemsFor = if ($mailboxInfo.PSObject.Properties.Name -contains "RetainDeletedItemsFor" -and $null -ne $mailboxInfo.RetainDeletedItemsFor) { [string]$mailboxInfo.RetainDeletedItemsFor } else { $null }
         }
 
         $recipientTypeDetails = if ($mailboxInfo.PSObject.Properties.Name -contains "RecipientTypeDetails") { [string]$mailboxInfo.RecipientTypeDetails } else { "" }
-        $skuAssigned = if ($mailboxInfo.PSObject.Properties.Name -contains "SKUAssigned") { Try-ConvertToBoolean -InputObject $mailboxInfo.SKUAssigned } else { $null }
+        $skuAssigned = if ($mailboxInfo.PSObject.Properties.Name -contains "SKUAssigned") { ConvertTo-Boolean -InputObject $mailboxInfo.SKUAssigned } else { $null }
         $persistedCapabilities = if ($mailboxInfo.PSObject.Properties.Name -contains "PersistedCapabilities") { Convert-StringArray -InputObject $mailboxInfo.PersistedCapabilities } else { @() }
-        $isInactiveMailbox = if ($mailboxInfo.PSObject.Properties.Name -contains "IsInactiveMailbox") { Try-ConvertToBoolean -InputObject $mailboxInfo.IsInactiveMailbox } else { $null }
+        $isInactiveMailbox = if ($mailboxInfo.PSObject.Properties.Name -contains "IsInactiveMailbox") { ConvertTo-Boolean -InputObject $mailboxInfo.IsInactiveMailbox } else { $null }
         $licenseAssessment = Get-LicenseAssessment -RecipientTypeDetails $recipientTypeDetails -IsInactiveMailbox $isInactiveMailbox -SkuAssigned $skuAssigned -PersistedCapabilities $persistedCapabilities
 
         $licensingProfile = [pscustomobject]@{
@@ -902,7 +902,7 @@ foreach ($mailbox in $mailboxes) {
 
     if (($counter % $BatchSize -eq 0) -or ($counter -eq $mailboxes.Count)) {
         $retentionPolicies = Build-RetentionPolicyCatalog -PolicyLookup $retentionPolicyLookup -MailboxHistory @($updatedMailboxHistory)
-        Apply-RetentionPolicyDetailsToMailboxHistory -MailboxHistory @($updatedMailboxHistory) -RetentionPolicies $retentionPolicies
+        Set-RetentionPolicyDetailsToMailboxHistory -MailboxHistory @($updatedMailboxHistory) -RetentionPolicies $retentionPolicies
         $batchOutput = [pscustomobject]@{
             '$schema'      = "./dashboard.schema.json"
             SchemaVersion  = "2026-08-14"

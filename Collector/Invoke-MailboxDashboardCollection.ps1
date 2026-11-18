@@ -1,3 +1,4 @@
+# cspell:words Colour pscustomobject
 <#
 .SYNOPSIS
     Runs the full MailboxDashboard collection pipeline.
@@ -71,6 +72,23 @@ Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "Modules\MailboxDa
 
 $script:StepResults = [System.Collections.Generic.List[object]]::new()
 
+function Set-CollectorCompletionMetadata {
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$CollectionProperty,
+        [Parameter(Mandatory)][string]$TimestampUtc
+    )
+
+    $document = Read-MailboxJson -Path $Path
+    if ($null -eq $document) {
+        throw "Cannot record collector completion; file is missing or empty: $Path"
+    }
+
+    Add-Member -InputObject $document -NotePropertyName 'CollectorLastCompletedUtc' -NotePropertyValue $TimestampUtc -Force
+    $records = Get-PropertyValueOrNull -Object $document -Name $CollectionProperty
+    Write-MailboxJson -InputObject $document -Path $Path -Source 'MailboxDashboard collection completed' -RecordCount @($records).Count -Depth 100
+}
+
 function Invoke-PipelineStep {
 <#
 .SYNOPSIS
@@ -94,14 +112,14 @@ function Invoke-PipelineStep {
         Write-FailureDiagnostic -ErrorRecord $_ -Variables (Get-Variable -Scope 0) -Context "Pipeline step: $Name"
 
         if (-not $ContinueOnFailure) {
-            $script:StepResults.Add([pscustomobject]@{
+            $script:StepResults.Add([PSCustomObject]@{
                 Step = $Name; Status = $status; Duration = ((Get-Date) - $started); Result = $null
             })
             throw
         }
     }
 
-    $script:StepResults.Add([pscustomobject]@{
+    $script:StepResults.Add([PSCustomObject]@{
         Step     = $Name
         Status   = $status
         Duration = ((Get-Date) - $started)
@@ -194,7 +212,7 @@ function Invoke-ParallelCollection {
         Write-Notice "$failed of $($jobs.Count) worker(s) failed - the merge will use what succeeded."
     }
 
-    return [pscustomobject]@{ Workers = $jobs.Count; Completed = $completed; Failed = $failed }
+    return [PSCustomObject]@{ Workers = $jobs.Count; Completed = $completed; Failed = $failed }
 }
 
 # --- Entry point -------------------------------------------------------------
@@ -347,6 +365,18 @@ finally {
 
     $failedSteps = @($script:StepResults | Where-Object { $_.Status -ne "OK" })
     if ($failedSteps.Count -eq 0) {
+        $completedUtc = (Get-Date).ToUniversalTime().ToString("o")
+        foreach ($target in @(
+            @{ Path = $historyPath; CollectionProperty = 'MailboxHistory' },
+            @{ Path = $dataPath; CollectionProperty = 'Mailboxes' }
+        )) {
+            try {
+                Set-CollectorCompletionMetadata -Path $target.Path -CollectionProperty $target.CollectionProperty -TimestampUtc $completedUtc
+            }
+            catch {
+                Write-Notice "Could not save collector completion to '$($target.Path)': $($_.Exception.Message)"
+            }
+        }
         Write-Success "Pipeline completed successfully."
     }
     else {
@@ -354,7 +384,7 @@ finally {
     }
 }
 
-[pscustomobject]@{
+[PSCustomObject]@{
     Steps        = @($script:StepResults)
     Failed       = @($script:StepResults | Where-Object { $_.Status -ne "OK" }).Count
     Elapsed      = (Get-Date) - $pipelineStarted

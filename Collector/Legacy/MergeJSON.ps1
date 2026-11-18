@@ -26,11 +26,11 @@ function Resolve-AbsolutePath {
 
 function New-EmptyHistoryData {
     return [pscustomobject]@{
-        '$schema'      = "./dashboard.schema.json"
-        SchemaVersion  = "2026-08-14"
-        GeneratedUtc   = ""
+        '$schema'         = "./dashboard.schema.json"
+        SchemaVersion     = "2026-08-14"
+        GeneratedUtc      = ""
         RetentionPolicies = @()
-        MailboxHistory = @()
+        MailboxHistory    = @()
     }
 }
 
@@ -80,10 +80,10 @@ function Convert-HistoryToHotData {
 
         $latestSample = $samples[-1]
         [pscustomobject]@{
-            ExchangeGuid       = [string]$entry.ExchangeGuid
-            PrimarySmtpAddress = [string]$entry.PrimarySmtpAddress
-            DisplayName        = [string]$entry.DisplayName
-            current            = [pscustomobject]@{
+            ExchangeGuid               = [string]$entry.ExchangeGuid
+            PrimarySmtpAddress         = [string]$entry.PrimarySmtpAddress
+            DisplayName                = [string]$entry.DisplayName
+            current                    = [pscustomobject]@{
                 totalGB          = if ($null -ne $latestSample.SizeGB) { [double]$latestSample.SizeGB } else { 0.0 }
                 itemCount        = if ($null -ne $latestSample.ItemCount) { [int64]$latestSample.ItemCount } else { 0 }
                 quotaGB          = if ($null -ne $latestSample.QuotaGB) { [double]$latestSample.QuotaGB } else { $null }
@@ -93,22 +93,22 @@ function Convert-HistoryToHotData {
                 archiveSizeGB    = if ($null -ne $latestSample.ArchiveSizeGB) { [double]$latestSample.ArchiveSizeGB } else { 0.0 }
                 archiveItemCount = if ($null -ne $latestSample.ArchiveItemCount) { [int64]$latestSample.ArchiveItemCount } else { 0 }
             }
-            retention          = if ($entry.PSObject.Properties.Name -contains "Retention") { $entry.Retention } else { $null }
-            licensing          = if ($entry.PSObject.Properties.Name -contains "Licensing") { $entry.Licensing } else { $null }
-            mailboxMaintenance = if ($entry.PSObject.Properties.Name -contains "MailboxMaintenance") { $entry.MailboxMaintenance } else { $null }
-            lastCleanupSuccessUtc = if ($entry.PSObject.Properties.Name -contains "LastCleanupSuccessUtc") { $entry.LastCleanupSuccessUtc } else { $null }
-            cleanupStatus = if ($entry.PSObject.Properties.Name -contains "CleanupStatus") { $entry.CleanupStatus } else { $null }
+            retention                  = if ($entry.PSObject.Properties.Name -contains "Retention") { $entry.Retention } else { $null }
+            licensing                  = if ($entry.PSObject.Properties.Name -contains "Licensing") { $entry.Licensing } else { $null }
+            mailboxMaintenance         = if ($entry.PSObject.Properties.Name -contains "MailboxMaintenance") { $entry.MailboxMaintenance } else { $null }
+            lastCleanupSuccessUtc      = if ($entry.PSObject.Properties.Name -contains "LastCleanupSuccessUtc") { $entry.LastCleanupSuccessUtc } else { $null }
+            cleanupStatus              = if ($entry.PSObject.Properties.Name -contains "CleanupStatus") { $entry.CleanupStatus } else { $null }
             daysSinceSuccessfulCleanup = if ($entry.PSObject.Properties.Name -contains "DaysSinceSuccessfulCleanup") { $entry.DaysSinceSuccessfulCleanup } else { $null }
-            permissions        = @($entry.Permissions)
+            permissions                = @($entry.Permissions)
         }
     }
 
     return [pscustomobject]@{
-        '$schema' = "./dashboard.schema.json"
-        SchemaVersion = "2026-08-14"
-        GeneratedUtc = $GeneratedUtc
+        '$schema'         = "./dashboard.schema.json"
+        SchemaVersion     = "2026-08-14"
+        GeneratedUtc      = $GeneratedUtc
         RetentionPolicies = @($RetentionPolicies)
-        Mailboxes    = @($mailboxes)
+        Mailboxes         = @($mailboxes)
     }
 }
 
@@ -168,20 +168,21 @@ function Build-RetentionPolicyCatalog {
         $mailboxCountsByPolicy[$policyKey].Count += 1
     }
 
-    $catalogKeys = @($seedIndex.Keys + $mailboxCountsByPolicy.Keys | Sort-Object -Unique)
+    $catalogKeys = @((@($seedIndex.Keys) + @($mailboxCountsByPolicy.Keys)) | Sort-Object -Unique)
     $catalog = foreach ($catalogKey in $catalogKeys) {
         $mailboxCount = if ($mailboxCountsByPolicy.ContainsKey($catalogKey)) { [int]$mailboxCountsByPolicy[$catalogKey].Count } else { 0 }
         if ($seedIndex.ContainsKey($catalogKey)) {
             $seedPolicy = $seedIndex[$catalogKey]
+            $seedPropNames = @($seedPolicy.PSObject.Properties.Name)
             [pscustomobject]@{
                 Name                    = [string]$seedPolicy.Name
-                IsKnownPolicy           = if ($seedPolicy.PSObject.Properties.Name -contains "IsKnownPolicy") { [bool]$seedPolicy.IsKnownPolicy } else { $true }
+                IsKnownPolicy           = if ($seedPropNames -contains "IsKnownPolicy") { [bool]$seedPolicy.IsKnownPolicy } else { $true }
                 MailboxCount            = $mailboxCount
-                IsDefaultPolicy         = if ($seedPolicy.PSObject.Properties.Name -contains "IsDefaultPolicy") { $seedPolicy.IsDefaultPolicy } else { $null }
-                RetentionId             = if ($seedPolicy.PSObject.Properties.Name -contains "RetentionId") { $seedPolicy.RetentionId } else { $null }
-                RetentionPolicyTagLinks = if ($seedPolicy.PSObject.Properties.Name -contains "RetentionPolicyTagLinks") { @($seedPolicy.RetentionPolicyTagLinks) } else { @() }
-                TagCount                = if ($seedPolicy.PSObject.Properties.Name -contains "TagCount" -and $null -ne $seedPolicy.TagCount) { [int]$seedPolicy.TagCount } else { 0 }
-                Comment                 = if ($seedPolicy.PSObject.Properties.Name -contains "Comment") { $seedPolicy.Comment } else { $null }
+                IsDefaultPolicy         = if ($seedPropNames -contains "IsDefaultPolicy") { $seedPolicy.IsDefaultPolicy } else { $null }
+                RetentionId             = if ($seedPropNames -contains "RetentionId") { $seedPolicy.RetentionId } else { $null }
+                RetentionPolicyTagLinks = if ($seedPropNames -contains "RetentionPolicyTagLinks") { @($seedPolicy.RetentionPolicyTagLinks) } else { @() }
+                TagCount                = if ($seedPropNames -contains "TagCount" -and $null -ne $seedPolicy.TagCount) { [int]$seedPolicy.TagCount } else { 0 }
+                Comment                 = if ($seedPropNames -contains "Comment") { $seedPolicy.Comment } else { $null }
             }
         }
         else {
@@ -200,8 +201,12 @@ function Build-RetentionPolicyCatalog {
 
     return @($catalog | Sort-Object -Property @{ Expression = { -1 * [int]$_.MailboxCount } }, @{ Expression = { [string]$_.Name } })
 }
+if ($null -eq $RetentionPolicies -or $RetentionPolicies.Count -eq 0) {
+    throw "RetentionPolicies cannot be null or empty."
+    Write-Error -Message "RetentionPolicies cannot be null or empty." -ErrorAction SilentlyContinue
+}
 
-function Apply-RetentionPolicyDetailsToMailboxHistory {
+function Set-RetentionPolicyDetailsToMailboxHistory {
     param(
         [Parameter(Mandatory)]
         [psobject[]]$MailboxHistory,
@@ -348,17 +353,17 @@ foreach ($file in $threadFiles) {
     }
     else {
         $entry = [pscustomobject]@{
-            ExchangeGuid       = $exchangeGuid
-            PrimarySmtpAddress = [string]$rawData.PrimarySmtpAddress
-            DisplayName        = [string]$rawData.DisplayName
-            Permissions        = Convert-PermissionSet -Permissions $rawData.Permissions
-            Retention          = if ($rawData.PSObject.Properties.Name -contains "Retention") { $rawData.Retention } else { $null }
-            Licensing          = if ($rawData.PSObject.Properties.Name -contains "Licensing") { $rawData.Licensing } else { $null }
-            MailboxMaintenance = if ($rawData.PSObject.Properties.Name -contains "MailboxMaintenance") { $rawData.MailboxMaintenance } else { $null }
-            LastCleanupSuccessUtc = if ($rawData.PSObject.Properties.Name -contains "LastCleanupSuccessUtc") { $rawData.LastCleanupSuccessUtc } else { $null }
-            CleanupStatus = if ($rawData.PSObject.Properties.Name -contains "CleanupStatus") { $rawData.CleanupStatus } else { $null }
+            ExchangeGuid               = $exchangeGuid
+            PrimarySmtpAddress         = [string]$rawData.PrimarySmtpAddress
+            DisplayName                = [string]$rawData.DisplayName
+            Permissions                = Convert-PermissionSet -Permissions $rawData.Permissions
+            Retention                  = if ($rawData.PSObject.Properties.Name -contains "Retention") { $rawData.Retention } else { $null }
+            Licensing                  = if ($rawData.PSObject.Properties.Name -contains "Licensing") { $rawData.Licensing } else { $null }
+            MailboxMaintenance         = if ($rawData.PSObject.Properties.Name -contains "MailboxMaintenance") { $rawData.MailboxMaintenance } else { $null }
+            LastCleanupSuccessUtc      = if ($rawData.PSObject.Properties.Name -contains "LastCleanupSuccessUtc") { $rawData.LastCleanupSuccessUtc } else { $null }
+            CleanupStatus              = if ($rawData.PSObject.Properties.Name -contains "CleanupStatus") { $rawData.CleanupStatus } else { $null }
             DaysSinceSuccessfulCleanup = if ($rawData.PSObject.Properties.Name -contains "DaysSinceSuccessfulCleanup") { $rawData.DaysSinceSuccessfulCleanup } else { $null }
-            Samples            = @($sample)
+            Samples                    = @($sample)
         }
 
         $mailboxHistory.Add($entry)
@@ -372,14 +377,14 @@ foreach ($file in $threadFiles) {
 
 $seedRetentionPolicies = if ($historyPayload.PSObject.Properties.Name -contains "RetentionPolicies") { @($historyPayload.RetentionPolicies) } else { @() }
 $retentionPolicies = Build-RetentionPolicyCatalog -MailboxHistory @($mailboxHistory) -SeedPolicies @($seedRetentionPolicies)
-Apply-RetentionPolicyDetailsToMailboxHistory -MailboxHistory @($mailboxHistory) -RetentionPolicies @($retentionPolicies)
+Set-RetentionPolicyDetailsToMailboxHistory -MailboxHistory @($mailboxHistory) -RetentionPolicies @($retentionPolicies)
 
 $historyOutput = [pscustomobject]@{
-    '$schema'      = "./dashboard.schema.json"
-    SchemaVersion  = "2026-08-14"
-    GeneratedUtc   = $generatedUtc
+    '$schema'         = "./dashboard.schema.json"
+    SchemaVersion     = "2026-08-14"
+    GeneratedUtc      = $generatedUtc
     RetentionPolicies = @($retentionPolicies)
-    MailboxHistory = @($mailboxHistory)
+    MailboxHistory    = @($mailboxHistory)
 }
 $hotDataOutput = Convert-HistoryToHotData -MailboxHistory @($mailboxHistory) -GeneratedUtc $generatedUtc -RetentionPolicies @($retentionPolicies)
 

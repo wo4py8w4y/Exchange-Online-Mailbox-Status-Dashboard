@@ -1,25 +1,28 @@
 {
   "project": {
     "name": "Exchange Online Mailbox Dashboard",
-    "status": "In Development",
-    "phase": "Historical Data Collection"
+    "status": "Operational",
+    "phase": "Collection and dashboard maintenance"
   },
   "completedMilestones": [
     "Solution Architecture",
     "Historical Data Model",
     "Configuration Framework",
-    "Historical JSON Storage"
-  ],
-  "activeMilestone": {
-    "name": "Historical Collector Development",
-    "status": "Testing",
-    "script": "HistoryCollector.ps1"
-  },
-  "nextMilestones": [
-    "Logging Framework",
+    "Historical JSON Storage",
     "Current Snapshot Service",
     "Dashboard UI",
-    "Scheduling",
+    "Validation and repair",
+    "Test data generation",
+    "Scheduling support"
+  ],
+  "activeMilestone": {
+    "name": "Unified collection pipeline",
+    "status": "Operational",
+    "script": "Invoke-MailboxDashboardCollection.ps1"
+  },
+  "nextMilestones": [
+    "Dashboard enhancements",
+    "Operational monitoring",
     "Alerting"
   ],
   "historyTracking": {
@@ -48,36 +51,36 @@
   ],
   "scripts": [
     {
-      "name": "HistoryCollector.ps1",
-      "purpose": "Collect historical mailbox data and store history.json"
+      "name": "Collect-ExchangeOnlineMailboxes.ps1",
+      "purpose": "Collect mailbox samples and write history.json"
     },
     {
-      "name": "Update-MailboxDashboard.ps1",
-      "purpose": "Master orchestration script"
+      "name": "Invoke-MailboxDashboardCollection.ps1",
+      "purpose": "Run authentication, collection, validation, and snapshot generation"
     },
     {
-      "name": "Logging.psm1",
-      "purpose": "Logging framework"
+      "name": "MailboxDashboard.Common.psm1",
+      "purpose": "Shared paths, JSON, console, and logging helpers"
     },
     {
-      "name": "ExchangeCollector.psm1",
-      "purpose": "Exchange Online data collection"
+      "name": "Invoke-MailboxDashboardAuth.ps1",
+      "purpose": "Select authentication mode and connect to Exchange Online"
     },
     {
-      "name": "JsonStorage.psm1",
-      "purpose": "History and snapshot JSON management"
+      "name": "Generate-MailboxSnapshot.ps1",
+      "purpose": "Build data.json from the newest history samples"
     },
     {
-      "name": "Thresholds.psm1",
-      "purpose": "Capacity threshold calculations"
+      "name": "Test-MailboxDashboardJSON.ps1",
+      "purpose": "Validate, repair, and cull dashboard JSON"
     },
     {
-      "name": "Alerts.psm1",
-      "purpose": "Teams and email notifications"
+      "name": "New-MailboxDashboardTestData.ps1",
+      "purpose": "Generate synthetic data for dashboard testing"
     },
     {
-      "name": "Scheduler.psm1",
-      "purpose": "Scheduled task management"
+      "name": "Deploy-MailboxDashboard.ps1",
+      "purpose": "Publish the Web dashboard to a static hosting destination"
     }
   ],
   "thresholds": {

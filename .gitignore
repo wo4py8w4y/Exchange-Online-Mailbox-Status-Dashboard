@@ -1,14 +1,12 @@
 # Local configuration - holds tenant IDs and secrets.
 # Commit Collector/Config/dashboardConfig.example.json instead.
 Collector/Config/dashboardConfig.json
-
 # Collected and generated data
 Web/history.json
 Web/data.json
 Web/demo-data.json
 Web/demo-history.json
 Web/demo-mailboxes.csv
-
 # Mailbox input list (may contain the full address book)
 Mailboxes/mailboxes.csv
 Mailboxes/mailboxes.json
@@ -33,3 +31,5 @@ Web/.tmp
 .vscode/settings.json
 Thumbs.db
 .DS_Store
+Web/logs/httpserver.log
+Web/history.json.*

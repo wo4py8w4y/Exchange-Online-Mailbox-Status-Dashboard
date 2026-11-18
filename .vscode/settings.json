@@ -1,5 +1,15 @@
 {
     "scm.alwaysShowRepositories": true,
     "explorer.excludeGitIgnore": true,
-    "explorer.fileNesting.enabled": true
+    "explorer.fileNesting.enabled": true,
+    "guigit.fileViewMode": "tree",
+    "cSpell.language": "en,en-GB",
+    "cSpell.words": [
+        "Colour",
+        "Colours",
+        "Entra",
+        "jsonc",
+        "pscustomobject",
+        "ThreadJob"
+    ]
 }

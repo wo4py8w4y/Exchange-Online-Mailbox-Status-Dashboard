@@ -283,7 +283,39 @@ function Merge-GenericValue {
             return $FallbackValue
         }
 
+        $trimmedPrimary = $PrimaryValue.Trim()
+        $trimmedFallback = if ($FallbackValue -is [string]) { $FallbackValue.Trim() } else { $FallbackValue }
+
+        $primaryNumeric = 0.0
+        if ([double]::TryParse($trimmedPrimary, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$primaryNumeric)) {
+            $fallbackNumeric = 0.0
+            if ($null -ne $trimmedFallback -and -not ([string]::IsNullOrWhiteSpace([string]$trimmedFallback))) {
+                if ([double]::TryParse([string]$trimmedFallback, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$fallbackNumeric)) {
+                    if ($primaryNumeric -eq 0 -and $fallbackNumeric -ne 0) {
+                        return $FallbackValue
+                    }
+
+                    if ($fallbackNumeric -eq 0 -and $primaryNumeric -ne 0) {
+                        return $PrimaryValue
+                    }
+                }
+            }
+        }
+
         return $PrimaryValue
+    }
+
+    if ($PrimaryValue -is [double] -or $PrimaryValue -is [float] -or $PrimaryValue -is [decimal] -or $PrimaryValue -is [int] -or $PrimaryValue -is [long] -or $PrimaryValue -is [byte]) {
+        $primaryNumeric = [double]$PrimaryValue
+        $fallbackNumeric = [double]$FallbackValue
+
+        if ($primaryNumeric -eq 0 -and $fallbackNumeric -ne 0) {
+            return $FallbackValue
+        }
+
+        if ($fallbackNumeric -eq 0 -and $primaryNumeric -ne 0) {
+            return $PrimaryValue
+        }
     }
 
     return $PrimaryValue
