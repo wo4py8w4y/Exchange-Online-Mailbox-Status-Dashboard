@@ -201,7 +201,7 @@ function Build-RetentionPolicyCatalog {
     return @($catalog | Sort-Object -Property @{ Expression = { -1 * [int]$_.MailboxCount } }, @{ Expression = { [string]$_.Name } })
 }
 
-function Apply-RetentionPolicyDetailsToMailboxHistory {
+function Update-MailboxHistoryRetentionPolicyDetails {
     param(
         [Parameter(Mandatory)]
         [psobject[]]$MailboxHistory,
@@ -372,7 +372,7 @@ foreach ($file in $threadFiles) {
 
 $seedRetentionPolicies = if ($historyPayload.PSObject.Properties.Name -contains "RetentionPolicies") { @($historyPayload.RetentionPolicies) } else { @() }
 $retentionPolicies = Build-RetentionPolicyCatalog -MailboxHistory @($mailboxHistory) -SeedPolicies @($seedRetentionPolicies)
-Apply-RetentionPolicyDetailsToMailboxHistory -MailboxHistory @($mailboxHistory) -RetentionPolicies @($retentionPolicies)
+Update-MailboxHistoryRetentionPolicyDetails -MailboxHistory @($mailboxHistory) -RetentionPolicies @($retentionPolicies)
 
 $historyOutput = [pscustomobject]@{
     '$schema'      = "./dashboard.schema.json"

@@ -957,12 +957,19 @@ then stored in the configuration at all.
 ### Superseded — `Collector/Legacy/`
 
 `Update-MailboxDashboard.ps1`, `HistoryCollector.ps1`, `MergeJSON.ps1`,
-`Extract-HotData.ps1`, `Start-HistoryCollectorThreaded.ps1`.
+`Extract-HotData.ps1`, `Start-HistoryCollectorThreaded.ps1` (along with the legacy copies
+still at `Collector/Update-MailboxDashboard.ps1`, `Collector/HistoryCollector.ps1`, and
+`Collector/MergeJSON.ps1`).
 
 Kept for reference. They still run, but they do not use the shared configuration, the
 logging, or the validation — and `Start-HistoryCollectorThreaded.ps1` never actually
 threaded: it ran the collector sequentially, then re-ran parts of the pipeline with
 hardcoded paths. Use the current scripts.
+
+### Editor & Linting
+
+- PowerShell functions follow approved verb conventions (`PSScriptAnalyzer` `PSUseApprovedVerbs`).
+- Workspace spell-checking rules and PowerShell/Exchange custom terms (`psobject`, `datetimeoffset`, and Exchange mailbox type names) are configured in `.vscode/settings.json` under `cSpell.words`.
 
 ### Web — `Web/`
 

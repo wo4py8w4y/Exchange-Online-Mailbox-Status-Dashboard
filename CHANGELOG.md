@@ -46,6 +46,8 @@ Old JSON files may not load in the new UI. Regenerate them by running a collecti
 ### Changed
 
 - `Collector/Get-ExchangeOnlineAccessToken.ps1`, `Initialize-MailboxDashboard.ps1`, `Invoke-MailboxDashboardCollection.ps1`, `Register-EntraApp.ps1`, `Test-MailboxDashboardJSON.ps1`, `Deploy-MailboxDashboard.ps1`
+- `Collector/HistoryCollector.ps1`, `Collector/MergeJSON.ps1`, `Collector/Update-MailboxDashboard.ps1`: renamed `Try-ConvertToBoolean` to `ConvertTo-NullableBoolean`, `Apply-RetentionPolicyDetailsToMailboxHistory` to `Update-MailboxHistoryRetentionPolicyDetails`, `Apply-RetentionPolicyDetailsToMailboxRecords` to `Update-MailboxRecordRetentionPolicyDetails`, and `Validate-DashboardConfig` to `Test-DashboardConfig` to use approved PowerShell verbs; removed unused `$ThresholdsUrl` and `$HistoryUrl` assignments in `Update-MailboxDashboard.ps1`.
+- `.vscode/settings.json`: added PowerShell/Exchange identifiers (`psobject`, `datetimeoffset`, `Dont`, and Exchange mailbox type names) to `cSpell.words`.
 - `Web/index.html`, `scope.html`, `validate.html`, `styles.css`
 - Setup walkthrough (`.md` and `.html`)
 
