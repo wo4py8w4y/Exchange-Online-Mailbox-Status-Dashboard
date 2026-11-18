@@ -473,6 +473,29 @@ function Convert-BytesToGigabytes {
 
 #region JSON I/O
 
+function Invoke-MailboxAtomicReplace {
+    param(
+        [Parameter(Mandatory)] [string]$SourcePath,
+        [Parameter(Mandatory)] [string]$DestinationPath,
+        [Parameter(Mandatory)] [string]$BackupPath
+    )
+
+    for ($attempt = 0; $attempt -lt 5; $attempt++) {
+        try {
+            [System.IO.File]::Replace($SourcePath, $DestinationPath, $BackupPath)
+            return
+        }
+        catch [System.IO.IOException] {
+            $win32Error = $_.Exception.HResult -band 0xFFFF
+            if ($win32Error -notin @(32, 33) -or $attempt -eq 4) {
+                throw
+            }
+
+            Start-Sleep -Milliseconds (200 * ($attempt + 1))
+        }
+    }
+}
+
 function Read-MailboxJson {
 <#
 .SYNOPSIS
@@ -502,8 +525,9 @@ function Write-MailboxJson {
 .SYNOPSIS
     Writes an object to a JSON file and records an export audit entry.
 .DESCRIPTION
-    Writes to a temporary file and then moves it into place, so a failure part-way
-    through never leaves a truncated JSON file for the dashboard to read.
+    Writes to a unique temporary file beside the destination and atomically replaces it,
+    so concurrent exports cannot share a staging file and readers never see partial JSON.
+    Transient Windows sharing and lock violations are retried before the error is surfaced.
 #>
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -533,10 +557,41 @@ function Write-MailboxJson {
     Confirm-ParentDirectory -Path $Path
 
     $json = $InputObject | ConvertTo-Json -Depth $Depth
-    $tempPath = "$Path.writing"
+    $writeId = [guid]::NewGuid().ToString('N')
+    $tempPath = "$Path.$writeId.writing"
+    $backupPath = "$Path.$writeId.backup"
+    $replacementSucceeded = $false
 
-    Set-Content -LiteralPath $tempPath -Value $json -Encoding UTF8 -Force
-    Move-Item -LiteralPath $tempPath -Destination $Path -Force
+    try {
+        Set-Content -LiteralPath $tempPath -Value $json -Encoding UTF8 -Force
+
+        if ([System.IO.File]::Exists($Path)) {
+            Invoke-MailboxAtomicReplace -SourcePath $tempPath -DestinationPath $Path -BackupPath $backupPath
+        }
+        else {
+            try {
+                [System.IO.File]::Move($tempPath, $Path)
+            }
+            catch [System.IO.IOException] {
+                if ([System.IO.File]::Exists($Path) -and [System.IO.File]::Exists($tempPath)) {
+                    Invoke-MailboxAtomicReplace -SourcePath $tempPath -DestinationPath $Path -BackupPath $backupPath
+                }
+                else {
+                    throw
+                }
+            }
+        }
+
+        $replacementSucceeded = $true
+    }
+    finally {
+        if ([System.IO.File]::Exists($tempPath)) {
+            [System.IO.File]::Delete($tempPath)
+        }
+        if ($replacementSucceeded -and [System.IO.File]::Exists($backupPath)) {
+            [System.IO.File]::Delete($backupPath)
+        }
+    }
 
     Write-ExportAudit -Path $Path -Source $Source -RecordCount $RecordCount -RecordDetail $RecordDetail
 }

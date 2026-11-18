@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MailboxDashboard collection status",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "runId",
+    "status",
+    "startedUtc",
+    "completedUtc",
+    "durationSeconds",
+    "authenticationMode",
+    "testData",
+    "partialCollection",
+    "staleAfterMinutes",
+    "steps",
+    "failureSummary",
+    "notification"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "collector": { "enum": ["ExchangeOnline", "Graph"] },
+    "runId": { "type": "string", "format": "uuid" },
+    "status": { "enum": ["Succeeded", "Partial", "Failed"] },
+    "startedUtc": { "type": "string", "format": "date-time" },
+    "completedUtc": { "type": "string", "format": "date-time" },
+    "durationSeconds": { "type": "number", "minimum": 0 },
+    "authenticationMode": { "type": "string" },
+    "testData": { "type": "boolean" },
+    "partialCollection": { "type": "boolean" },
+    "staleAfterMinutes": { "type": "integer", "minimum": 1 },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status", "durationSeconds"],
+        "properties": {
+          "name": { "type": "string" },
+          "status": { "enum": ["OK", "FAILED"] },
+          "durationSeconds": { "type": "number", "minimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "failureSummary": { "type": ["string", "null"] },
+    "notification": {
+      "type": "object",
+      "required": ["enabled", "deliveryStatus", "transitionCount", "errorSummary"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "deliveryStatus": {
+          "enum": ["Disabled", "Pending", "SkippedTestData", "NoChanges", "WhatIf", "Sent", "Failed"]
+        },
+        "transitionCount": { "type": "integer", "minimum": 0 },
+        "errorSummary": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

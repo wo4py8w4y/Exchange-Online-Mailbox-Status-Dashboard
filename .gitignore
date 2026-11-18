@@ -4,6 +4,7 @@ Collector/Config/dashboardConfig.json
 # Collected and generated data
 Web/history.json
 Web/data.json
+Web/collection-status.json
 Web/demo-data.json
 Web/demo-history.json
 Web/demo-mailboxes.csv
@@ -33,3 +34,4 @@ Thumbs.db
 .DS_Store
 Web/logs/httpserver.log
 Web/history.json.*
+Collector/Config/graph-mailbox-mapping.csv

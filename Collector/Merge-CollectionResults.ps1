@@ -69,12 +69,24 @@ function Convert-PermissionSet {
 
             $rights = Get-PropertyValueOrNull -Object $permission -Name 'AccessRights'
             if ($null -eq $rights) { $rights = Get-PropertyValueOrNull -Object $permission -Name 'accessRights' }
+            $rights = @($rights | ForEach-Object { [string]$_ })
+            $rightsText = $rights -join ' '
+            $permissionType = [string](Get-PropertyValueOrNull -Object $permission -Name 'PermissionType')
+            if ([string]::IsNullOrWhiteSpace($permissionType)) {
+                $permissionType = if ($rightsText -match '(?i)SendAs') { 'SendAs' }
+                elseif ($rightsText -match '(?i)SendOnBehalf') { 'SendOnBehalf' }
+                elseif ($rightsText -match '(?i)FullAccess') { 'FullAccess' }
+                else { 'Other' }
+            }
+
+            $user = Get-PropertyValueOrNull -Object $permission -Name 'User'
+            if ($null -eq $user) { $user = Get-PropertyValueOrNull -Object $permission -Name 'Trustee' }
 
             [pscustomobject]@{
                 MailboxGuid    = [string]$(if (-not [string]::IsNullOrWhiteSpace($MailboxGuid)) { $MailboxGuid } else { Get-PropertyValueOrNull -Object $permission -Name 'MailboxGuid' })
-                User           = [string](Get-PropertyValueOrNull -Object $permission -Name 'User')
-                PermissionType = [string](Get-PropertyValueOrNull -Object $permission -Name 'PermissionType')
-                AccessRights   = @($rights | ForEach-Object { [string]$_ })
+                User           = [string]$user
+                PermissionType = $permissionType
+                AccessRights   = $rights
                 Deny           = [bool](Get-PropertyValueOrNull -Object $permission -Name 'Deny')
                 IsInherited    = [bool](Get-PropertyValueOrNull -Object $permission -Name 'IsInherited')
             }
@@ -106,6 +118,11 @@ function ConvertTo-HistoryRecord {
         $usagePercent = [math]::Round((($sizeGb / $quotaGb) * 100), 2)
     }
 
+    $createdUtc = Get-PropertyValueOrNull -Object $Raw -Name 'CreatedUtc'
+    if ($null -eq $createdUtc) {
+        $createdUtc = Get-PropertyValueOrNull -Object $Raw -Name 'WhenCreatedUtc'
+    }
+
     $permissions = Convert-PermissionSet -Permissions (Get-PropertyValueOrNull -Object $Raw -Name 'Permissions') -MailboxGuid $exchangeGuid
 
     $sample = [pscustomobject]@{
@@ -126,8 +143,13 @@ function ConvertTo-HistoryRecord {
         Alias              = [string](Get-PropertyValueOrNull -Object $Raw -Name 'Alias')
         PrimarySmtpAddress = [string](Get-PropertyValueOrNull -Object $Raw -Name 'PrimarySmtpAddress')
         DisplayName        = [string](Get-PropertyValueOrNull -Object $Raw -Name 'DisplayName')
+        WhenCreatedUtc     = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Raw -Name 'WhenCreatedUtc')
+        Licensing          = Get-PropertyValueOrNull -Object $Raw -Name 'Licensing'
+        Retention          = Get-PropertyValueOrNull -Object $Raw -Name 'Retention'
+        RetentionPolicyChangeHistory = @(Get-PropertyValueOrNull -Object $Raw -Name 'RetentionPolicyChangeHistory' | Where-Object { $null -ne $_ })
+        LicenseAssignmentHistory = @(Get-PropertyValueOrNull -Object $Raw -Name 'LicenseAssignmentHistory' | Where-Object { $null -ne $_ })
         RecipientTypeDetails = [string](Get-PropertyValueOrNull -Object $Raw -Name 'RecipientTypeDetails')
-        CreatedUtc         = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Raw -Name 'CreatedUtc')
+        CreatedUtc         = ConvertTo-IsoUtcString -Value $createdUtc
         Permissions        = $permissions
         Samples            = @($sample)
     }
@@ -265,16 +287,60 @@ function Merge-RecordIntoIndex {
 
     $newSmtp = [string](Get-PropertyValueOrNull -Object $Record -Name 'PrimarySmtpAddress')
     $newDisplayName = [string](Get-PropertyValueOrNull -Object $Record -Name 'DisplayName')
+    $newWhenCreatedUtc = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Record -Name 'WhenCreatedUtc')
+    $newLicensing = Get-PropertyValueOrNull -Object $Record -Name 'Licensing'
     $newAlias = [string](Get-PropertyValueOrNull -Object $Record -Name 'Alias')
     $newRecipientTypeDetails = [string](Get-PropertyValueOrNull -Object $Record -Name 'RecipientTypeDetails')
-    $newCreatedUtc = ConvertTo-IsoUtcString -Value (Get-PropertyValueOrNull -Object $Record -Name 'CreatedUtc')
+    $newCreatedUtc = Get-PropertyValueOrNull -Object $Record -Name 'CreatedUtc'
+    if ($null -eq $newCreatedUtc) {
+        $newCreatedUtc = Get-PropertyValueOrNull -Object $Record -Name 'WhenCreatedUtc'
+    }
+    $newCreatedUtc = ConvertTo-IsoUtcString -Value $newCreatedUtc
     $newPermissions = Get-PropertyValueOrNull -Object $Record -Name 'Permissions'
 
     if (-not [string]::IsNullOrWhiteSpace($newSmtp)) { $existing.PrimarySmtpAddress = $newSmtp }
     if (-not [string]::IsNullOrWhiteSpace($newDisplayName)) { $existing.DisplayName = $newDisplayName }
-    if (-not [string]::IsNullOrWhiteSpace($newAlias)) { $existing.Alias = $newAlias }
-    if (-not [string]::IsNullOrWhiteSpace($newRecipientTypeDetails)) { $existing.RecipientTypeDetails = $newRecipientTypeDetails }
-    if (-not [string]::IsNullOrWhiteSpace($newCreatedUtc)) { $existing.CreatedUtc = $newCreatedUtc }
+    if ($null -ne $newWhenCreatedUtc) {
+        if ($existing.PSObject.Properties.Name -contains 'WhenCreatedUtc') {
+            $existing.WhenCreatedUtc = $newWhenCreatedUtc
+        }
+        else {
+            Add-Member -InputObject $existing -NotePropertyName 'WhenCreatedUtc' -NotePropertyValue $newWhenCreatedUtc
+        }
+    }
+    if ($null -ne $newLicensing) {
+        if ($existing.PSObject.Properties.Name -contains 'Licensing') {
+            $existing.Licensing = $newLicensing
+        }
+        else {
+            Add-Member -InputObject $existing -NotePropertyName 'Licensing' -NotePropertyValue $newLicensing
+        }
+    }
+    foreach ($fieldName in @('Retention', 'RetentionPolicyChangeHistory', 'LicenseAssignmentHistory')) {
+        $newValue = Get-PropertyValueOrNull -Object $Record -Name $fieldName
+        if ($null -eq $newValue) { continue }
+
+        if ($existing.PSObject.Properties.Name -contains $fieldName) {
+            $existing.$fieldName = $newValue
+        }
+        else {
+            Add-Member -InputObject $existing -NotePropertyName $fieldName -NotePropertyValue $newValue
+        }
+    }
+    foreach ($property in @(
+        [pscustomobject]@{ Name = 'Alias'; Value = $newAlias },
+        [pscustomobject]@{ Name = 'RecipientTypeDetails'; Value = $newRecipientTypeDetails },
+        [pscustomobject]@{ Name = 'CreatedUtc'; Value = $newCreatedUtc }
+    )) {
+        if ([string]::IsNullOrWhiteSpace([string]$property.Value)) { continue }
+        $propertyName = $property.Name
+        if ($existing.PSObject.Properties.Name -contains $property.Name) {
+            $existing.$propertyName = $property.Value
+        }
+        else {
+            Add-Member -InputObject $existing -NotePropertyName $property.Name -NotePropertyValue $property.Value
+        }
+    }
     if ($null -ne $newPermissions) { $existing.Permissions = @($newPermissions) }
 
     $existing.Samples = $ordered
@@ -414,8 +480,9 @@ $recordsAdded = $records.Count - $recordsBefore
 $recordsUpdated = $index.Count - $recordsAdded
 
 $document = [pscustomobject]@{
-    GeneratedUtc   = $latestTimestamp
-    MailboxHistory = @($records)
+    GeneratedUtc               = $latestTimestamp
+    CollectorLastCompletedUtc = Get-PropertyValueOrNull -Object $existingHistory -Name 'CollectorLastCompletedUtc'
+    MailboxHistory             = @($records)
 }
 
 Write-MailboxJson `

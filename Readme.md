@@ -65,6 +65,9 @@ a renamed mailbox keeps its history instead of splitting into two records.
 git clone <your-repo-url> C:\Deploy\MailboxDashboard
 Set-Location C:\Deploy\MailboxDashboard
 
+# Or use the contextual operator menu for setup, collection, data, and dashboard actions
+.\Collector\Start-MailboxDashboardMenu.ps1
+
 # 1. Set up (creates config, folders, mailbox list template)
 .\Collector\Initialize-MailboxDashboard.ps1
 
@@ -78,9 +81,120 @@ Set-Location C:\Deploy\MailboxDashboard
 .\Collector\Invoke-MailboxDashboardCollection.ps1
 ```
 
+### Interactive operator menu
+
+Run `.\Collector\Start-MailboxDashboardMenu.ps1` to open the PowerShell operator menu.
+It shows only actions whose configuration, scripts, and required data files are available.
+The menu can run setup, live collection, isolated demo-data generation, snapshot rebuild,
+read-only validation, repair/cull, local dashboard hosting, and shareable-URL generation.
+It also offers live replacement with synthetic data after demo files have been generated.
+
+Live collection, live demo-data replacement, snapshot overwrite, and repair/cull require
+typing `YES` at a confirmation prompt. Before live demo replacement and snapshot rebuild,
+the menu creates timestamped backups alongside the affected JSON files. Repair/cull keeps
+the validator's normal backups. Generate isolated demo files when you want to exercise the
+generator without changing the dashboard's current data.
+
+Scheduled jobs should continue to call the non-interactive collector scripts directly.
+
+### Choose the mailbox collector
+
+The menu offers separate **Exchange Online (live, full detail)** and **Graph only
+(delayed report, limited detail)** collection actions. Exchange Online remains the
+default for existing scheduled commands. The Graph action appears when
+`Microsoft.Graph.Authentication`, app-only credentials, and the configured GUID mapping
+file are available. It does not require the Exchange module or the Exchange mailbox CSV.
+Both actions rebuild and validate the configured dashboard snapshot. Graph collection
+requires `YES` confirmation and backs up the configured history and snapshot first.
+
+#### Register and configure the application
+
+Use the existing Entra application or register a dedicated collector application in the
+[Entra portal](https://entra.microsoft.com/). This alternate collector uses only stable
+Microsoft Graph v1.0 requests; it does not connect to Exchange Online or read messages.
+
+#### Select and consent to Graph permissions
+
+Grant these **application** permissions and obtain tenant administrator consent:
+
+| Query | Endpoint | Method | Least-privileged permission | Admin consent | Purpose |
+| --- | --- | --- | --- | --- | --- |
+| Mailbox usage report | `/v1.0/reports/getMailboxUsageDetail(period='D7')` | GET | `Reports.Read.All` | Yes | Storage, item counts, quotas, archive presence and last activity date |
+| Directory users | `/v1.0/users?$select=id,displayName,userPrincipalName,mail,proxyAddresses,assignedLicenses,assignedPlans` | GET | `User.Read.All` | Yes | Stable Graph identity, primary SMTP, display names and Exchange service-plan assignment |
+| Mailbox purpose | `/v1.0/users/{id}/mailboxSettings/userPurpose` | GET | `MailboxSettings.Read` | Yes | User, linked, shared, room or equipment mailbox classification |
+
+No `Mail.Read` permission is needed. `Mail.Send` is needed only if the existing optional
+email notifications are enabled, not for collection.
+See [mailbox report API](https://learn.microsoft.com/graph/api/reportroot-getmailboxusagedetail?view=graph-rest-1.0),
+[list users](https://learn.microsoft.com/graph/api/user-list?view=graph-rest-1.0),
+[mailbox settings](https://learn.microsoft.com/graph/api/user-get-mailboxsettings?view=graph-rest-1.0), and
+[permission consent requirements](https://learn.microsoft.com/graph/permissions-reference).
+Usage-report identities must be visible rather than concealed in the tenant's reports
+privacy settings. Do not change those tenant-wide settings without administrator approval.
+Concealed or unmatched report identities cause collection to fail rather than guessing.
+
+#### Supply authentication and durable identity mapping
+
+Configure `Organization`, `AppID`, and either `Thumbprint` or `ClientSecret` in the local
+configuration. Graph collection uses app-only authentication independently of the
+Exchange authentication menu. Keep secrets out of source control.
+
+Copy `Collector/Config/graph-mailbox-mapping.example.csv` to
+`Collector/Config/graph-mailbox-mapping.csv` and replace the example row with real values:
+
+```csv
+GraphUserId,ExchangeGuid
+11111111-1111-1111-1111-111111111111,22222222-2222-2222-2222-222222222222
+```
+
+`GraphUserId` is the Entra user object ID, **not** a UPN or Exchange GUID. `ExchangeGuid`
+must be the actual mailbox GUID from your existing Exchange inventory. Graph does not
+provide this durable mailbox key; the script never fabricates one from the user ID.
+Each ID and each Exchange GUID must occur only once. The collector queries only mapped
+mailboxes; update the mapping when a mailbox is recreated or a user object is replaced.
+Set `Paths.GraphMailboxMappingCsv` to use a different mapping file. Like other configured
+paths, it is resolved relative to `Collector/`.
+
+#### Run locally or from the menu
+
+Install `Microsoft.Graph.Authentication` if it is not already installed, then use:
+
+```powershell
+# Full Graph-only flow: collect -> validate -> snapshot -> validate
+.\Collector\Invoke-MailboxDashboardCollection.ps1 -Collector Graph
+
+# Alternate collector alone (history only)
+.\Collector\Collect-GraphMailboxes.ps1 -Connect
+
+# Preview without Graph requests or data writes
+.\Collector\Invoke-MailboxDashboardCollection.ps1 -Collector Graph -WhatIf
+
+# Existing live Exchange flow is unchanged
+.\Collector\Invoke-MailboxDashboardCollection.ps1
+```
+
+Graph reports typically lag by 24-48 hours and are not live mailbox statistics.
+Samples use **Report Refresh Date**, not the collection time, and repeating a report
+does not create duplicate samples. A newer existing Exchange sample remains the current
+snapshot until Graph supplies a later report. Directory licensing reflects the directory
+query time, whereas usage metrics reflect the report time.
+
+Graph cannot supply archive size/item counts, Exchange mailbox delegation permissions,
+last logon, or the existing Exchange retention/hold details. These are stored as null
+with `DataAvailability` metadata and displayed as unavailable, not zero or "no permissions".
+Last activity is not treated as last logon. Exchange service-plan assignment is not a
+mailbox license-compliance determination: license requirement remains unknown. Known
+Graph mailbox purposes provide a mailbox classification; unrecognized purposes remain
+unknown rather than guessing an Exchange recipient subtype.
+The dashboard displays report limitations and refresh dates.
+Graph uses paged requests rather than Exchange workers, so do not use `-Parallel`,
+`-ThrottleLimit`, `-BatchSize`, or `-KeepWorkerFiles`. Invalid mappings, unreadable existing history,
+missing report rows, or request failures abort without partially replacing history.
+
 ---
 
 ## Installation
+*TLDR ? Just go to [./Collector/Setup-Walkthough.md](https://github.com/wo4py8w4y/MailboxDashboard/blob/main/Collector/Setup-Walkthrough.md)*
 
 ### Prerequisites
 
@@ -93,7 +207,7 @@ Set-Location C:\Deploy\MailboxDashboard
 
 ```powershell
 Install-Module ExchangeOnlineManagement       -Scope CurrentUser   # required
-Install-Module Microsoft.Graph.Authentication -Scope CurrentUser   # interactive sign-in
+Install-Module Microsoft.Graph.Authentication -Scope CurrentUser   # Graph-only collection or interactive sign-in
 Install-Module graph.auth.lite                -Scope CurrentUser   # interactive OAuth/PKCE
 Install-Module Microsoft.PowerShell.ThreadJob -Scope CurrentUser   # parallel collection
 ```
@@ -160,10 +274,13 @@ any machine regardless of where the repository is cloned.
 
   "Paths": {
     "MailboxesCsv":        "..\\Mailboxes\\mailboxes.csv",
+    "GraphMailboxMappingCsv": ".\\Config\\graph-mailbox-mapping.csv",
     "HistoryJson":         "..\\Web\\history.json",
     "DataJson":            "..\\Web\\data.json",
     "BackupDirectory":     "..\\Web\\Backups",
     "WebRoot":             "..\\Web",
+    "CollectionStatusJson":"..\\Web\\collection-status.json",
+    "AlertStateJson":      ".\\Logs\\alert-state.json",
     "DemoDataJson":        "..\\Web\\demo-data.json",
     "DemoHistoryJson":     "..\\Web\\demo-history.json",
     "TempDirectory":       ".\\Temp",
@@ -181,6 +298,16 @@ any machine regardless of where the repository is cloned.
   "Thresholds": {
     "CriticalPercent": 94.0,
     "WarningPercent":  85.0
+  },
+
+  "Monitoring": {
+    "StaleAfterMinutes": 60
+  },
+
+  "Notifications": {
+    "Enabled": false,
+    "SenderMailbox": "",
+    "Recipients": []
   },
 
   "Validation": {
@@ -209,6 +336,28 @@ any machine regardless of where the repository is cloned.
 Configurations from the previous version still load — old root-level keys such as
 `HistoryJsonPath` and `MailboxesCsvPath` are mapped onto the new `Paths` section
 automatically.
+
+`Monitoring.StaleAfterMinutes` controls when the overview marks the most recent run as stale
+(default: 60 minutes). Each orchestrated run writes an aggregate-only
+`Web/collection-status.json` record. It contains the run result, timings, configured stale
+threshold, and step outcomes; it does not contain mailbox addresses, mailbox identifiers, or
+credentials. The status file is generated output and is excluded from Git.
+
+Email notifications are disabled by default. To enable them, set
+`Notifications.Enabled` to `true`, configure `SenderMailbox` and a `Recipients` array, and
+use the tenant/application and certificate thumbprint or client secret already configured
+for unattended collection. Grant the app the **Microsoft Graph `Mail.Send` application
+permission** and tenant admin consent before enabling delivery. The app sends as the
+configured sender mailbox. Do not add this permission to an app unless the tenant
+administrator has approved the access.
+
+Notifications are sent only for a newly detected warning/critical mailbox threshold,
+severity changes, resolution, or collection failure/recovery. Multiple transitions from a
+run are combined into one message. Successful delivery updates
+`Collector/Logs/alert-state.json`; unchanged conditions are not repeated. Failed delivery
+leaves the prior state in place so the transition is retried on the next collection.
+Test-data runs do not send alerts. Use `-WhatIf` to preview alert sends without sending mail
+or changing alert state.
 
 ### Mailbox list
 
@@ -310,6 +459,49 @@ slice is missing but every other slice still merges.
 
 `Generate-MailboxSnapshot.ps1` is safe to run at any time — it only re-reads history, so it
 is the quickest way to refresh the dashboard after editing or repairing history data.
+Before writing, it requires a valid history array, unique Exchange GUIDs, timestamped
+samples, and usable current metrics for every mailbox. Any malformed record aborts the
+entire rebuild and leaves the existing `data.json` untouched; empty history is also
+refused unless an intentionally empty dashboard is requested with
+`-AllowEmptySnapshot`. Use `Test-MailboxDashboardJSON.ps1 -Target History -Strict` to
+identify history issues before rebuilding.
+
+Licensing fields are collected from Exchange during a mailbox collection and copied into
+the snapshot. After updating an older installation, run a new collection and then
+`Generate-MailboxSnapshot.ps1`; records from before licensing collection will show
+licensing as `Unknown`, not as a false missing-license failure.
+
+License assignment uses Exchange's `SKUAssigned` value, not the presence of persisted
+capabilities or the mailbox quota. A 50 GB quota can belong to a licensed user mailbox
+or an unlicensed shared mailbox; quota alone does not establish license assignment.
+An unavailable assignment value is reported as `Unknown`. Persisted capabilities are
+retained as descriptive metadata, not proof of a currently assigned product SKU.
+
+The collector explicitly requests `LastLogonTime` and saves the creation date in history
+so both fields can reach the snapshot. Last logon can be empty and reflects mailbox
+access, including service activity; it is not an authoritative human sign-in timestamp.
+
+### History stops growing
+
+Each successful collection adds a sample per mailbox, up to
+`Collection.MaxHistorySamples` (365 by default). The history page uses all saved samples;
+it does not impose a two-point limit. Snapshot generation does not add history samples.
+Confirm that the scheduled task runs `Invoke-MailboxDashboardCollection.ps1` and that
+its configured history path is the file served by the dashboard. Avoid `-TestData` on
+production data because it replaces the live files.
+
+To inspect the saved counts without changing data, use the configured history path:
+
+```powershell
+$history = Get-Content -LiteralPath '<resolved HistoryJson path>' -Raw | ConvertFrom-Json
+$history.MailboxHistory | Select-Object -Property PrimarySmtpAddress,
+  @{Name = 'SampleCount'; Expression = { @($_.Samples).Count }}
+```
+
+The collector stops rather than replacing unreadable, empty, or unsupported existing
+history. Restore a known-good backup or convert legacy data to the nested
+`MailboxHistory[] -> Samples[]` structure before retrying. Previously discarded samples
+cannot be recovered by recollection or snapshot generation.
 
 ---
 
@@ -445,6 +637,25 @@ To build the dashboard end to end without Exchange:
 | `thresholds.html` | Mailboxes at or above the warning threshold |
 | `validate.html` | Standalone data validation view |
 
+### Modern view
+
+`Web/modern/` is an alternative front end over the same `data.json`, `history.json` and
+`scopes.json`. It does not replace the classic pages; both can be deployed side by side.
+
+| Page | Shows |
+|---|---|
+| `modern/index.html` | KPI tiles with sparklines, storage trend, health donut, quota distribution, top consumers, logon activity, sortable mailbox table |
+| `modern/mailbox.html` | One mailbox: storage history, quota gauge, created / last logon / refreshed / collector dates, licensing, delegates |
+
+Every page shows a **QR code that links to exactly what is on screen** — scope, search,
+status filter, sort, page and selected mailbox. Select **Share** to enlarge it, copy the
+link or download the QR as SVG. The QR is generated in the browser by
+`modern/qrcode.js`; no external service is called. Anyone scanning it still needs access
+to the dashboard.
+
+The modern view has light and dark themes (toggle in the top bar, remembered per
+browser) and adapts to phone widths.
+
 Mailbox delegation records carry the target `ExchangeGuid`; links use that GUID while the
 map displays mailbox names and aliases. The map distinguishes Full Access, Send As, and
 Send on Behalf with separate badges and can retain principals whose mailbox links are
@@ -452,6 +663,10 @@ hidden by the active filters. Mailbox statistics also show lifetime-average stor
 consumption in GB/day: current primary plus archive storage divided by the mailbox age
 from `CreatedUtc` to the latest sample. The rate is unavailable if creation/sample dates
 are missing or invalid.
+The overview's Collection health panel reads `collection-status.json` independently of
+mailbox data. A missing or invalid status file is shown as unavailable without blocking
+the rest of the dashboard. A completed run is marked stale after the threshold recorded
+in that run's status artifact; failed and partial runs have their own visible states.
 
 ### Finding and sorting
 
@@ -678,6 +893,11 @@ moment, and the stack trace. Any variable whose name looks like a secret — mat
 
 A failed mailbox never stops the run; the collector records the failure and continues.
 
+**Email alerts** use `Collector/Logs/alert-state.json` to suppress repeated notifications.
+If Graph rejects a message or state cannot be saved, inspect `failures.log`; an unconfirmed
+transition is retried on the next run. Confirm that the app has `Mail.Send` application
+permission with admin consent and that the configured sender mailbox is valid.
+
 ---
 
 ## Git and secrets
@@ -720,6 +940,7 @@ then stored in the configuration at all.
 | Script | Purpose |
 |---|---|
 | `Initialize-MailboxDashboard.ps1` | First-run setup: prerequisites, folders, config, mailbox list |
+| `Start-MailboxDashboardMenu.ps1` | Contextual operator menu for setup, collection, data and dashboard actions |
 | `Invoke-MailboxDashboardCollection.ps1` | Runs the whole pipeline |
 | `Invoke-MailboxDashboardAuth.ps1` | Authentication menu and Exchange Online connection |
 | `Collect-ExchangeOnlineMailboxes.ps1` | Queries Exchange, appends samples to history |
@@ -774,6 +995,16 @@ unattended runs use `Authentication.Mode = "Certificate"`.
 **"Parallel collection requires certificate or client-secret authentication."**
 Working as intended — each worker needs its own app-only session, and interactive would
 prompt once per worker. Either set a client secret or thumbprint, or drop `-Parallel`.
+
+**Collection health is unavailable or stale.**
+Confirm the collector can write the configured `Paths.CollectionStatusJson` path, that the
+static host serves `collection-status.json`, and that the latest collection completed within
+`Monitoring.StaleAfterMinutes`.
+
+**Graph alert delivery failed.**
+Check `Notifications.Enabled`, `SenderMailbox`, and `Recipients`; confirm the app has
+Microsoft Graph `Mail.Send` application permission and admin consent, and inspect
+`Collector/Logs/failures.log` for the Graph error.
 
 **Assembly or type-load errors on connect.**
 `Microsoft.Graph.Authentication` must import before `ExchangeOnlineManagement`. Start a

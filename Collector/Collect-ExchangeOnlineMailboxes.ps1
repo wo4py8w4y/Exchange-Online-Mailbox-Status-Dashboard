@@ -3,8 +3,8 @@
     Collects Exchange Online mailbox metrics and appends them to the history file.
 .DESCRIPTION
     Reads the mailbox list, queries Exchange Online for size, quota, item count,
-    Full Access, Send As, Send on Behalf, creation metadata, and archive metrics,
-    then appends one sample per mailbox to history.json keyed on ExchangeGuid.
+    permissions, and archive metrics, then appends one sample per mailbox to
+    history.json keyed on ExchangeGuid.
 
     Requires an existing Exchange Online session - run Invoke-MailboxDashboardAuth.ps1
     first, or use -Connect to authenticate here.
@@ -23,8 +23,12 @@
     .\Collect-ExchangeOnlineMailboxes.ps1 -Identity user@contoso.com -Connect
     Authenticates, then collects a single mailbox.
 .NOTES
-    GitHub Summary: Collects primary/archive usage and typed mailbox delegations,
-    recording stable Exchange GUIDs for history and access-map reporting.
+    GitHub Summary: Collects primary/archive metrics, mailbox retention and licensing,
+    and GUID-linked Full Access, Send As, and Send on Behalf delegations.
+    CHANGELOG
+    ----------
+    2026-10-14 - Preserve creation dates and retention metadata, request last logon, and use explicit SKU assignment for licensing.
+    2026-10-14 - Stop rather than overwrite unreadable, empty, or unsupported existing history.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -71,59 +75,77 @@ Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "Modules\MailboxDa
 Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "Modules\MailboxDashboard.Config.psm1") -Force -DisableNameChecking
 
 function Convert-PermissionSet {
-<#
+    <#
 .SYNOPSIS
-    Normalizes Full Access, Send As, and Send on Behalf delegations for the dashboard.
+    Reduces raw mailbox permissions to the fields the dashboard displays.
 #>
     param(
-        [Parameter()] $FullAccess,
-        [Parameter()] $SendAs,
-        [Parameter()] $SendOnBehalf,
-        [Parameter()] [string]$MailboxGuid
+        [Parameter()]
+        $Permissions,
+
+        [Parameter()]
+        $FullAccess,
+
+        [Parameter()]
+        $SendAs,
+
+        [Parameter()]
+        $SendOnBehalf,
+
+        [Parameter()]
+        [string]$MailboxGuid
     )
 
     return @(
-        foreach ($permission in @($FullAccess)) {
+        foreach ($permission in @($Permissions) + @($FullAccess) + @($SendAs)) {
             if ($null -eq $permission) { continue }
 
-            [pscustomobject]@{
-                MailboxGuid  = $MailboxGuid
-                User         = [string](Get-PropertyValueOrNull -Object $permission -Name 'User')
-                PermissionType = 'FullAccess'
-                AccessRights = @($permission.AccessRights | ForEach-Object { [string]$_ })
-                Deny         = [bool]$permission.Deny
-                IsInherited  = [bool]$permission.IsInherited
+            $rights = Get-PropertyValueOrNull -Object $permission -Name 'AccessRights'
+            if ($null -eq $rights) { $rights = Get-PropertyValueOrNull -Object $permission -Name 'accessRights' }
+            $rights = @($rights | ForEach-Object { [string]$_ })
+            $rightsText = $rights -join ' '
+            $permissionType = [string](Get-PropertyValueOrNull -Object $permission -Name 'PermissionType')
+            if ([string]::IsNullOrWhiteSpace($permissionType)) {
+                $permissionType = if ($rightsText -match '(?i)SendAs') { 'SendAs' }
+                elseif ($rightsText -match '(?i)SendOnBehalf') { 'SendOnBehalf' }
+                elseif ($rightsText -match '(?i)FullAccess') { 'FullAccess' }
+                else { 'Other' }
             }
-        }
-        foreach ($permission in @($SendAs)) {
-            if ($null -eq $permission) { continue }
+
+            $user = Get-PropertyValueOrNull -Object $permission -Name 'User'
+            if ($null -eq $user) { $user = Get-PropertyValueOrNull -Object $permission -Name 'Trustee' }
 
             [pscustomobject]@{
-                MailboxGuid  = $MailboxGuid
-                User          = [string](Get-PropertyValueOrNull -Object $permission -Name 'Trustee')
-                PermissionType = 'SendAs'
-                AccessRights  = @($permission.AccessRights | ForEach-Object { [string]$_ })
-                Deny          = [string](Get-PropertyValueOrNull -Object $permission -Name 'AccessControlType') -eq 'Deny'
-                IsInherited   = [bool](Get-PropertyValueOrNull -Object $permission -Name 'IsInherited')
+                MailboxGuid    = if (-not [string]::IsNullOrWhiteSpace($MailboxGuid)) {
+                    $MailboxGuid
+                } else {
+                    [string](Get-PropertyValueOrNull -Object $permission -Name 'MailboxGuid')
+                }
+                User           = [string]$user
+                PermissionType = $permissionType
+                AccessRights   = $rights
+                Deny           = [bool](Get-PropertyValueOrNull -Object $permission -Name 'Deny')
+                IsInherited    = [bool](Get-PropertyValueOrNull -Object $permission -Name 'IsInherited')
             }
         }
+
         foreach ($delegate in @($SendOnBehalf)) {
-            if ($null -eq $delegate) { continue }
+            if ($null -eq $delegate -or [string]::IsNullOrWhiteSpace([string]$delegate)) { continue }
 
             [pscustomobject]@{
-                MailboxGuid  = $MailboxGuid
-                User          = [string]$delegate
+                MailboxGuid    = $MailboxGuid
+                User           = [string]$delegate
                 PermissionType = 'SendOnBehalf'
-                AccessRights  = @('SendOnBehalf')
-                Deny          = $false
-                IsInherited   = $false
+                AccessRights   = @('SendOnBehalf')
+                Deny           = $false
+                IsInherited    = $false
             }
         }
     )
 }
 
 function Get-MailboxIdentityList {
-<#
+    <#
 .SYNOPSIS
     Builds the list of addresses to collect from the CSV, honouring the slice parameters.
 #>
@@ -150,8 +172,8 @@ function Get-MailboxIdentityList {
 
     $columns = @($rows[0].PSObject.Properties.Name)
     $addressColumn = @('PrimarySMTPAddress', 'PrimarySmtpAddress', 'Mailbox', 'EmailAddress', 'UserPrincipalName') |
-        Where-Object { $columns -contains $_ } |
-        Select-Object -First 1
+    Where-Object { $columns -contains $_ } |
+    Select-Object -First 1
 
     if ($null -eq $addressColumn) {
         throw "Mailbox CSV '$Path' needs an address column (PrimarySMTPAddress, Mailbox, EmailAddress, or UserPrincipalName). Found: $($columns -join ', ')."
@@ -176,7 +198,7 @@ function Get-MailboxIdentityList {
 }
 
 function Get-QuotaGigabytes {
-<#
+    <#
 .SYNOPSIS
     Returns the send/receive quota in GB, or $null when the mailbox is unlimited.
 #>
@@ -246,8 +268,93 @@ function Get-ArchiveMetric {
     return $result
 }
 
+function Get-LicensingProfile {
+    param(
+        [Parameter(Mandatory)] $MailboxInfo
+    )
+
+    $recipientType = if ($MailboxInfo.PSObject.Properties.Name -contains 'RecipientTypeDetails') {
+        [string]$MailboxInfo.RecipientTypeDetails
+    }
+    else { $null }
+
+    $capabilities = if ($MailboxInfo.PSObject.Properties.Name -contains 'PersistedCapabilities') {
+        @($MailboxInfo.PersistedCapabilities | ForEach-Object { [string]$_ } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+    }
+    else { @() }
+
+    $skuAssigned = if ($MailboxInfo.PSObject.Properties.Name -contains 'SKUAssigned' -and $null -ne $MailboxInfo.SKUAssigned) {
+        [bool]$MailboxInfo.SKUAssigned
+    }
+    else { $null }
+
+    $isInactive = if ($MailboxInfo.PSObject.Properties.Name -contains 'IsInactiveMailbox' -and $null -ne $MailboxInfo.IsInactiveMailbox) {
+        [bool]$MailboxInfo.IsInactiveMailbox
+    }
+    else { $null }
+
+    $unlicensedTypes = @('sharedmailbox', 'roommailbox', 'equipmentmailbox', 'discoverymailbox',
+        'publicfoldermailbox', 'groupmailbox', 'schedulingmailbox', 'teammailbox',
+        'auditlogmailbox', 'arbitrationmailbox')
+    $normalisedType = $recipientType.Trim().ToLowerInvariant()
+    $licenseRequired = if ($isInactive -eq $true -or $unlicensedTypes -contains $normalisedType) { $false } else { $true }
+    $capabilityCount = @($capabilities).Count
+    $hasLicense = ($skuAssigned -eq $true) -or $capabilityCount -gt 0
+    $licenseType = if ($capabilityCount -gt 0) { @($capabilities) -join ', ' } else { $null }
+
+    return [pscustomobject]@{
+        RecipientTypeDetails     = $recipientType
+        IsSharedMailbox          = ($normalisedType -eq 'sharedmailbox')
+        SKUAssigned              = $skuAssigned
+        PersistedCapabilities    = @($capabilities)
+        ArchiveStatus            = if ($MailboxInfo.PSObject.Properties.Name -contains 'ArchiveStatus') { [string]$MailboxInfo.ArchiveStatus } else { $null }
+        IsInactiveMailbox        = $isInactive
+        LicenseRequired          = $licenseRequired
+        HasLicense               = $hasLicense
+        LicenseTypes             = @($capabilities)
+        LicenseType              = $licenseType
+        IsLicenseCompliant       = (-not $licenseRequired) -or $hasLicense
+        LicenseRequirementReason = if (-not $licenseRequired) {
+            "Recipient type '$recipientType' is typically unlicensed."
+        }
+        else {
+            "Recipient type '$recipientType' is expected to require mailbox licensing."
+        }
+    }
+}
+
+function Get-RetentionProfile {
+    param(
+        [Parameter(Mandatory)] $MailboxInfo
+    )
+
+    $getValue = {
+        param([string]$Name)
+        if ($MailboxInfo.PSObject.Properties.Name -contains $Name) {
+            return $MailboxInfo.$Name
+        }
+        return $null
+    }
+
+    $duration = & $getValue 'LitigationHoldDuration'
+    $durationDays = $null
+    if ($null -ne $duration -and $duration -is [timespan]) {
+        $durationDays = [math]::Round($duration.TotalDays, 2)
+    }
+
+    return [pscustomobject]@{
+        RetentionPolicy            = [string](& $getValue 'RetentionPolicy')
+        RetentionHoldEnabled       = & $getValue 'RetentionHoldEnabled'
+        LitigationHoldEnabled      = & $getValue 'LitigationHoldEnabled'
+        LitigationHoldDurationDays = $durationDays
+        InPlaceHolds               = @(& $getValue 'InPlaceHolds' | ForEach-Object { [string]$_ } | Where-Object { -not [string]::IsNullOrWhiteSpace($_) })
+        SingleItemRecoveryEnabled  = & $getValue 'SingleItemRecoveryEnabled'
+        RetainDeletedItemsFor      = [string](& $getValue 'RetainDeletedItemsFor')
+    }
+}
+
 function Get-MailboxSample {
-<#
+    <#
 .SYNOPSIS
     Queries Exchange Online for one mailbox and returns its record and sample.
 #>
@@ -256,8 +363,8 @@ function Get-MailboxSample {
         [Parameter(Mandatory)] [string]$Timestamp
     )
 
-    $mailboxInfo = Get-EXOMailbox -Identity $MailboxIdentity -Properties ExchangeGuid, Alias, DisplayName, PrimarySmtpAddress, WhenCreated, RecipientTypeDetails, GrantSendOnBehalfTo, ArchiveGuid, ArchiveStatus, ProhibitSendReceiveQuota -ErrorAction Stop
-    $stats = Get-EXOMailboxStatistics -Identity $MailboxIdentity -ErrorAction Stop
+    $mailboxInfo = Get-EXOMailbox -Identity $MailboxIdentity -Properties ExchangeGuid, Alias, DisplayName, PrimarySmtpAddress, GrantSendOnBehalfTo, ArchiveGuid, ArchiveStatus, ProhibitSendReceiveQuota, RecipientTypeDetails, SKUAssigned, PersistedCapabilities, IsInactiveMailbox, WhenCreated, RetentionPolicy, RetentionHoldEnabled, LitigationHoldEnabled, LitigationHoldDuration, InPlaceHolds, SingleItemRecoveryEnabled, RetainDeletedItemsFor -ErrorAction Stop
+    $stats = Get-EXOMailboxStatistics -Identity $MailboxIdentity -Properties LastLogonTime -ErrorAction Stop
 
     $sizeGb = Convert-BytesToGigabytes -Bytes (Convert-ExoSizeToBytes -Value $stats.TotalItemSize) -Precision 2
     $quotaGb = Get-QuotaGigabytes -MailboxInfo $mailboxInfo
@@ -278,8 +385,8 @@ function Get-MailboxSample {
     $sendAsPermissions = @(
         Get-EXORecipientPermission -Identity $MailboxIdentity -AccessRights SendAs -ResultSize Unlimited -ErrorAction Stop |
             Where-Object {
-                $null = $trustee = [string](Get-PropertyValueOrNull -Object $_ -Name 'Trustee')
-                $null = $accessRights = @(Get-PropertyValueOrNull -Object $_ -Name 'AccessRights' | ForEach-Object { [string]$_ })
+                $trustee = [string](Get-PropertyValueOrNull -Object $_ -Name 'Trustee')
+                $accessRights = @(Get-PropertyValueOrNull -Object $_ -Name 'AccessRights' | ForEach-Object { [string]$_ })
                 (Get-PropertyValueOrNull -Object $_ -Name 'IsInherited') -ne $true -and
                 [string](Get-PropertyValueOrNull -Object $_ -Name 'AccessControlType') -ne 'Deny' -and
                 $trustee -notmatch "NT AUTHORITY\\SELF|S-1-5-" -and
@@ -287,9 +394,15 @@ function Get-MailboxSample {
             }
     )
     $sendOnBehalf = @(Get-PropertyValueOrNull -Object $mailboxInfo -Name 'GrantSendOnBehalfTo')
-    $permissions = Convert-PermissionSet -FullAccess $fullAccessPermissions -SendAs $sendAsPermissions -SendOnBehalf $sendOnBehalf -MailboxGuid ([string]$mailboxInfo.ExchangeGuid)
+    $permissions = Convert-PermissionSet `
+        -FullAccess $fullAccessPermissions `
+        -SendAs $sendAsPermissions `
+        -SendOnBehalf $sendOnBehalf `
+        -MailboxGuid ([string]$mailboxInfo.ExchangeGuid)
 
     $archive = Get-ArchiveMetric -MailboxIdentity $MailboxIdentity -MailboxInfo $mailboxInfo
+    $licensing = Get-LicensingProfile -MailboxInfo $mailboxInfo
+    $retention = Get-RetentionProfile -MailboxInfo $mailboxInfo
 
     $lastLogonTime = $null
     if ($stats.PSObject.Properties.Name -contains 'LastLogonTime' -and $stats.LastLogonTime) {
@@ -305,7 +418,7 @@ function Get-MailboxSample {
         TimestampUtc     = $Timestamp
         SizeGB           = $sizeGb
         ItemCount        = [int64]$stats.ItemCount
-        PermissionCount  = $permissions.Count
+        PermissionCount  = @($permissions).Count
         QuotaGB          = $quotaGb
         UsagePercent     = $usagePercent
         LastLogonTime    = $lastLogonTime
@@ -320,9 +433,10 @@ function Get-MailboxSample {
         PrimarySmtpAddress = [string]$mailboxInfo.PrimarySmtpAddress
         DisplayName        = [string]$mailboxInfo.DisplayName
         RecipientTypeDetails = [string](Get-PropertyValueOrNull -Object $mailboxInfo -Name 'RecipientTypeDetails')
-        CreatedUtc         = if ($null -ne (Get-PropertyValueOrNull -Object $mailboxInfo -Name 'WhenCreated')) {
-            ([datetime](Get-PropertyValueOrNull -Object $mailboxInfo -Name 'WhenCreated')).ToUniversalTime().ToString('o')
-        } else { $null }
+        WhenCreatedUtc     = ConvertTo-IsoUtcString -Value $mailboxInfo.WhenCreated
+        CreatedUtc         = ConvertTo-IsoUtcString -Value $mailboxInfo.WhenCreated
+        Licensing          = $licensing
+        Retention          = $retention
         Permissions        = @($permissions)
         Sample             = $sample
     }
@@ -334,12 +448,14 @@ function Save-CollectionProgress {
         [Parameter(Mandatory)] [string]$Path,
         [Parameter(Mandatory)] [string]$Timestamp,
         [Parameter(Mandatory)] [string]$Source,
-        [Parameter()] [string]$Detail
+        [Parameter()] [string]$Detail,
+        [Parameter()] [string]$CollectorLastCompletedUtc
     )
 
     $document = [pscustomobject]@{
-        GeneratedUtc   = $Timestamp
-        MailboxHistory = @($Records)
+        GeneratedUtc              = $Timestamp
+        CollectorLastCompletedUtc = $CollectorLastCompletedUtc
+        MailboxHistory            = @($Records)
     }
 
     Write-MailboxJson `
@@ -422,6 +538,7 @@ Write-Detail "Target: $resolvedOutputPath"
 # A slice writes only what it collects; a full run merges into the existing history.
 $records = [System.Collections.Generic.List[psobject]]::new()
 $recordIndex = @{}
+$collectorLastCompletedUtc = $null
 
 if (-not $isSliceOutput) {
     $existing = $null
@@ -433,6 +550,7 @@ if (-not $isSliceOutput) {
     }
 
     if ($null -ne $existing -and $existing.PSObject.Properties.Name -contains 'MailboxHistory') {
+        $collectorLastCompletedUtc = [string](Get-PropertyValueOrNull -Object $existing -Name 'CollectorLastCompletedUtc')
         foreach ($entry in @($existing.MailboxHistory)) {
             if ($null -eq $entry) { continue }
             $records.Add($entry)
@@ -484,27 +602,46 @@ foreach ($identityValue in $identities) {
             $samples.Add($result.Sample)
 
             if ($samples.Count -gt $maxSamples) {
-                $samples = [System.Collections.Generic.List[psobject]](@($samples | Select-Object -Last $maxSamples))
+                $orderedSamples = @($samples | Sort-Object -Property @{ Expression = {
+                            $parsed = ConvertTo-DateTimeOrNull -Value (Get-PropertyValueOrNull -Object $_ -Name 'TimestampUtc')
+                            if ($null -ne $parsed) { $parsed } else { [datetime]::MinValue }
+                        } 
+                    })
+                $samples = [System.Collections.Generic.List[psobject]](@($orderedSamples | Select-Object -Last $maxSamples))
             }
 
             $entry.PrimarySmtpAddress = $result.PrimarySmtpAddress
             $entry.DisplayName = $result.DisplayName
-            $entry.Alias = $result.Alias
-            $entry.RecipientTypeDetails = $result.RecipientTypeDetails
-            if (-not [string]::IsNullOrWhiteSpace($result.CreatedUtc)) {
-                $entry.CreatedUtc = $result.CreatedUtc
+            foreach ($propertyName in @('WhenCreatedUtc', 'Retention')) {
+                $propertyValue = $result.$propertyName
+                if ($null -ne $propertyValue) {
+                    if ($entry.PSObject.Properties.Name -contains $propertyName) {
+                        $entry.$propertyName = $propertyValue
+                    }
+                    else {
+                        Add-Member -InputObject $entry -NotePropertyName $propertyName -NotePropertyValue $propertyValue
+                    }
+                }
+            }
+            if ($entry.PSObject.Properties.Name -contains 'Licensing') {
+                $entry.Licensing = $result.Licensing
+            }
+            else {
+                Add-Member -InputObject $entry -NotePropertyName 'Licensing' -NotePropertyValue $result.Licensing
             }
             $entry.Permissions = $result.Permissions
+            Add-Member -InputObject $entry -NotePropertyName 'Retention' -NotePropertyValue $result.Retention -Force
+            $entry.PSObject.Properties.Remove('DataAvailability')
             $entry.Samples = @($samples)
         }
         else {
             $entry = [pscustomobject]@{
                 ExchangeGuid       = $result.ExchangeGuid
-                Alias              = $result.Alias
                 PrimarySmtpAddress = $result.PrimarySmtpAddress
                 DisplayName        = $result.DisplayName
-                RecipientTypeDetails = $result.RecipientTypeDetails
-                CreatedUtc         = $result.CreatedUtc
+                WhenCreatedUtc     = $result.WhenCreatedUtc
+                Retention          = $result.Retention
+                Licensing          = $result.Licensing
                 Permissions        = $result.Permissions
                 Samples            = @($result.Sample)
             }
@@ -532,6 +669,7 @@ foreach ($identityValue in $identities) {
             -Path $resolvedOutputPath `
             -Timestamp $timestamp `
             -Source "Exchange Online (batch commit $counter/$($identities.Count))" `
+            -CollectorLastCompletedUtc $collectorLastCompletedUtc `
             -Detail "$collected collected so far"
     }
 }
@@ -540,7 +678,8 @@ Save-CollectionProgress `
     -Records $records `
     -Path $resolvedOutputPath `
     -Timestamp $timestamp `
-    -Source "Exchange Online (Get-EXOMailbox / Get-EXOMailboxStatistics / mailbox delegation cmdlets)" `
+    -Source "Exchange Online (Get-EXOMailbox / Get-EXOMailboxStatistics / Get-EXOMailboxPermission)" `
+    -CollectorLastCompletedUtc $collectorLastCompletedUtc `
     -Detail "$collected collected, $failed failed"
 
 Write-Detail "Collected $collected of $($identities.Count); $failed failed, $skipped skipped."

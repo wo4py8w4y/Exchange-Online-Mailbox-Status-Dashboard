@@ -140,6 +140,9 @@ function New-MailboxProfile {
     $referenceQuota = if ($null -eq $quotaGb) { 100 } else { $quotaGb }
 
     $archiveEnabled = $script:Random.Next(0, 100) -lt 45
+    $recipientType = if ($Index % 5 -eq 0) { "SharedMailbox" } else { "UserMailbox" }
+    $licenseRequired = $recipientType -ne "SharedMailbox"
+    $hasLicense = $licenseRequired -and ($Index % 7 -ne 0)
 
     # Growth is a fraction of quota per day; kept low so a long history does not
     # push most of the tenant over quota by the last sample.
@@ -157,13 +160,15 @@ function New-MailboxProfile {
         DisplayName    = $displayName
         SmtpAddress    = "$localPart@$Domain"
         Alias          = $localPart
-        RecipientTypeDetails = "SharedMailbox"
         CreatedUtc     = [datetime]::UtcNow.AddDays(-$script:Random.Next(365, 5000)).ToString("o")
         UsageProfile   = $usageProfile
         QuotaGB        = $quotaGb
         StartSizeGB    = [math]::Round(($referenceQuota * $startUsage), 2)
         DailyGrowthGB  = [math]::Round(($referenceQuota * $dailyGrowth), 3)
         ArchiveEnabled = $archiveEnabled
+        RecipientTypeDetails = $recipientType
+        LicenseRequired = $licenseRequired
+        HasLicense = $hasLicense
         StartItemCount = $script:Random.Next(500, 90000)
         LastLogonDays  = if ($usageProfile -eq "dormant") { $script:Random.Next(120, 900) } else { $script:Random.Next(0, 14) }
     }
@@ -277,8 +282,31 @@ function New-MailboxHistoryRecord {
         Alias              = $MailboxProfile.Alias
         PrimarySmtpAddress = $MailboxProfile.SmtpAddress
         DisplayName        = $MailboxProfile.DisplayName
+        Licensing          = [pscustomobject]@{
+            RecipientTypeDetails     = $MailboxProfile.RecipientTypeDetails
+            IsSharedMailbox          = $MailboxProfile.RecipientTypeDetails -eq "SharedMailbox"
+            SKUAssigned              = $MailboxProfile.HasLicense
+            PersistedCapabilities    = @(if ($MailboxProfile.HasLicense) { "EXO_P2" })
+            IsInactiveMailbox        = $false
+            LicenseRequired          = $MailboxProfile.LicenseRequired
+            HasLicense               = $MailboxProfile.HasLicense
+            LicenseTypes             = @(if ($MailboxProfile.HasLicense) { "EXO_P2" })
+            LicenseType              = if ($MailboxProfile.HasLicense) { "EXO_P2" } else { $null }
+            IsLicenseCompliant       = (-not $MailboxProfile.LicenseRequired) -or $MailboxProfile.HasLicense
+            LicenseRequirementReason = if ($MailboxProfile.LicenseRequired) { "Synthetic mailbox requires licensing." } else { "Synthetic shared mailbox is typically unlicensed." }
+        }
+        Retention          = [pscustomobject]@{
+            RetentionPolicy            = if ($MailboxProfile.UsageProfile -eq "dormant") { "Default MRM Policy" } else { "Standard MRM Policy" }
+            RetentionHoldEnabled       = $false
+            LitigationHoldEnabled      = $MailboxProfile.UsageProfile -eq "over-quota"
+            LitigationHoldDurationDays = if ($MailboxProfile.UsageProfile -eq "over-quota") { 365 } else { $null }
+            InPlaceHolds               = @()
+            SingleItemRecoveryEnabled  = $true
+            RetainDeletedItemsFor      = "14.00:00:00"
+        }
         RecipientTypeDetails = $MailboxProfile.RecipientTypeDetails
         CreatedUtc         = $MailboxProfile.CreatedUtc
+        WhenCreatedUtc     = $MailboxProfile.CreatedUtc
         Permissions        = $permissions
         Samples            = @($samples)
     }
@@ -342,6 +370,9 @@ for ($i = 1; $i -le $MailboxCount; $i++) {
         DisplayName        = $record.DisplayName
         RecipientTypeDetails = $record.RecipientTypeDetails
         CreatedUtc         = $record.CreatedUtc
+        WhenCreatedUtc     = $record.WhenCreatedUtc
+        Licensing          = $record.Licensing
+        Retention           = $record.Retention
         current            = [pscustomobject]@{
             totalGB          = $latest.SizeGB
             itemCount        = $latest.ItemCount

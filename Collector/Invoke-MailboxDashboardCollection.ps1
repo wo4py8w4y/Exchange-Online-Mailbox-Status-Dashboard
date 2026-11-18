@@ -1,4 +1,3 @@
-# cspell:words Colour pscustomobject
 <#
 .SYNOPSIS
     Runs the full MailboxDashboard collection pipeline.
@@ -16,6 +15,9 @@
 .PARAMETER TestData
     Skips Exchange entirely and builds the dashboard from generated data. Useful for
     verifying a deployment before credentials are in place.
+.PARAMETER Collector
+    ExchangeOnline (default) collects live Exchange statistics. Graph uses only Graph
+    requests, an explicit GraphUserId/ExchangeGuid mapping, and delayed usage reports.
 .PARAMETER Repair
     Lets the validation steps fix recoverable records instead of only reporting them.
 .EXAMPLE
@@ -30,6 +32,10 @@
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
+    [Parameter()]
+    [ValidateSet('ExchangeOnline', 'Graph')]
+    [string]$Collector = 'ExchangeOnline',
+
     [Parameter()]
     [string]$ConfigPath,
 
@@ -69,8 +75,10 @@ $ErrorActionPreference = "Stop"
 
 Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "Modules\MailboxDashboard.Common.psm1") -Force -DisableNameChecking
 Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "Modules\MailboxDashboard.Config.psm1") -Force -DisableNameChecking
+Import-Module -Name (Join-Path -Path $PSScriptRoot -ChildPath "Modules\MailboxDashboard.Operations.psm1") -Force -DisableNameChecking
 
 $script:StepResults = [System.Collections.Generic.List[object]]::new()
+$pipelineParameters = $PSBoundParameters
 
 function Set-CollectorCompletionMetadata {
     param(
@@ -112,14 +120,14 @@ function Invoke-PipelineStep {
         Write-FailureDiagnostic -ErrorRecord $_ -Variables (Get-Variable -Scope 0) -Context "Pipeline step: $Name"
 
         if (-not $ContinueOnFailure) {
-            $script:StepResults.Add([PSCustomObject]@{
+            $script:StepResults.Add([pscustomobject]@{
                 Step = $Name; Status = $status; Duration = ((Get-Date) - $started); Result = $null
             })
             throw
         }
     }
 
-    $script:StepResults.Add([PSCustomObject]@{
+    $script:StepResults.Add([pscustomobject]@{
         Step     = $Name
         Status   = $status
         Duration = ((Get-Date) - $started)
@@ -212,28 +220,50 @@ function Invoke-ParallelCollection {
         Write-Notice "$failed of $($jobs.Count) worker(s) failed - the merge will use what succeeded."
     }
 
-    return [PSCustomObject]@{ Workers = $jobs.Count; Completed = $completed; Failed = $failed }
+    return [pscustomobject]@{ Workers = $jobs.Count; Completed = $completed; Failed = $failed }
 }
 
 # --- Entry point -------------------------------------------------------------
 
 $pipelineStarted = Get-Date
+$runFailed = $false
+$partialCollection = $false
+$runFailureSummary = $null
+$notificationResult = $null
+$connection = $null
 
 $configParams = @{}
 if ($PSBoundParameters.ContainsKey('ConfigPath')) { $configParams.ConfigPath = $ConfigPath }
 if ($PSBoundParameters.ContainsKey('AuthenticationMode')) { $configParams.AuthenticationMode = $AuthenticationMode }
 
 # Test data never touches Exchange, so credentials do not have to be valid for it.
-$config = if ($TestData) {
+$config = if ($TestData -or $Collector -eq 'Graph') {
     Import-MailboxDashboardConfig @configParams -SkipValidation
 }
 else {
     Import-MailboxDashboardConfig @configParams
 }
 
+if ($Collector -eq 'Graph' -and -not $TestData) {
+    if ($Parallel -or $PSBoundParameters.ContainsKey('ThrottleLimit') -or
+        $PSBoundParameters.ContainsKey('BatchSize') -or $KeepWorkerFiles) {
+        throw "Graph collection uses paged requests and one atomic history write; omit -Parallel, -ThrottleLimit, -BatchSize, and -KeepWorkerFiles."
+    }
+    if ($PSBoundParameters.ContainsKey('AuthenticationMode') -and $AuthenticationMode -notin @('Certificate', 'Auto')) {
+        throw "Graph collection supports app-only certificate/client-secret authentication, not '$AuthenticationMode'."
+    }
+    Test-MailboxDashboardConfig -Config $config -Collector Graph
+    if (-not $PSCmdlet.ShouldProcess($config.ResolvedPaths.HistoryJson, "Collect Graph report data and rebuild the dashboard snapshot")) {
+        return
+    }
+}
+
 $historyPath = $config.ResolvedPaths.HistoryJson
 $dataPath = $config.ResolvedPaths.DataJson
 $workerDirectory = $config.ResolvedPaths.ThreadJobsDirectory
+$collectionStatusPath = $config.ResolvedPaths.CollectionStatusJson
+$alertStatePath = $config.ResolvedPaths.AlertStateJson
+$partialCollection = ($null -ne $Identity -and $Identity.Count -gt 0)
 
 $effectiveThrottle = if ($PSBoundParameters.ContainsKey('ThrottleLimit')) { $ThrottleLimit } else { [int]$config.Collection.ThreadCount }
 $timestamp = (Get-Date).ToUniversalTime().ToString("o")
@@ -254,6 +284,13 @@ try {
                 -ConfigPath $config.ConfigPath -Live
         }
     }
+    elseif ($Collector -eq 'Graph') {
+        $null = Invoke-PipelineStep -Name "Collect (Graph)" -Action {
+            $collectParams = @{ ConfigPath = $config.ConfigPath; Connect = $true }
+            if ($pipelineParameters.ContainsKey('Identity')) { $collectParams.Identity = $Identity }
+            & (Join-Path $PSScriptRoot "Collect-GraphMailboxes.ps1") @collectParams
+        }
+    }
     else {
         $authMode = [string]$config.Authentication.Mode
 
@@ -264,7 +301,7 @@ try {
         $connection = Invoke-PipelineStep -Name "Authenticate" -Action {
             . (Join-Path -Path $PSScriptRoot -ChildPath "Invoke-MailboxDashboardAuth.ps1")
             $connectParams = @{ Config = $config }
-            if ($PSBoundParameters.ContainsKey('AuthenticationMode')) { $connectParams.Mode = $AuthenticationMode }
+            if ($pipelineParameters.ContainsKey('AuthenticationMode')) { $connectParams.Mode = $AuthenticationMode }
             Connect-MailboxDashboard @connectParams
         }
 
@@ -286,7 +323,7 @@ try {
                 $null = New-Item -Path $workerDirectory -ItemType Directory -Force
             }
 
-            $null = Invoke-PipelineStep -Name "Collect (parallel)" -Action {
+            $parallelResult = Invoke-PipelineStep -Name "Collect (parallel)" -Action {
                 Invoke-ParallelCollection `
                     -Config $config `
                     -WorkerDirectory $workerDirectory `
@@ -294,6 +331,10 @@ try {
                     -Workers $effectiveThrottle `
                     -Timestamp $timestamp `
                     -CollectorPath (Join-Path -Path $PSScriptRoot -ChildPath "Collect-ExchangeOnlineMailboxes.ps1")
+            }
+            if ($parallelResult.Failed -gt 0) {
+                $partialCollection = $true
+                Write-Notice "Parallel collection produced partial results; mailboxes assigned to failed workers were not updated."
             }
 
             $null = Invoke-PipelineStep -Name "Merge worker output" -Action {
@@ -312,8 +353,8 @@ try {
                     ConfigPath   = $config.ConfigPath
                     TimestampUtc = $timestamp
                 }
-                if ($PSBoundParameters.ContainsKey('BatchSize')) { $collectParams.BatchSize = $BatchSize }
-                if ($PSBoundParameters.ContainsKey('Identity')) { $collectParams.Identity = $Identity }
+                if ($pipelineParameters.ContainsKey('BatchSize')) { $collectParams.BatchSize = $BatchSize }
+                if ($pipelineParameters.ContainsKey('Identity')) { $collectParams.Identity = $Identity }
 
                 & (Join-Path -Path $PSScriptRoot -ChildPath "Collect-ExchangeOnlineMailboxes.ps1") @collectParams
             }
@@ -343,6 +384,11 @@ try {
             & (Join-Path -Path $PSScriptRoot -ChildPath "Test-MailboxDashboardJSON.ps1") -ConfigPath $config.ConfigPath -Target Data
         }
     }
+}
+catch {
+    $runFailed = $true
+    $runFailureSummary = "Collection pipeline failed. See Collector/Logs/failures.log."
+    throw
 }
 finally {
     $elapsed = (Get-Date) - $pipelineStarted
@@ -381,14 +427,91 @@ finally {
     }
     else {
         Write-Notice "$($failedSteps.Count) step(s) failed - see the failure log."
+        $runFailed = $true
+        if ([string]::IsNullOrWhiteSpace($runFailureSummary)) {
+            $runFailureSummary = "One or more pipeline steps failed. See Collector/Logs/failures.log."
+        }
+    }
+
+    $runStatus = if ($runFailed) { "Failed" } elseif ($partialCollection) { "Partial" } else { "Succeeded" }
+    $statusSteps = @(
+        foreach ($step in $script:StepResults) {
+            [pscustomobject]@{
+                name            = $step.Step
+                status          = $step.Status
+                durationSeconds = [math]::Round($step.Duration.TotalSeconds, 3)
+            }
+        }
+    )
+
+    $collectionStatus = [pscustomobject]@{
+        schemaVersion       = 1
+        collector           = $Collector
+        runId               = [guid]::NewGuid().ToString()
+        status              = $runStatus
+        startedUtc          = $pipelineStarted.ToUniversalTime().ToString("o")
+        completedUtc        = (Get-Date).ToUniversalTime().ToString("o")
+        durationSeconds     = [math]::Round($elapsed.TotalSeconds, 3)
+        authenticationMode  = if ($TestData) { "TestData" } elseif ($Collector -eq 'Graph') { "Certificate" } elseif ($null -ne $connection) { [string]$connection.Mode } else { [string]$config.Authentication.Mode }
+        testData            = [bool]$TestData
+        partialCollection   = [bool]$partialCollection
+        staleAfterMinutes   = [int]$config.Monitoring.StaleAfterMinutes
+        steps               = $statusSteps
+        failureSummary      = $runFailureSummary
+        notification        = [pscustomobject]@{
+            enabled         = [bool]$config.Notifications.Enabled
+            deliveryStatus  = if ($config.Notifications.Enabled) { "Pending" } else { "Disabled" }
+            transitionCount = 0
+            errorSummary    = $null
+        }
+    }
+
+    if ($config.Notifications.Enabled) {
+        try {
+            $notificationResult = Invoke-MailboxDashboardAlerting `
+                -Config $config -CollectionStatus $collectionStatus `
+                -DataPath $dataPath -StatePath $alertStatePath
+            $collectionStatus.notification = [pscustomobject]@{
+                enabled         = [bool]$notificationResult.Enabled
+                deliveryStatus  = [string]$notificationResult.DeliveryStatus
+                transitionCount = [int]$notificationResult.TransitionCount
+                errorSummary    = $notificationResult.ErrorSummary
+            }
+        }
+        catch {
+            Write-FailureDiagnostic -ErrorRecord $_ -Context "MailboxDashboard alert orchestration"
+            Write-Notice "Email alert processing failed; collection status was still recorded."
+            $notificationResult = [pscustomobject]@{
+                Enabled = $true; DeliveryStatus = "Failed"; TransitionCount = 0
+                ErrorSummary = "Alert processing failed. See Collector/Logs/failures.log."
+            }
+            $collectionStatus.notification = [pscustomobject]@{
+                enabled = $true; deliveryStatus = "Failed"; transitionCount = 0
+                errorSummary = $notificationResult.ErrorSummary
+            }
+        }
+    }
+
+    try {
+        Write-MailboxDashboardCollectionStatus -Status $collectionStatus -Path $collectionStatusPath
+    }
+    catch {
+        Write-FailureDiagnostic -ErrorRecord $_ -Context "Writing collection status"
+        if (-not $runFailed) {
+            throw
+        }
+        Write-Notice "Collection status could not be saved; see the failure log."
     }
 }
 
-[PSCustomObject]@{
+[pscustomobject]@{
     Steps        = @($script:StepResults)
     Failed       = @($script:StepResults | Where-Object { $_.Status -ne "OK" }).Count
     Elapsed      = (Get-Date) - $pipelineStarted
     HistoryPath  = $historyPath
     DataPath     = $dataPath
+    StatusPath   = $collectionStatusPath
+    Status       = $runStatus
+    Notification = $notificationResult
     TimestampUtc = $timestamp
 }

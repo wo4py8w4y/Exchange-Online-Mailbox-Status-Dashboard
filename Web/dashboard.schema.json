@@ -48,17 +48,24 @@
     }
   },
   "$defs": {
+    "dataAvailability": {
+      "type": "object",
+      "required": ["Source", "ReportRefreshDate", "UnavailableFields"],
+      "properties": {
+        "Source": { "const": "MicrosoftGraph" },
+        "ReportRefreshDate": { "type": "string", "format": "date" },
+        "UnavailableFields": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false
+    },
     "permission": {
       "type": "object",
       "properties": {
         "User": {
-          "type": "string"
-        },
-        "MailboxGuid": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "PermissionType": {
           "type": "string"
         },
         "AccessRights": {
@@ -111,19 +118,19 @@
           ]
         },
         "archiveEnabled": {
-          "type": "boolean"
+          "type": ["boolean", "null"]
         },
         "archiveSizeGB": {
-          "type": "number"
+          "type": ["number", "null"]
         },
         "archiveItemCount": {
-          "type": "number"
+          "type": ["number", "null"]
         }
       },
       "additionalProperties": true
     },
     "retention": {
-      "type": "object",
+      "type": ["object", "null"],
       "properties": {
         "RetentionPolicy": {
           "type": [
@@ -462,6 +469,7 @@
         "current"
       ],
       "properties": {
+        "DataAvailability": { "$ref": "#/$defs/dataAvailability" },
         "ExchangeGuid": {
           "type": "string"
         },
@@ -471,15 +479,10 @@
         "DisplayName": {
           "type": "string"
         },
-        "Alias": {
-          "type": "string"
-        },
-        "RecipientTypeDetails": {
-          "type": "string"
-        },
-        "CreatedUtc": {
-          "type": ["string", "null"]
-        },
+        "Alias": { "type": ["string", "null"] },
+        "RecipientTypeDetails": { "type": ["string", "null"] },
+        "CreatedUtc": { "type": ["string", "null"] },
+        "WhenCreatedUtc": { "type": ["string", "null"] },
         "current": {
           "$ref": "#/$defs/currentMetrics"
         },
@@ -524,6 +527,8 @@
         "ItemCount"
       ],
       "properties": {
+        "DataAvailability": { "$ref": "#/$defs/dataAvailability" },
+        "LastActivityDate": { "type": ["string", "null"] },
         "TimestampUtc": {
           "type": "string"
         },
@@ -534,7 +539,7 @@
           "type": "number"
         },
         "PermissionCount": {
-          "type": "number"
+          "type": ["number", "null"]
         },
         "QuotaGB": {
           "type": [
@@ -555,13 +560,13 @@
           ]
         },
         "ArchiveEnabled": {
-          "type": "boolean"
+          "type": ["boolean", "null"]
         },
         "ArchiveSizeGB": {
-          "type": "number"
+          "type": ["number", "null"]
         },
         "ArchiveItemCount": {
-          "type": "number"
+          "type": ["number", "null"]
         }
       },
       "additionalProperties": true
@@ -575,6 +580,7 @@
         "Samples"
       ],
       "properties": {
+        "DataAvailability": { "$ref": "#/$defs/dataAvailability" },
         "ExchangeGuid": {
           "type": "string"
         },
@@ -584,15 +590,10 @@
         "DisplayName": {
           "type": "string"
         },
-        "Alias": {
-          "type": "string"
-        },
-        "RecipientTypeDetails": {
-          "type": "string"
-        },
-        "CreatedUtc": {
-          "type": ["string", "null"]
-        },
+        "Alias": { "type": ["string", "null"] },
+        "RecipientTypeDetails": { "type": ["string", "null"] },
+        "CreatedUtc": { "type": ["string", "null"] },
+        "WhenCreatedUtc": { "type": ["string", "null"] },
         "Permissions": {
           "type": [
             "array",
