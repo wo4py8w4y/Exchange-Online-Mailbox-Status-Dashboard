@@ -386,7 +386,7 @@ if ($null -eq $existingGrant) {
     }
 
     if ($PSCmdlet.ShouldProcess("Delegated permission grant for '$DisplayName'", "Grant '$grantScope'")) {
-        $permissionGrant = New-MgOauth2PermissionGrant @grantParams
+        $null = New-MgOauth2PermissionGrant @grantParams
     }
 }
 else {
@@ -397,7 +397,7 @@ else {
     }
 
     if ($PSCmdlet.ShouldProcess("Delegated permission grant for '$DisplayName'", "Update '$grantScope'")) {
-        $permissionGrant = Update-MgOauth2PermissionGrant @grantParams
+        $null = Update-MgOauth2PermissionGrant @grantParams
     }
 }
 

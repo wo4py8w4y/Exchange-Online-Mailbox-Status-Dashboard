@@ -85,7 +85,7 @@ Set-Content (Join-Path $PSScriptRoot "graph-invoked.txt") ($Identity -join ',')
     }
 
     It "rejects Exchange worker switches before touching Graph or status output" {
-        { & $pipelinePath -ConfigPath $configPath -Collector Graph -Parallel } | Should Throw
+        { & $pipelinePath -ConfigPath $configPath -Collector Graph -Parallel } | Should Throw "Graph collection"
         (Test-Path (Join-Path $fixtureRoot "graph-invoked.txt")) | Should Be $false
         (Test-Path (Join-Path $testRoot "status.json")) | Should Be $false
     }
