@@ -255,12 +255,12 @@ try {
         Write-SyncLog -Level $status -Message $relativePath
 
         $results.Add([pscustomobject]@{
-            RelativePath = $relativePath
-            Status       = $status
-            LocalHash    = $localHash
-            RemoteHash   = $remoteHash
-            Action       = ""
-        })
+                RelativePath = $relativePath
+                Status       = $status
+                LocalHash    = $localHash
+                RemoteHash   = $remoteHash
+                Action       = ""
+            })
     }
 
     foreach ($relativePath in ($localFiles.Keys | Where-Object { -not $remoteFiles.ContainsKey($_) } | Sort-Object)) {
@@ -270,12 +270,12 @@ try {
         }
         Write-SyncLog -Level LocalOnly -Message $relativePath
         $results.Add([pscustomobject]@{
-            RelativePath = $relativePath
-            Status       = "LocalOnly"
-            LocalHash    = Get-NormalizedFileHash -Path $localFiles[$relativePath]
-            RemoteHash   = $null
-            Action       = ""
-        })
+                RelativePath = $relativePath
+                Status       = "LocalOnly"
+                LocalHash    = Get-NormalizedFileHash -Path $localFiles[$relativePath]
+                RemoteHash   = $null
+                Action       = ""
+            })
     }
 
     $delta = @($results | Where-Object { $_.Status -in @("Modified", "Missing") })

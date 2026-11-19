@@ -5,11 +5,23 @@
     "guigit.fileViewMode": "tree",
     "cSpell.language": "en,en-GB",
     "cSpell.words": [
+        "arbitrationmailbox",
+        "auditlogmailbox",
         "Colour",
         "Colours",
+        "datetimeoffset",
+        "discoverymailbox",
         "Entra",
+        "equipmentmailbox",
+        "groupmailbox",
         "jsonc",
         "pscustomobject",
+        "psobject",
+        "publicfoldermailbox",
+        "roommailbox",
+        "schedulingmailbox",
+        "sharedmailbox",
+        "teammailbox",
         "ThreadJob"
     ]
 }
