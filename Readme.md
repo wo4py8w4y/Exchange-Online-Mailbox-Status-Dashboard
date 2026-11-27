@@ -627,7 +627,10 @@ To build the dashboard end to end without Exchange:
 
 | Page | Shows |
 |---|---|
-| `index.html` | Overview: totals, charts, full mailbox table |
+| `index.html` | Exchange Control Center overview: collection health, KPI tiles, operational readiness, storage charts, mailbox activity and inventory |
+| `reports.html` | Capacity, activity, licensing, permissions and retention exports in CSV or JSON |
+| `settings.html` | Persistent ECC colour themes, darkest-background mode and layout density |
+| `classic.html` | Compatibility view with the original tables and export controls |
 | `scope.html` | The same overview limited to one scope |
 | `mailbox.html` | One mailbox: metrics, history, delegates |
 | `history.html` | Historical storage and utilisation |
@@ -637,14 +640,18 @@ To build the dashboard end to end without Exchange:
 | `thresholds.html` | Mailboxes at or above the warning threshold |
 | `validate.html` | Standalone data validation view |
 
-### Modern view
+### Control center view
 
-`Web/modern/` is an alternative front end over the same `data.json`, `history.json` and
-`scopes.json`. It does not replace the classic pages; both can be deployed side by side.
+The root `index.html` is the default Exchange Control Center front end over the same
+`data.json`, `history.json`, `scopes.json` and `collection-status.json` as the classic
+pages. The collector payloads do not change. The compatibility view remains available at
+`classic.html`, and the existing report pages continue to receive scoped mailbox links.
 
 | Page | Shows |
 |---|---|
-| `modern/index.html` | KPI tiles with sparklines, storage trend, health donut, quota distribution, top consumers, logon activity, sortable mailbox table |
+| `index.html` | KPI tiles with sparklines, storage trend, health donut, collection readiness, quota distribution, top consumers, logon activity, sortable mailbox table |
+| `reports.html` | Real-data report cards with scoped CSV/JSON exports for capacity, activity, licensing, permissions and retention |
+| `settings.html` | ECC palettes, forced-darkest background calculation and comfortable/compact density |
 | `modern/mailbox.html` | One mailbox: storage history, quota gauge, created / last logon / refreshed / collector dates, licensing, delegates |
 
 Every page shows a **QR code that links to exactly what is on screen** — scope, search,
@@ -653,8 +660,9 @@ link or download the QR as SVG. The QR is generated in the browser by
 `modern/qrcode.js`; no external service is called. Anyone scanning it still needs access
 to the dashboard.
 
-The modern view has light and dark themes (toggle in the top bar, remembered per
-browser) and adapts to phone widths.
+The control center includes light, dark and ECC terminal-inspired palettes. Appearance
+choices save in browser local storage, preserve readable contrast, and do not modify
+collector configuration or JSON output. The layout adapts to phone widths.
 
 Mailbox delegation records carry the target `ExchangeGuid`; links use that GUID while the
 map displays mailbox names and aliases. The map distinguishes Full Access, Send As, and
