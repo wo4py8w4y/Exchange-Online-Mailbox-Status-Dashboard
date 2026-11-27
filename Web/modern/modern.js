@@ -1,8 +1,13 @@
 "use strict";
 
-const DATA_URL = "../data.json";
-const HISTORY_URL = "../history.json";
-const SCOPES_URL = "../scopes.json";
+const DATA_ROOT = document.body?.dataset.dataRoot ?? "../";
+const ASSET_ROOT = document.body?.dataset.assetRoot ?? "";
+const PAGE_ROOT = document.body?.dataset.pageRoot ?? "";
+const DATA_URL = `${DATA_ROOT}data.json`;
+const HISTORY_URL = `${DATA_ROOT}history.json`;
+const SCOPES_URL = `${DATA_ROOT}scopes.json`;
+const COLLECTION_STATUS_URL = `${DATA_ROOT}collection-status.json`;
+const THEMES_URL = `${ASSET_ROOT}themes.json`;
 const WARNING_THRESHOLD = 85;
 const CRITICAL_THRESHOLD = 94;
 const INACTIVE_DAYS = 90;
@@ -20,6 +25,7 @@ const STATUS = {
 const ICONS = {
     logo: '<path d="M4 6h16v12H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
     grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+    report: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 12h7M9 16h7"/>',
     mailbox: '<path d="M4 6h16v12H4z"/><path d="m4 7 8 6 8-6"/>',
     classic: '<path d="M3 12h18M3 6h18M3 18h12"/>',
     search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
@@ -36,6 +42,8 @@ const ICONS = {
     login: '<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="m10 17 5-5-5-5M15 12H3"/>',
     sync: '<path d="M4 12a8 8 0 0 1 13.7-5.7L20 9"/><path d="M20 4v5h-5"/><path d="M20 12a8 8 0 0 1-13.7 5.7L4 15"/><path d="M4 20v-5h5"/>',
     check: '<path d="m5 12 5 5 9-9"/>',
+    settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-1.8 3.1-.2-.1a1.7 1.7 0 0 0-1.9.2l-.1.1-1.8-1a1.7 1.7 0 0 0-1.7-1.5h-.2l-1.8 1.1-.2-.1a1.7 1.7 0 0 0-.7-1.8l-.1-.1V13.4a1.7 1.7 0 0 0-1.5-1.4H7.8l-.1-.1V8.4h.2a1.7 1.7 0 0 0 1.5-1.7v-.1l1.8-3.1h.2a1.7 1.7 0 0 0 1.8 0l.1-.1 1.8 1 .1.1a1.7 1.7 0 0 0-.2 1.9v.1l1.7 1h.1l1.8 1v3.5z"/>',
+    book: '<path d="M4 4h11a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3z"/><path d="M7 4v16M10 8h5M10 12h5"/>',
     copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
     download: '<path d="M12 3v12M7 10l5 5 5-5M4 21h16"/>',
     close: '<path d="M6 6l12 12M18 6 6 18"/>'
@@ -47,6 +55,8 @@ const state = {
     byKey: new Map(),
     history: new Map(),
     scopes: [],
+    collectionStatus: null,
+    themes: [],
     meta: { collectorUtc: null, recordUtc: null, historyUtc: null },
     view: readViewFromUrl()
 };
@@ -191,6 +201,10 @@ function buildUrl(overrides = {}, path = null) {
     return url;
 }
 
+function pageUrl(page) {
+    return `${page === "mailbox" ? PAGE_ROOT : ""}${page}.html`;
+}
+
 function setView(changes, { resetPage = false } = {}) {
     state.view = { ...state.view, ...changes };
     if (resetPage) state.view.page = 1;
@@ -268,10 +282,12 @@ function indexHistory(raw) {
 }
 
 async function loadData() {
-    const [data, history, scopes] = await Promise.all([
+    const [data, history, scopes, collectionStatus, themes] = await Promise.all([
         fetchJson(DATA_URL),
         fetchJson(HISTORY_URL, { optional: true }).catch(() => null),
-        fetchJson(SCOPES_URL, { optional: true }).catch(() => null)
+        fetchJson(SCOPES_URL, { optional: true }).catch(() => null),
+        fetchJson(COLLECTION_STATUS_URL, { optional: true }).catch(() => null),
+        fetchJson(THEMES_URL, { optional: true }).catch(() => [])
     ]);
 
     state.data = data;
@@ -281,6 +297,8 @@ async function loadData() {
     state.scopes = Array.isArray(scopes?.scopes) && scopes.scopes.length
         ? scopes.scopes.filter(s => s && s.id)
         : [{ id: "all", name: "All Mailboxes", rules: {} }];
+    state.collectionStatus = collectionStatus;
+    state.themes = Array.isArray(themes) ? themes : [];
     state.meta = {
         collectorUtc: parseDate(pick(data, "CollectorLastCompletedUtc") ?? pick(history, "CollectorLastCompletedUtc")),
         recordUtc: parseDate(pick(data, "GeneratedUtc", "generatedUtc")),
@@ -289,6 +307,7 @@ async function loadData() {
 
     const defaultScope = scopes?.defaultScope && state.scopes.some(s => s.id === scopes.defaultScope) ? scopes.defaultScope : state.scopes[0].id;
     if (!state.scopes.some(s => s.id === state.view.scope)) state.view.scope = defaultScope;
+    applyAppearance();
 }
 
 // ── Scope / filtering ────────────────────────────────────────
@@ -559,27 +578,217 @@ function renderFreshness() {
         ${future ? `<span style="color:var(--crit)" title="Timestamps are later than now. Re-run Test-MailboxDashboardJSON.ps1 -Repair with the fixed collector.">⚠ timestamp is in the future</span>` : ""}`;
 }
 
+function collectionHealth() {
+    const status = state.collectionStatus;
+    if (!status) {
+        return {
+            tone: "tone-warn",
+            label: "Collection status unavailable",
+            detail: "The mailbox snapshot loaded, but collection-status.json is missing or invalid.",
+            short: "Status unavailable"
+        };
+    }
+
+    const completed = parseDate(pick(status, "completedUtc", "CompletedUtc"));
+    const ageMinutes = completed ? Math.floor((Date.now() - completed.getTime()) / 60000) : null;
+    const staleAfter = toNumber(pick(status, "staleAfterMinutes", "StaleAfterMinutes")) ?? 60;
+    const stateName = String(pick(status, "status", "Status") || "Unknown");
+    const partial = pick(status, "partialCollection", "PartialCollection") === true;
+    const testData = pick(status, "testData", "TestData") === true;
+    const failed = /failed/i.test(stateName);
+    const stale = ageMinutes !== null && ageMinutes > staleAfter;
+    const tone = failed || partial || stale ? (failed ? "tone-crit" : "tone-warn") : "tone-ok";
+    const detail = [
+        `${stateName}${partial ? " · partial collection" : ""}`,
+        completed ? `completed ${fmtRelative(completed)}` : "completion time unknown",
+        testData ? "synthetic test data" : "live or persisted collection data"
+    ].join(" · ");
+    return { tone, label: failed ? "Collection failed" : partial ? "Partial collection" : stale ? "Collection is stale" : "Collection healthy", detail, short: failed ? "Collection failed" : partial ? "Partial" : stale ? "Stale" : "Operational" };
+}
+
+function renderCollectionHealth() {
+    const health = collectionHealth();
+    const strip = document.getElementById("collectionHealth");
+    if (strip) {
+        strip.className = `collection-strip ${health.tone}`;
+        strip.innerHTML = `<span class="collection-icon">${icon(health.tone === "tone-ok" ? "check" : "alert")}</span>
+            <div><strong>${escapeHtml(health.label)}</strong><span>${escapeHtml(health.detail)}</span></div>
+            ${document.getElementById("reportsContent") ? "" : `<a class="btn" href="${escapeHtml(pageUrl("reports"))}">View reports</a>`}`;
+    }
+    const sidebar = document.getElementById("sidebarCollectionState");
+    if (sidebar) {
+        sidebar.className = `connection-state ${health.tone}`;
+        sidebar.innerHTML = `<i></i>${escapeHtml(health.short)}`;
+    }
+}
+
+function readinessRows(mailboxes) {
+    const reporting = window.MailboxReporting;
+    const summary = reporting
+        ? reporting.aggregate(mailboxes)
+        : { warningCount: 0, criticalCount: 0, overQuotaCount: 0, inactive90Count: 0, licenseGapCount: 0, noRetentionPolicyCount: 0, delegationCount: 0 };
+    return [
+        {
+            icon: "alert",
+            label: "Quota pressure",
+            detail: `${fmtNumber(summary.overQuotaCount)} over quota · ${fmtNumber(summary.criticalCount)} critical · ${fmtNumber(summary.warningCount)} warning`,
+            tone: summary.overQuotaCount + summary.criticalCount ? "tone-crit" : summary.warningCount ? "tone-warn" : "tone-ok"
+        },
+        {
+            icon: "sleep",
+            label: "Mailbox activity",
+            detail: `${fmtNumber(summary.inactive90Count)} mailboxes inactive for 90+ days or without a logon date`,
+            tone: summary.inactive90Count ? "tone-warn" : "tone-ok"
+        },
+        {
+            icon: "check",
+            label: "Licensing coverage",
+            detail: `${fmtNumber(summary.licenseGapCount)} known required-license gaps`,
+            tone: summary.licenseGapCount ? "tone-warn" : "tone-ok"
+        },
+        {
+            icon: "archive",
+            label: "Retention coverage",
+            detail: `${fmtNumber(summary.noRetentionPolicyCount)} mailboxes without a recorded retention policy`,
+            tone: summary.noRetentionPolicyCount ? "tone-warn" : "tone-ok"
+        },
+        {
+            icon: "users",
+            label: "Delegation inventory",
+            detail: `${fmtNumber(summary.delegationCount)} explicit permissions across ${fmtNumber(mailboxes.length)} mailboxes`,
+            tone: "tone-info"
+        }
+    ];
+}
+
+function renderReadiness(host, mailboxes) {
+    if (!host) return;
+    host.innerHTML = readinessRows(mailboxes).map(row => `
+        <div class="readiness-item ${row.tone}">
+            <span class="readiness-icon">${icon(row.icon)}</span>
+            <span><strong>${escapeHtml(row.label)}</strong><small>${escapeHtml(row.detail)}</small></span>
+            <i aria-hidden="true"></i>
+        </div>`).join("");
+}
+
 function renderScopeSelect() {
     const select = document.getElementById("scopeSelect");
     if (!select) return;
     select.innerHTML = state.scopes.map(s => `<option value="${escapeHtml(s.id)}" title="${escapeHtml(s.description || "")}">${escapeHtml(s.name || s.id)}</option>`).join("");
     select.value = state.view.scope;
+    const sidebarScope = document.getElementById("sidebarScope");
+    if (sidebarScope) sidebarScope.textContent = activeScope()?.name || state.view.scope || "All mailboxes";
+}
+
+function luminance(hex) {
+    const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
+        .map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+}
+
+function blendHex(left, right, amount) {
+    const channels = [1, 3, 5].map(index => {
+        const a = parseInt(left.slice(index, index + 2), 16);
+        const b = parseInt(right.slice(index, index + 2), 16);
+        return Math.round(a + (b - a) * amount).toString(16).padStart(2, "0");
+    });
+    return `#${channels.join("")}`;
+}
+
+function readAppearance() {
+    const fallback = {
+        theme: ["light", "dark"].includes(document.documentElement.dataset.theme) ? document.documentElement.dataset.theme : "light",
+        forceDarkest: true,
+        density: "comfortable"
+    };
+    try {
+        const saved = JSON.parse(localStorage.getItem("mailboxDashboardAppearance"));
+        return { ...fallback, ...(saved && typeof saved === "object" ? saved : {}) };
+    } catch {
+        return fallback;
+    }
+}
+
+function saveAppearance(appearance) {
+    try {
+        localStorage.setItem("mailboxDashboardAppearance", JSON.stringify(appearance));
+        localStorage.setItem("modernDashboardTheme", ["light", "dark"].includes(appearance.theme) ? appearance.theme : "dark");
+    } catch {
+        return false;
+    }
+    return true;
+}
+
+function darkestThemeColor(theme) {
+    return Object.values(theme)
+        .filter(value => typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value))
+        .reduce((darkest, color) => luminance(color) < luminance(darkest) ? color : darkest, theme.background);
+}
+
+function clearPaletteStyles() {
+    const names = [
+        "--bg", "--bg-accent", "--surface", "--surface-2", "--surface-glass", "--border",
+        "--text", "--text-2", "--text-3", "--primary", "--primary-2", "--primary-soft",
+        "--muted", "--grid", "--shadow", "--shadow-lg"
+    ];
+    names.forEach(name => document.documentElement.style.removeProperty(name));
+}
+
+function applyAppearance(options = {}) {
+    const appearance = { ...readAppearance(), ...(options || {}) };
+    const theme = state.themes.find(item => item.name === appearance.theme);
+    const root = document.documentElement;
+
+    clearPaletteStyles();
+    if (theme) {
+        const background = appearance.forceDarkest ? darkestThemeColor(theme) : theme.background;
+        const dark = luminance(background) < 0.35;
+        const foreground = theme.foreground || (dark ? "#f8fafc" : "#111827");
+        const surface = blendHex(background, foreground, dark ? 0.07 : 0.035);
+        const surface2 = blendHex(background, foreground, dark ? 0.035 : 0.018);
+        const primary = theme.blue || "#5b5ce2";
+        const primary2 = theme.cyan || theme.purple || blendHex(primary, foreground, 0.24);
+        root.style.setProperty("--bg", background);
+        root.style.setProperty("--bg-accent", `radial-gradient(1200px 600px at 100% -10%, ${primary}28, transparent 60%)`);
+        root.style.setProperty("--surface", surface);
+        root.style.setProperty("--surface-2", surface2);
+        root.style.setProperty("--surface-glass", `${surface}e8`);
+        root.style.setProperty("--border", blendHex(background, foreground, dark ? 0.16 : 0.13));
+        root.style.setProperty("--text", foreground);
+        root.style.setProperty("--text-2", blendHex(foreground, background, dark ? 0.26 : 0.42));
+        root.style.setProperty("--text-3", blendHex(foreground, background, dark ? 0.43 : 0.58));
+        root.style.setProperty("--primary", primary);
+        root.style.setProperty("--primary-2", primary2);
+        root.style.setProperty("--primary-soft", `${primary}24`);
+        root.style.setProperty("--muted", blendHex(foreground, background, 0.72));
+        root.style.setProperty("--grid", blendHex(background, foreground, dark ? 0.1 : 0.07));
+        root.dataset.theme = dark ? "dark" : "light";
+        root.dataset.eccTheme = theme.name;
+    } else {
+        root.dataset.theme = appearance.theme === "dark" ? "dark" : "light";
+        delete root.dataset.eccTheme;
+    }
+    root.style.setProperty("color-scheme", root.dataset.theme);
+    root.dataset.density = appearance.density;
+
+    const btn = document.getElementById("themeToggle");
+    if (btn) {
+        btn.innerHTML = icon(root.dataset.theme === "dark" ? "sun" : "moon");
+        btn.setAttribute("aria-label", root.dataset.theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
+    }
+    return appearance;
 }
 
 function applyTheme(theme) {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem("modernDashboardTheme", theme);
-    const btn = document.getElementById("themeToggle");
-    if (btn) {
-        btn.innerHTML = icon(theme === "dark" ? "sun" : "moon");
-        btn.setAttribute("aria-label", theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
-    }
+    const appearance = { ...readAppearance(), theme };
+    saveAppearance(appearance);
+    applyAppearance(appearance);
 }
 
 function wireChrome() {
     document.querySelectorAll("[data-icon]").forEach(el => { el.innerHTML = icon(el.dataset.icon); });
 
-    applyTheme(document.documentElement.dataset.theme || "light");
+    applyAppearance();
     document.getElementById("themeToggle")?.addEventListener("click", () =>
         applyTheme(document.documentElement.dataset.theme === "dark" ? "light" : "dark"));
 
@@ -599,6 +808,128 @@ function wireChrome() {
         });
     }
 
+    function downloadText(filename, content, mimeType) {
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([content], { type: mimeType }));
+        link.download = filename;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    }
+
+    function exportReport(type, format = "csv") {
+        if (!window.MailboxReporting) {
+            showToast("Reporting module is unavailable");
+            return;
+        }
+        const report = window.MailboxReporting.buildReport(type, filteredMailboxes());
+        const suffix = new Date().toISOString().slice(0, 10);
+        if (format === "json") {
+            const rows = report.rows.map(values => Object.fromEntries(report.headers.map((header, index) => [header, values[index]])));
+            downloadText(`${type}-mailbox-report-${suffix}.json`, JSON.stringify({ title: report.title, rows }, null, 2), "application/json;charset=utf-8");
+        } else {
+            downloadText(`${type}-mailbox-report-${suffix}.csv`, window.MailboxReporting.toCsv(report), "text/csv;charset=utf-8");
+        }
+        showToast(`${report.title} exported`);
+    }
+
+    function renderReports() {
+        const rows = filteredMailboxes();
+        const reporting = window.MailboxReporting;
+        if (!reporting) throw new Error("reporting.js did not load.");
+        const summary = reporting.aggregate(rows);
+        const cards = [
+            { type: "capacity", icon: "db", title: "Capacity & quota", text: `${fmtNumber(summary.overQuotaCount + summary.criticalCount + summary.warningCount)} mailboxes need capacity review.`, count: rows.length },
+            { type: "activity", icon: "sleep", title: "Activity & inactivity", text: `${fmtNumber(summary.inactive90Count)} mailboxes are inactive for 90+ days or unknown.`, count: rows.length },
+            { type: "licensing", icon: "check", title: "Licensing", text: `${fmtNumber(summary.licenseGapCount)} confirmed required-license gaps.`, count: rows.filter(m => m.licenseRequired !== null && m.licenseRequired !== undefined).length },
+            { type: "permissions", icon: "users", title: "Mailbox permissions", text: `${fmtNumber(summary.delegationCount)} explicit permission records.`, count: summary.delegationCount },
+            { type: "retention", icon: "archive", title: "Retention & holds", text: `${fmtNumber(summary.noRetentionPolicyCount)} mailboxes lack a recorded policy.`, count: rows.length }
+        ];
+        document.getElementById("reportMailboxCount").textContent = `${fmtNumber(rows.length)} mailbox${rows.length === 1 ? "" : "es"}`;
+        document.getElementById("reportCards").innerHTML = cards.map(card => `
+            <article class="card report-card">
+                <span class="report-card-icon">${icon(card.icon)}</span>
+                <span class="report-card-count">${fmtNumber(card.count)}</span>
+                <h2>${escapeHtml(card.title)}</h2>
+                <p>${escapeHtml(card.text)}</p>
+                <div class="report-actions">
+                    <button type="button" class="btn btn-primary" data-export-report="${card.type}" data-report-format="csv">Export CSV</button>
+                    <button type="button" class="btn" data-export-report="${card.type}" data-report-format="json">JSON</button>
+                </div>
+            </article>`).join("");
+        document.getElementById("reportSummary").textContent = `${fmtGB(summary.primaryGB)} primary · ${fmtGB(summary.archiveGB)} archive · ${fmtNumber(rows.length)} mailboxes`;
+        const health = collectionHealth();
+        const pill = document.getElementById("reportHealthPill");
+        if (pill) {
+            pill.className = `chip ${health.tone}`;
+            pill.textContent = health.short;
+        }
+        renderReadiness(document.getElementById("reportReadiness"), rows);
+    }
+
+    function renderSettings() {
+        const appearance = readAppearance();
+        const themeSelect = document.getElementById("appearanceTheme");
+        const forceDarkest = document.getElementById("forceDarkestBackground");
+        const density = document.getElementById("appearanceDensity");
+        if (!themeSelect || !forceDarkest || !density) return;
+
+        themeSelect.innerHTML = [
+            `<option value="light">Default light</option>`,
+            `<option value="dark">Default dark</option>`,
+            ...state.themes.map(theme => `<option value="${escapeHtml(theme.name)}">${escapeHtml(theme.name)}</option>`)
+        ].join("");
+        themeSelect.value = [...themeSelect.options].some(option => option.value === appearance.theme) ? appearance.theme : "light";
+        forceDarkest.checked = appearance.forceDarkest !== false;
+        density.value = appearance.density === "compact" ? "compact" : "comfortable";
+        document.getElementById("themeSwatches").innerHTML = state.themes.map(theme => {
+            const selected = theme.name === appearance.theme;
+            return `<button type="button" class="theme-swatch${selected ? " selected" : ""}" data-theme-choice="${escapeHtml(theme.name)}" aria-pressed="${selected}">
+                <span style="background:${escapeHtml(theme.background)}"></span>
+                <span style="background:${escapeHtml(theme.blue)}"></span>
+                <span>${escapeHtml(theme.name)}</span>
+            </button>`;
+        }).join("");
+        document.getElementById("appearanceStatus").textContent = `${themeSelect.value} · ${density.value} · ${forceDarkest.checked ? "darkest available" : "supplied"} background`;
+    }
+
+    function updateAppearanceFromSettings() {
+        const appearance = {
+            theme: document.getElementById("appearanceTheme").value,
+            forceDarkest: document.getElementById("forceDarkestBackground").checked,
+            density: document.getElementById("appearanceDensity").value
+        };
+        const persisted = saveAppearance(appearance);
+        applyAppearance(appearance);
+        window.dashboardRenderSettings();
+        document.getElementById("appearanceStatus").textContent = persisted
+            ? `Saved: ${appearance.theme} · ${appearance.density}`
+            : `Applied: ${appearance.theme} · browser storage unavailable`;
+    }
+
+    function wireReportsAndSettings() {
+        document.addEventListener("click", event => {
+            const exportButton = event.target.closest("[data-export-report]");
+            if (exportButton) exportReport(exportButton.dataset.exportReport, exportButton.dataset.reportFormat || "csv");
+            const themeChoice = event.target.closest("[data-theme-choice]");
+            if (themeChoice && document.getElementById("appearanceTheme")) {
+                document.getElementById("appearanceTheme").value = themeChoice.dataset.themeChoice;
+                updateAppearanceFromSettings();
+            }
+            const openReport = event.target.closest("[data-open-report]");
+            if (openReport) sessionStorage.setItem("mailboxDashboardPreferredReport", openReport.dataset.openReport);
+        });
+        ["appearanceTheme", "forceDarkestBackground", "appearanceDensity"].forEach(id => {
+            document.getElementById(id)?.addEventListener("change", updateAppearanceFromSettings);
+        });
+        document.getElementById("resetAppearance")?.addEventListener("click", () => {
+            const appearance = { theme: "light", forceDarkest: true, density: "comfortable" };
+            saveAppearance(appearance);
+            applyAppearance(appearance);
+            renderSettings();
+            showToast("Appearance reset");
+        });
+    }
+
     document.addEventListener("click", e => {
         if (e.target.closest("[data-open-share]")) openShareDialog();
         if (e.target.closest("[data-copy-link]")) copyShareUrl();
@@ -609,8 +940,11 @@ function wireChrome() {
     // Carry scope between pages; the overview drops the mailbox and the classic pages only understand scope/mailbox.
     document.querySelectorAll("[data-nav]").forEach(link => {
         link.addEventListener("click", () => {
-            const target = link.getAttribute("href").split("?")[0];
+            let target = link.getAttribute("href").split("?")[0];
             if (link.dataset.nav === "classic") {
+                if (PAGE_ROOT === "" && target === "../index.html" && window.location.pathname.includes("/modern/")) {
+                    target = "../classic.html";
+                }
                 const url = new URL(target, window.location.href);
                 if (state.view.scope) url.searchParams.set("scope", state.view.scope);
                 if (state.view.mailbox) url.searchParams.set("mailbox", state.view.mailbox);
@@ -620,6 +954,9 @@ function wireChrome() {
             }
         });
     });
+    window.dashboardRenderReports = renderReports;
+    window.dashboardRenderSettings = renderSettings;
+    wireReportsAndSettings();
 }
 
 // ── Overview page ────────────────────────────────────────────
@@ -641,6 +978,7 @@ function renderOverview() {
     const rows = filteredMailboxes();
     const counts = statusCounts(rows);
     const trend = tenantTrend(rows);
+    renderReadiness(document.getElementById("readinessList"), rows);
 
     const primaryTotal = rows.reduce((s, m) => s + m.totalGB, 0);
     const archiveTotal = rows.reduce((s, m) => s + m.archiveGB, 0);
@@ -679,7 +1017,7 @@ function renderOverview() {
 
     document.getElementById("topChart").innerHTML = hbarList([...rows].sort((a, b) => b.totalGB - a.totalGB).slice(0, 8).map(m => ({
         label: m.name, title: m.smtp, value: m.totalGB, display: fmtGB(m.totalGB),
-        href: buildUrl({ mailbox: m.guid || m.smtp }, "mailbox.html").href
+        href: buildUrl({ mailbox: m.guid || m.smtp }, pageUrl("mailbox")).href
     })));
 
     const activity = [
@@ -713,7 +1051,7 @@ function renderTable(rows) {
         <th scope="col"${c.num ? ' class="num"' : ""} aria-sort="${c.key === col.key ? (dir === 1 ? "ascending" : "descending") : "none"}"><button type="button" data-sort="${c.key}">${escapeHtml(c.label)}</button></th>`).join("")}</tr>`;
 
     document.getElementById("tableBody").innerHTML = pageRows.length ? pageRows.map(m => {
-        const href = buildUrl({ mailbox: m.guid || m.smtp }, "mailbox.html").href;
+        const href = buildUrl({ mailbox: m.guid || m.smtp }, pageUrl("mailbox")).href;
         const tone = STATUS[m.status].color;
         return `<tr data-href="${escapeHtml(href)}">
             <td><div class="cell-name"><span class="avatar" style="background:${avatarColor(m.key)}">${escapeHtml(initials(m.name))}</span>
@@ -883,18 +1221,35 @@ function renderMailbox() {
 function render() {
     renderFreshness();
     renderScopeSelect();
+    renderCollectionHealth();
     if (document.body.dataset.page === "mailbox") renderMailbox();
+    else if (document.body.dataset.page === "reports") window.dashboardRenderReports();
+    else if (document.body.dataset.page === "settings") window.dashboardRenderSettings();
     else renderOverview();
     renderShareCard();
 }
 
 async function boot() {
     try {
+        if (document.body.dataset.page === "settings") {
+            state.themes = (await fetchJson(THEMES_URL, { optional: true }).catch(() => [])) || [];
+            applyAppearance();
+            window.dashboardRenderSettings();
+            const scope = document.getElementById("sidebarScope");
+            if (scope) scope.textContent = "Appearance settings";
+            const health = document.getElementById("sidebarCollectionState");
+            if (health) health.innerHTML = "<i></i>Browser preferences only";
+            return;
+        }
         await loadData();
         window.history.replaceState(null, "", buildUrl());
         render();
     } catch (err) {
-        const host = document.getElementById("mailboxContent") || document.getElementById("content");
+        const host = document.getElementById("mailboxContent") ||
+            document.getElementById("content") ||
+            document.getElementById("reportsContent") ||
+            document.getElementById("settingsContent") ||
+            document.body;
         host.insertAdjacentHTML("afterbegin", `<div class="alert tone-crit">${icon("alert")}<div><strong>Could not load dashboard data.</strong> ${escapeHtml(err.message)}</div></div>`);
         console.error(err);
     }
@@ -902,6 +1257,6 @@ async function boot() {
 
 document.addEventListener("DOMContentLoaded", () => {
     wireChrome();
-    if (document.body.dataset.page !== "mailbox") wireOverview();
+    if (!["mailbox", "reports", "settings"].includes(document.body.dataset.page)) wireOverview();
     boot();
 });

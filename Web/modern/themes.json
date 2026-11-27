@@ -1,0 +1,105 @@
+[
+    {
+        "name": "ECC | Graphite Blue",
+        "background": "#f4f6fb",
+        "foreground": "#172033",
+        "black": "#18213b",
+        "blue": "#5b5ce2"
+    },
+    {
+        "name": "Tokyo Night",
+        "background": "#1a1b26",
+        "foreground": "#c0caf5",
+        "black": "#15161e",
+        "blue": "#7aa2f7",
+        "cyan": "#7dcfff",
+        "purple": "#bb9af7"
+    },
+    {
+        "name": "ECC | Superstar Sticker Party",
+        "background": "#110A23",
+        "foreground": "#AAFF00",
+        "black": "#0B0617",
+        "blue": "#00AAFF",
+        "cyan": "#00AAFF",
+        "green": "#AAFF00",
+        "purple": "#B17ADE",
+        "red": "#FF00A8"
+    },
+    {
+        "name": "ECC | Rose Noir Atelier",
+        "background": "#0D1216",
+        "foreground": "#F5C3D6",
+        "black": "#080C0E",
+        "blue": "#818486",
+        "cyan": "#818486",
+        "purple": "#FE007F",
+        "red": "#FE007F"
+    },
+    {
+        "name": "ECC | Liquid Neon Lagoon",
+        "background": "#513AEE",
+        "foreground": "#F5F7FF",
+        "black": "#35269B",
+        "blue": "#7FB9E0",
+        "cyan": "#42C3D0",
+        "green": "#FFEB01",
+        "purple": "#DA7AE4",
+        "red": "#FA7AD5"
+    },
+    {
+        "name": "ECC | Retro Record Rendezvous",
+        "background": "#084973",
+        "foreground": "#F5F7FF",
+        "black": "#052F4B",
+        "blue": "#7FA0B6",
+        "cyan": "#7EC4C3",
+        "green": "#B0C7A1",
+        "purple": "#EC818B",
+        "red": "#EC818B"
+    },
+    {
+        "name": "ECC | Spark Pop Riot",
+        "background": "#050507",
+        "foreground": "#39F500",
+        "black": "#030305",
+        "blue": "#7F7DD4",
+        "cyan": "#7F7DD4",
+        "green": "#39F500",
+        "purple": "#BA87EC",
+        "red": "#FF00A8"
+    },
+    {
+        "name": "ECC | Edgerunner Bubblegum",
+        "background": "#3B2762",
+        "foreground": "#F9F9FC",
+        "black": "#261940",
+        "blue": "#998FAD",
+        "cyan": "#8FEBDC",
+        "green": "#8FEBDC",
+        "purple": "#998FAD",
+        "red": "#E258B7"
+    },
+    {
+        "name": "ECC | Electric Sunshine Club",
+        "background": "#0C0E09",
+        "foreground": "#FCFF1A",
+        "black": "#080906",
+        "blue": "#FF2070",
+        "cyan": "#FCFF1A",
+        "green": "#FCFF1A",
+        "purple": "#FF2070",
+        "red": "#FF2070"
+    },
+    {
+        "name": "ECC | Goblin Media Glow-Up",
+        "background": "#000000",
+        "foreground": "#FFFFFF",
+        "black": "#000000",
+        "blue": "#FF007F",
+        "cyan": "#00FF00",
+        "green": "#00FF00",
+        "purple": "#FF007F",
+        "red": "#FF007F"
+    }
+]

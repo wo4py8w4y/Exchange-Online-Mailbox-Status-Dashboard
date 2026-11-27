@@ -1,177 +1,164 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>Exchange Online Mailbox Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="styles.css" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Exchange Online mailbox operations, reporting, and collection health.">
+    <title>Exchange Control Center</title>
     <script>
-        const savedTheme = localStorage.getItem('dashboardTheme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
+        document.documentElement.dataset.theme = localStorage.getItem("modernDashboardTheme") ||
+            (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     </script>
+    <link rel="stylesheet" href="modern/modern.css">
 </head>
-<body data-page="overview">
-    <header class="app-header">
-        <div>
-            <h1>Exchange Online Mailbox Dashboard</h1>
-            <p id="lastUpdated">Loading...</p>
+<body data-page="overview" data-data-root="" data-asset-root="modern/" data-page-root="modern/">
+<div class="shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark" data-icon="logo"></span>
+            <div>
+                <div class="brand-name">Exchange Control Center</div>
+                <div class="brand-sub">Mailbox operations</div>
+            </div>
         </div>
-        <div class="header-actions">
-            <select id="themeSelect" class="theme-select" title="Change theme"></select>
-            <button id="refreshButton" class="btn-primary">Refresh now</button>
-        </div>
-    </header>
-
-    <nav class="panel view-nav" aria-label="Views">
-        <strong>Views:</strong>
-        <a href="index.html">Dashboard</a> |
-        <a href="scope.html">Scoped report</a> |
-        <a href="mailbox.html">Mailbox</a> |
-        <a href="history.html">History</a> |
-        <a href="permissions.html">Permissions</a> |
-        <a href="accessmap.html">Access map</a> |
-        <a href="backups.html">Backups</a> |
-        <a href="thresholds.html">Thresholds</a> |
-        <a href="licensing.html">Licensing</a> |
-        <a href="retentionpolicy.html">Retention Policy</a> |
-        <a href="validate.html">Validate</a>
-    </nav>
-
-    <main>
-        <section id="scopeBanner" class="scope-banner" hidden></section>
-
-        <section id="collectionStatusPanel" class="panel collection-status" data-status-state="unavailable" role="status" aria-live="polite">
-            <h2>Collection health</h2>
-            <p id="collectionStatusSummary">Loading collection status...</p>
-            <p id="collectionStatusDetails" class="panel-subtitle"></p>
+        <nav class="nav" aria-label="Pages">
+            <span class="nav-label">Workspace</span>
+            <a href="index.html" data-nav="overview" aria-current="page"><span data-icon="grid"></span>Overview</a>
+            <a href="modern/mailbox.html" data-nav="mailbox"><span data-icon="mailbox"></span>Mailbox</a>
+            <a href="reports.html" data-nav="reports"><span data-icon="report"></span>Reports</a>
+            <span class="nav-label nav-label-spaced">Configuration</span>
+            <a href="settings.html" data-nav="settings"><span data-icon="settings"></span>Appearance &amp; settings</a>
+            <a href="Collector/Setup-Walkthrough.html" data-nav="setup"><span data-icon="book"></span>Installation guide</a>
+            <a href="classic.html" data-nav="classic"><span data-icon="classic"></span>Classic dashboard</a>
+        </nav>
+        <section class="sidebar-tenant" aria-label="Active workspace">
+            <span class="sidebar-tenant-label">Active scope</span>
+            <strong id="sidebarScope">Loading...</strong>
+            <span id="sidebarCollectionState" class="connection-state"><i></i>Checking collection</span>
         </section>
+        <section class="share-card" aria-labelledby="shareCardTitle">
+            <h2 id="shareCardTitle">Share this view</h2>
+            <p>Scan to open exactly what is on screen</p>
+            <div id="sidebarQr"></div>
+        </section>
+    </aside>
 
-        <section class="panel search-panel">
-            <div class="search-panel-head">
+    <div class="main">
+        <header class="topbar">
+            <div class="page-title">
+                <div class="eyebrow">Microsoft 365 / Exchange Online</div>
+                <h1>Tenant mailbox overview</h1>
+                <div id="freshness" class="freshness">Loading...</div>
+            </div>
+            <label class="search">
+                <span data-icon="search"></span>
+                <span class="sr-only">Search mailboxes</span>
+                <input id="searchInput" type="search" placeholder="Search name or SMTP address" autocomplete="off">
+            </label>
+            <label class="sr-only" for="scopeSelect">Scope</label>
+            <select id="scopeSelect" class="select" title="Limit this view to a group of mailboxes"></select>
+            <button id="themeToggle" type="button" class="btn btn-icon"></button>
+            <button id="refreshButton" type="button" class="btn btn-icon" aria-label="Reload data"><span data-icon="refresh"></span></button>
+            <a id="reportButton" href="reports.html" class="btn btn-primary"><span data-icon="report"></span>Reports</a>
+            <button type="button" class="btn" data-open-share><span data-icon="qr"></span>Share</button>
+        </header>
+
+        <main id="content" class="content">
+            <section id="collectionHealth" class="collection-strip tone-info" role="status" aria-live="polite">
+                <span class="collection-icon" data-icon="sync"></span>
                 <div>
-                    <h2>Mailbox finder</h2>
-                    <p id="searchStatus" class="panel-subtitle">Loading mailbox index...</p>
+                    <strong>Checking collection health</strong>
+                    <span>Loading the latest collector status.</span>
                 </div>
-                <button id="clearSearchBtn" class="btn-secondary">Clear</button>
-            </div>
-            <div class="search-shell">
-                <label class="sr-only" for="mailboxSearch">Find Mailbox</label>
-                <input id="mailboxSearch" autocomplete="off" placeholder="Search 3,000+ mailboxes by name or SMTP address">
-                <button id="openMailboxBtn" class="btn-primary" type="button">Open mailbox view</button>
-            </div>
-            <div id="selectedMailboxSummary" class="selected-mailbox-summary" hidden></div>
-            <section id="searchResultsPanel" class="search-results-panel" hidden>
-                <div class="search-results-head">
-                    <strong id="searchResultsTitle">Matches</strong>
-                    <span id="searchResultsMeta"></span>
-                </div>
-                <div id="searchResults" class="search-results"></div>
             </section>
-        </section>
 
-        <section class="cards">
-            <article><span class="label">Mailboxes</span><strong id="mailboxCount">0</strong></article>
-            <article><span class="label">Primary storage</span><strong id="totalStorage">0 GB</strong></article>
-            <article><span class="label">Archive storage</span><strong id="totalArchiveStorage">0 GB</strong></article>
-            <article><span class="label">Threshold alerts</span><strong id="thresholdCount">0</strong></article>
-            <article><span class="label">Largest mailbox</span><strong id="largestMailbox">N/A</strong></article>
-            <article><span class="label">Cleanup stale > 30 days</span><strong id="staleCleanupCount">0</strong></article>
-            <article><span class="label">Never cleaned</span><strong id="neverCleanedCount">0</strong></article>
-            <article><span class="label">Required license gaps</span><strong id="licenseGapCount">0</strong></article>
-        </section>
+            <section id="kpis" class="grid grid-kpi" aria-label="Key figures">
+                <div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div><div class="card skeleton"></div>
+            </section>
 
-        <section id="selectedMailboxPanel" class="panel selected-mailbox-panel" hidden></section>
-
-        <section class="chart-grid chart-grid-overview">
-            <article class="panel">
-                <h2>Mailbox health</h2>
-                <canvas id="usageDonutChart" width="520" height="360"></canvas>
-            </article>
-            <article class="panel">
-                <h2>Top storage consumers</h2>
-                <canvas id="topStorageChart" width="760" height="420"></canvas>
-            </article>
-            <article class="panel">
-                <h2>Usage distribution</h2>
-                <canvas id="usageHistogramChart" width="520" height="360"></canvas>
-            </article>
-            <article class="panel">
-                <h2>Quota pressure</h2>
-                <canvas id="alertStatusChart" width="520" height="360"></canvas>
-            </article>
-        </section>
-
-        <section class="panel">
-            <div class="table-header">
-                <div>
-                    <h2>Retention policy bindings</h2>
-                    <p id="retentionPolicyMeta" class="panel-subtitle"></p>
-                </div>
-            </div>
-            <div class="table-wrap">
-                <table id="retentionPolicyTable">
-                    <thead>
-                        <tr>
-                            <th>Policy</th>
-                            <th>Mailboxes</th>
-                            <th>Default</th>
-                            <th>Tag count</th>
-                            <th>Properties</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </section>
-
-        <section class="panel">
-            <div class="table-header">
-                <div>
-                    <h2 id="tableTitle">Current usage</h2>
-                    <p id="tableMeta" class="panel-subtitle"></p>
-                </div>
-                <div class="table-controls">
-                    <label class="page-size-label">Show
-                        <select class="page-size-select" data-pagination-key="usageTable">
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="50" selected>50</option>
-                            <option value="100">100</option>
-                        </select> per page
-                    </label>
-                    <div class="export-group">
-                        <span>Export:</span>
-                        <button class="btn-export" data-export="usageTable" data-format="json">JSON</button>
-                        <button class="btn-export" data-export="usageTable" data-format="csv">CSV</button>
-                        <button class="btn-export" data-export="usageTable" data-format="pdf">PDF</button>
+            <section class="grid grid-wide">
+                <article class="card">
+                    <div class="card-head">
+                        <div><h2>Storage trend</h2><p>Total primary and archive storage per collection day</p></div>
+                        <span class="chip chip-plain">Collection history</span>
                     </div>
+                    <div id="trendChart"><div class="skeleton"></div></div>
+                </article>
+                <article class="card">
+                    <div class="card-head"><div><h2>Mailbox health</h2><p>Quota status across the current view</p></div></div>
+                    <div id="healthChart"><div class="skeleton"></div></div>
+                </article>
+            </section>
+
+            <section id="operationsGrid" class="grid grid-2">
+                <article class="card">
+                    <div class="card-head">
+                        <div><h2>Operational readiness</h2><p>Configuration and data signals requiring review</p></div>
+                    </div>
+                    <div id="readinessList" class="readiness-list"><div class="skeleton"></div></div>
+                </article>
+                <article class="card">
+                    <div class="card-head">
+                        <div><h2>Quick actions</h2><p>Open focused mailbox investigations and exports</p></div>
+                    </div>
+                    <div id="quickActions" class="quick-actions">
+                        <a href="modern/mailbox.html"><span data-icon="search"></span><strong>Find a mailbox</strong><small>Open mailbox-level details and history</small></a>
+                        <a href="reports.html" data-open-report="capacity"><span data-icon="report"></span><strong>Capacity review</strong><small>Export quota and storage pressure</small></a>
+                        <a href="thresholds.html"><span data-icon="alert"></span><strong>Threshold report</strong><small>Review warning and critical mailboxes</small></a>
+                        <a href="permissions.html"><span data-icon="users"></span><strong>Permission report</strong><small>Inspect mailbox delegation coverage</small></a>
+                    </div>
+                </article>
+            </section>
+
+            <section class="grid grid-3">
+                <article class="card">
+                    <div class="card-head"><div><h2>Quota usage distribution</h2><p>Mailboxes by percentage of quota used</p></div></div>
+                    <div id="distributionChart"><div class="skeleton"></div></div>
+                </article>
+                <article class="card">
+                    <div class="card-head"><div><h2>Top storage consumers</h2><p>Largest primary mailboxes</p></div></div>
+                    <div id="topChart"><div class="skeleton"></div></div>
+                </article>
+                <article class="card">
+                    <div class="card-head"><div><h2>Logon activity</h2><p>Time since each mailbox was last used</p></div></div>
+                    <div id="activityChart"><div class="skeleton"></div></div>
+                </article>
+            </section>
+
+            <section class="card">
+                <div class="card-head">
+                    <div><h2>Mailboxes</h2><p id="tableMeta"></p></div>
+                    <a class="btn btn-primary" href="reports.html">Export report</a>
                 </div>
-            </div>
-            <div id="usageTablePagination" class="pagination-bar"></div>
-            <div class="table-wrap">
-                <table id="usageTable">
-                    <thead>
-                        <tr>
-                            <th>Mailbox</th>
-                            <th>SMTP Address</th>
-                            <th>Storage GB</th>
-                            <th>Items</th>
-                            <th>Quota GB</th>
-                            <th>Usage %</th>
-                            <th>Mailbox type</th>
-                            <th>License</th>
-                            <th>Cleanup</th>
-                            <th>Permissions</th>
-                            <th>Record refreshed</th>
-                            <th>Last logon</th>
-                            <th>Mailbox created</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-    <script defer src="dashboard.js"></script>
+                <div class="table-wrap">
+                    <table>
+                        <thead id="tableHead"></thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+                <div id="pager" class="pager"></div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<dialog id="shareDialog" class="share" aria-labelledby="shareTitle">
+    <div class="share-body">
+        <h2 id="shareTitle">Share this view</h2>
+        <p data-share-title></p>
+        <div class="share-qr" data-share-qr></div>
+        <div class="share-url" data-share-url></div>
+        <div class="share-actions">
+            <button type="button" class="btn btn-primary" data-copy-link><span data-icon="copy"></span>Copy link</button>
+            <button type="button" class="btn" data-download-qr><span data-icon="download"></span>Download QR</button>
+            <button type="button" class="btn" data-close-share><span data-icon="close"></span>Close</button>
+        </div>
+        <p class="share-note">The link opens this page with the same scope, search, status filter, sort and page. Viewers need the same access to the dashboard.</p>
+    </div>
+</dialog>
+
+<script defer src="modern/qrcode.js"></script>
+<script defer src="modern/reporting.js"></script>
+<script defer src="modern/modern.js"></script>
 </body>
 </html>

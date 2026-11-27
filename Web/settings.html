@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Settings · Exchange Control Center</title>
+    <script>
+        document.documentElement.dataset.theme = localStorage.getItem("modernDashboardTheme") ||
+            (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    </script>
+    <link rel="stylesheet" href="modern/modern.css">
+</head>
+<body data-page="settings" data-data-root="" data-asset-root="modern/" data-page-root="">
+<div class="shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <span class="brand-mark" data-icon="logo"></span>
+            <div><div class="brand-name">Exchange Control Center</div><div class="brand-sub">Mailbox operations</div></div>
+        </div>
+        <nav class="nav" aria-label="Pages">
+            <span class="nav-label">Workspace</span>
+            <a href="index.html" data-nav="overview"><span data-icon="grid"></span>Overview</a>
+            <a href="modern/mailbox.html" data-nav="mailbox"><span data-icon="mailbox"></span>Mailbox</a>
+            <a href="reports.html" data-nav="reports"><span data-icon="report"></span>Reports</a>
+            <span class="nav-label nav-label-spaced">Configuration</span>
+            <a href="settings.html" data-nav="settings" aria-current="page"><span data-icon="settings"></span>Appearance &amp; settings</a>
+            <a href="Collector/Setup-Walkthrough.html" data-nav="setup"><span data-icon="book"></span>Installation guide</a>
+            <a href="classic.html" data-nav="classic"><span data-icon="classic"></span>Classic dashboard</a>
+        </nav>
+        <section class="sidebar-tenant" aria-label="Active workspace">
+            <span class="sidebar-tenant-label">Active scope</span>
+            <strong id="sidebarScope">Loading...</strong>
+            <span id="sidebarCollectionState" class="connection-state"><i></i>Checking collection</span>
+        </section>
+    </aside>
+
+    <div class="main">
+        <header class="topbar">
+            <div class="page-title">
+                <div class="eyebrow">Configuration</div>
+                <h1>Dashboard settings</h1>
+                <div id="freshness" class="freshness">Preferences are stored in this browser.</div>
+            </div>
+            <button id="themeToggle" type="button" class="btn btn-icon"></button>
+            <button id="resetAppearance" type="button" class="btn">Reset appearance</button>
+        </header>
+
+        <main id="settingsContent" class="content">
+            <section class="settings-grid">
+                <article class="card">
+                    <div class="card-head">
+                        <div><h2>Appearance</h2><p>ECC themes apply immediately and persist locally</p></div>
+                        <span class="chip chip-plain">Live preview</span>
+                    </div>
+                    <div class="setting-row">
+                        <label for="appearanceTheme">Color theme</label>
+                        <select id="appearanceTheme" class="select"></select>
+                    </div>
+                    <div class="setting-row">
+                        <label for="forceDarkestBackground">Force darkest available background</label>
+                        <input id="forceDarkestBackground" type="checkbox" checked>
+                    </div>
+                    <div class="setting-row">
+                        <label for="appearanceDensity">Layout density</label>
+                        <select id="appearanceDensity" class="select">
+                            <option value="comfortable">Comfortable</option>
+                            <option value="compact">Compact</option>
+                        </select>
+                    </div>
+                    <p id="appearanceStatus" class="settings-status" role="status"></p>
+                    <div id="themeSwatches" class="theme-swatches"></div>
+                </article>
+
+                <article class="card">
+                    <div class="card-head"><div><h2>Theme behavior</h2><p>Readable foregrounds are calculated for every palette</p></div></div>
+                    <dl class="facts">
+                        <div><dt>Storage</dt><dd>Browser local storage</dd></div>
+                        <div><dt>Scope</dt><dd>This dashboard address</dd></div>
+                        <div><dt>Collector impact</dt><dd>None</dd></div>
+                        <div><dt>Fallback</dt><dd>System light / dark</dd></div>
+                    </dl>
+                    <p class="settings-note">Theme preferences do not change JSON data, collection configuration, authentication, or notification behavior.</p>
+                </article>
+
+                <article class="card">
+                    <div class="card-head"><div><h2>Data and access</h2><p>Use the repository's existing setup and scheduling surfaces</p></div></div>
+                    <div class="settings-links">
+                        <a href="Collector/Setup-Walkthrough.html"><span data-icon="book"></span><span><strong>Installation guide</strong><small>PowerShell setup and dashboard hosting</small></span></a>
+                        <a href="validate.html"><span data-icon="check"></span><span><strong>Payload validation</strong><small>Schema and data sanity checks</small></span></a>
+                        <a href="scope.html"><span data-icon="grid"></span><span><strong>Mailbox scopes</strong><small>Review configured dashboard subsets</small></span></a>
+                    </div>
+                </article>
+
+                <article class="card">
+                    <div class="card-head"><div><h2>Operational safeguards</h2><p>Read-only reporting by default</p></div></div>
+                    <ul class="safeguard-list">
+                        <li>Exchange GUIDs remain the durable mailbox key.</li>
+                        <li>Theme settings never alter collected data.</li>
+                        <li>Report exports reflect the selected scope and search.</li>
+                        <li>Collection authentication remains in PowerShell, not the browser.</li>
+                    </ul>
+                </article>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script defer src="modern/reporting.js"></script>
+<script defer src="modern/modern.js"></script>
+</body>
+</html>
