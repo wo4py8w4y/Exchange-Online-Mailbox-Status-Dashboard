@@ -28,7 +28,7 @@
             <a href="reports.html" data-nav="reports"><span data-icon="report"></span>Reports</a>
             <span class="nav-label nav-label-spaced">Configuration</span>
             <a href="settings.html" data-nav="settings"><span data-icon="settings"></span>Appearance &amp; settings</a>
-            <a href="Collector/Setup-Walkthrough.html" data-nav="setup"><span data-icon="book"></span>Installation guide</a>
+            <a href="installation.html" data-nav="setup"><span data-icon="book"></span>Installation guide</a>
             <a href="classic.html" data-nav="classic"><span data-icon="classic"></span>Classic dashboard</a>
         </nav>
         <section class="sidebar-tenant" aria-label="Active workspace">
@@ -59,7 +59,7 @@
             <select id="scopeSelect" class="select" title="Limit this view to a group of mailboxes"></select>
             <button id="themeToggle" type="button" class="btn btn-icon"></button>
             <button id="refreshButton" type="button" class="btn btn-icon" aria-label="Reload data"><span data-icon="refresh"></span></button>
-            <a id="reportButton" href="reports.html" class="btn btn-primary"><span data-icon="report"></span>Reports</a>
+            <a id="reportButton" href="reports.html" data-nav="reports" class="btn btn-primary"><span data-icon="report"></span>Reports</a>
             <button type="button" class="btn" data-open-share><span data-icon="qr"></span>Share</button>
         </header>
 
@@ -102,10 +102,10 @@
                         <div><h2>Quick actions</h2><p>Open focused mailbox investigations and exports</p></div>
                     </div>
                     <div id="quickActions" class="quick-actions">
-                        <a href="modern/mailbox.html"><span data-icon="search"></span><strong>Find a mailbox</strong><small>Open mailbox-level details and history</small></a>
-                        <a href="reports.html" data-open-report="capacity"><span data-icon="report"></span><strong>Capacity review</strong><small>Export quota and storage pressure</small></a>
-                        <a href="thresholds.html"><span data-icon="alert"></span><strong>Threshold report</strong><small>Review warning and critical mailboxes</small></a>
-                        <a href="permissions.html"><span data-icon="users"></span><strong>Permission report</strong><small>Inspect mailbox delegation coverage</small></a>
+                        <a href="modern/mailbox.html" data-nav="mailbox"><span data-icon="search"></span><strong>Find a mailbox</strong><small>Open mailbox-level details and history</small></a>
+                        <a href="reports.html" data-nav="reports" data-open-report="capacity"><span data-icon="report"></span><strong>Capacity review</strong><small>Export quota and storage pressure</small></a>
+                        <a href="thresholds.html" data-nav="classic"><span data-icon="alert"></span><strong>Threshold report</strong><small>Review warning and critical mailboxes</small></a>
+                        <a href="permissions.html" data-nav="classic"><span data-icon="users"></span><strong>Permission report</strong><small>Inspect mailbox delegation coverage</small></a>
                     </div>
                 </article>
             </section>
@@ -128,7 +128,7 @@
             <section class="card">
                 <div class="card-head">
                     <div><h2>Mailboxes</h2><p id="tableMeta"></p></div>
-                    <a class="btn btn-primary" href="reports.html">Export report</a>
+                    <a class="btn btn-primary" href="reports.html" data-nav="reports">Export report</a>
                 </div>
                 <div class="table-wrap">
                     <table>

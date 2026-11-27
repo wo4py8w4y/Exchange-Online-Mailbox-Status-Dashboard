@@ -16,12 +16,22 @@ const mailboxes = [
 const summary = reporting.aggregate(mailboxes, now);
 const capacity = reporting.buildReport('capacity', mailboxes, now);
 const permissions = reporting.buildReport('permissions', mailboxes, now);
+const unavailableSummary = reporting.aggregate([
+  { totalGB: 1, archiveGB: null, quotaGB: null, usagePercent: null, lastLogon: '2026-01-01', licenseRequired: null, hasLicense: true, retentionPolicy: null, permissions: null }
+], now);
+const licensing = reporting.buildReport('licensing', [
+  { name: 'Graph mailbox', smtp: 'graph@contoso.com', type: 'UserMailbox', licenseRequired: null, hasLicense: true, licenseType: 'EXO_P2' }
+], now);
+const formulaCsv = reporting.toCsv({ headers: ['Mailbox'], rows: [['=HYPERLINK("https://example.test")']] });
 console.log(JSON.stringify({
   summary,
   firstCapacityMailbox: capacity.rows[0][0],
   permissionRows: permissions.rows.length,
   csvHeader: reporting.toCsv(capacity).split('\\r\\n')[0],
-  unknownStatus: reporting.statusOf({ quotaGB: null, usagePercent: null })
+  unknownStatus: reporting.statusOf({ quotaGB: null, usagePercent: null }),
+  unavailableSummary,
+  unknownLicenseCompliance: licensing.rows[0][6],
+  formulaCsv
 }));
 "@
         $raw = & $node.Source -e $script $reportingPath 2>&1
@@ -40,6 +50,12 @@ console.log(JSON.stringify({
         $result.permissionRows | Should Be 1
         $result.csvHeader | Should Match '"Mailbox","SMTP address".*"Status"'
         $result.unknownStatus | Should Be "unlimited"
+        $result.unavailableSummary.archiveGB | Should BeNullOrEmpty
+        $result.unavailableSummary.archiveUnavailableCount | Should Be 1
+        $result.unavailableSummary.permissionUnavailableCount | Should Be 1
+        $result.unavailableSummary.retentionUnavailableCount | Should Be 1
+        $result.unknownLicenseCompliance | Should Be "Unknown"
+        $result.formulaCsv | Should Match "'=HYPERLINK"
     }
 
     It "rejects an unknown report type instead of producing a misleading empty export" {
@@ -65,9 +81,12 @@ try {
         $index | Should Match 'href="settings\.html"'
         $index | Should Match 'href="classic\.html"'
         $index | Should Match 'src="modern/reporting\.js"'
+        $index | Should Match 'data-nav="reports"'
+        $index | Should Match 'href="installation\.html"'
         Test-Path -LiteralPath (Join-Path $webRoot "reports.html") | Should Be $true
         Test-Path -LiteralPath (Join-Path $webRoot "settings.html") | Should Be $true
         Test-Path -LiteralPath (Join-Path $webRoot "classic.html") | Should Be $true
+        Test-Path -LiteralPath (Join-Path $webRoot "installation.html") | Should Be $true
     }
 
     It "ships valid themes with the background and accent fields required by the UI" {

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MailboxDashboard setup walkthrough</title>
+  <style>
+    :root { color-scheme: light; font-family: Segoe UI, sans-serif; line-height: 1.55; }
+    body { max-width: 900px; margin: 0 auto; padding: 2rem; color: #202124; }
+    h1, h2 { color: #123b5d; }
+    code, pre { font-family: Consolas, monospace; }
+    pre { overflow-x: auto; padding: 1rem; background: #f1f4f6; border-left: 4px solid #2f80a8; }
+    li { margin: .35rem 0; }
+  </style>
+</head>
+<body>
+  <h1>MailboxDashboard setup walkthrough</h1>
+  <p>This guide follows the current collector pipeline. Older collector scripts are retained under <code>Collector/Legacy</code> for reference only.</p>
+  <h2>Prerequisites</h2>
+  <ul>
+    <li>Windows PowerShell 5.1 or PowerShell 7 (PowerShell 7 is recommended)</li>
+    <li>Exchange Online administrator access</li>
+    <li>Permission to create or update an Entra app registration when required</li>
+    <li><code>ExchangeOnlineManagement</code></li>
+  </ul>
+  <pre><code>Install-Module ExchangeOnlineManagement -Scope CurrentUser
+Install-Module Microsoft.Graph.Authentication -Scope CurrentUser
+Install-Module graph.auth.lite -Scope CurrentUser
+Install-Module Microsoft.PowerShell.ThreadJob -Scope CurrentUser</code></pre>
+  <p>Only <code>ExchangeOnlineManagement</code> is required for sequential collection. ThreadJob is required only for <code>-Parallel</code>.</p>
+  <h2>1. Initialize</h2>
+  <pre><code>.\Collector\Initialize-MailboxDashboard.ps1</code></pre>
+  <p>The wizard creates or checks the configuration, folders, and <code>Mailboxes/mailboxes.csv</code>. Use <code>-Force</code> to replace an existing configuration.</p>
+  <pre><code>.\Collector\Initialize-MailboxDashboard.ps1 `
+    -Organization contoso.onmicrosoft.com `
+    -AppId 00000000-0000-0000-0000-000000000000 `
+    -AuthenticationMode Certificate `
+    -Unattended</code></pre>
+  <p>Replace the sample mailbox rows with the mailboxes to collect.</p>
+  <h2>2. Configure authentication</h2>
+  <p>Set <code>Organization</code>, <code>AppID</code>, and <code>Authentication.Mode</code> in <code>Collector/Config/dashboardConfig.json</code>. Certificate mode needs a client secret or certificate thumbprint; delegated mode needs <code>UserPrincipalName</code>.</p>
+  <pre><code>.\Collector\Register-EntraApp.ps1 `
+    -ConfigPath .\Collector\Config\dashboardConfig.json</code></pre>
+  <p>Use Certificate or client-secret authentication for scheduled or parallel collection. Use Interactive or Delegated for manual runs. Auto displays the runtime menu.</p>
+  <h2>3. Test without Exchange Online</h2>
+  <pre><code>.\Collector\Invoke-MailboxDashboardCollection.ps1 -TestData</code></pre>
+  <p>This overwrites <code>Web/history.json</code> and <code>Web/data.json</code>. To create demo files without replacing live data, run <code>New-MailboxDashboardTestData.ps1</code> without <code>-Live</code>.</p>
+  <h2>4. Collect</h2>
+  <pre><code>.\Collector\Invoke-MailboxDashboardCollection.ps1</code></pre>
+  <p>The default is sequential. For app-only parallel collection:</p>
+  <pre><code>.\Collector\Invoke-MailboxDashboardCollection.ps1 -Parallel -ThrottleLimit 8</code></pre>
+  <p>Parallel workers write to <code>Collector/Temp/ThreadJobs</code> and require certificate or client-secret authentication.</p>
+  <h2>5. Validate and repair</h2>
+  <pre><code>.\Collector\Test-MailboxDashboardJSON.ps1
+.\Collector\Test-MailboxDashboardJSON.ps1 -Repair
+.\Collector\Test-MailboxDashboardJSON.ps1 -Repair -Cull
+.\Collector\Test-MailboxDashboardJSON.ps1 -Repair -RestoreSamplesFromData
+.\Collector\Test-MailboxDashboardJSON.ps1 -Strict
+.\Collector\Generate-MailboxSnapshot.ps1</code></pre>
+  <p>Use the snapshot command when history is correct but the overview data is stale.</p>
+    <p>Licensing status is collected from Exchange during a fresh collection. Older records without licensing metadata are shown as unknown until they are recollected.</p>
+  <h2>6. Browse locally</h2>
+  <pre><code>.\Web\HTTPServer.ps1 -RootPath .\Web -Prefix http://localhost:8888/</code></pre>
+  <p>Open <a href="http://localhost:8888/">http://localhost:8888/</a>.</p>
+  <h2>Troubleshooting</h2>
+  <ul>
+    <li>Check behind the terminal if interactive sign-in appears to hang.</li>
+    <li>For failed collections, inspect <code>Collector/Logs/failures.log</code> and <code>exports.log</code>.</li>
+    <li>For an empty dashboard, regenerate the snapshot and run the validator.</li>
+    <li>For 404s, confirm the server root is <code>Web</code> and the browser port matches <code>-Prefix</code>.</li>
+  </ul>
+  <p>See <a href="../Readme.md">Readme.md</a> for configuration, deployment, themes, scopes, and scheduling.</p>
+</body>
+</html>

@@ -226,12 +226,21 @@ async function fetchJson(url, { optional = false } = {}) {
 function normaliseMailbox(raw) {
     const current = pick(raw, "current", "Current") || {};
     const licensing = pick(raw, "Licensing", "licensing") || {};
-    const retention = pick(raw, "Retention", "retention") || {};
-    const permissions = [].concat(pick(raw, "permissions", "Permissions") || []).filter(p => p && typeof p === "object");
+    const retentionValue = pick(raw, "Retention", "retention");
+    const retention = retentionValue && typeof retentionValue === "object" ? retentionValue : null;
+    const availability = pick(raw, "DataAvailability", "dataAvailability");
+    const unavailableFields = [].concat(pick(availability, "UnavailableFields", "unavailableFields") || [])
+        .map(field => String(field).toLowerCase());
+    const isUnavailable = field => unavailableFields.includes(String(field).toLowerCase());
+    const permissionValue = pick(raw, "permissions", "Permissions");
+    const permissions = isUnavailable("Permissions")
+        ? null
+        : [].concat(permissionValue || []).filter(p => p && typeof p === "object");
     const quotaGB = toNumber(pick(current, "quotaGB", "QuotaGB"));
     const totalGB = toNumber(pick(current, "totalGB", "TotalGB", "SizeGB")) ?? 0;
     let usagePercent = toNumber(pick(current, "usagePercent", "UsagePercent"));
     if (usagePercent === null && quotaGB > 0) usagePercent = (totalGB / quotaGB) * 100;
+    const archiveEnabledValue = pick(current, "archiveEnabled", "ArchiveEnabled");
 
     const m = {
         guid: String(pick(raw, "ExchangeGuid", "exchangeGuid") || ""),
@@ -241,9 +250,9 @@ function normaliseMailbox(raw) {
         quotaGB,
         usagePercent,
         items: toNumber(pick(current, "itemCount", "ItemCount")) ?? 0,
-        archiveEnabled: Boolean(pick(current, "archiveEnabled", "ArchiveEnabled")),
-        archiveGB: toNumber(pick(current, "archiveSizeGB", "ArchiveSizeGB")) ?? 0,
-        archiveItems: toNumber(pick(current, "archiveItemCount", "ArchiveItemCount")) ?? 0,
+        archiveEnabled: archiveEnabledValue === undefined || archiveEnabledValue === null ? null : Boolean(archiveEnabledValue),
+        archiveGB: isUnavailable("ArchiveSizeGB") ? null : toNumber(pick(current, "archiveSizeGB", "ArchiveSizeGB")),
+        archiveItems: isUnavailable("ArchiveItemCount") ? null : toNumber(pick(current, "archiveItemCount", "ArchiveItemCount")),
         lastLogon: parseDate(pick(current, "lastLogonTime", "LastLogonTime")),
         refreshed: parseDate(pick(current, "sampleTimestamp", "SampleTimestamp")),
         created: parseDate(pick(raw, "WhenCreatedUtc", "whenCreatedUtc", "WhenCreated")),
@@ -251,9 +260,11 @@ function normaliseMailbox(raw) {
         hasLicense: pick(licensing, "HasLicense", "hasLicense"),
         licenseRequired: pick(licensing, "LicenseRequired", "licenseRequired"),
         licenseType: pick(licensing, "LicenseType", "licenseType") || "",
-        retentionPolicy: pick(retention, "RetentionPolicy", "retentionPolicy") || "",
-        litigationHold: pick(retention, "LitigationHoldEnabled", "litigationHoldEnabled"),
-        permissions
+        retentionPolicy: retention ? (pick(retention, "RetentionPolicy", "retentionPolicy") || "") : null,
+        litigationHold: retention ? pick(retention, "LitigationHoldEnabled", "litigationHoldEnabled") : null,
+        permissions,
+        dataAvailability: availability || null,
+        unavailableFields
     };
     if (!m.name) m.name = m.smtp || m.guid || "Unknown mailbox";
     m.key = (m.guid || m.smtp).toLowerCase();
@@ -270,7 +281,7 @@ function indexHistory(raw) {
             .map(s => ({
                 t: parseDate(pick(s, "TimestampUtc", "timestampUtc")),
                 gb: toNumber(pick(s, "SizeGB", "sizeGB")) ?? 0,
-                archiveGB: toNumber(pick(s, "ArchiveSizeGB", "archiveSizeGB")) ?? 0,
+                archiveGB: toNumber(pick(s, "ArchiveSizeGB", "archiveSizeGB")),
                 items: toNumber(pick(s, "ItemCount", "itemCount")) ?? 0,
                 usage: toNumber(pick(s, "UsagePercent", "usagePercent"))
             }))
@@ -450,6 +461,7 @@ function columnChart(bins, { height = 240, label = "Distribution" } = {}) {
 }
 
 function sparkline(values, color) {
+    values = values.filter(value => value !== null && value !== undefined && Number.isFinite(value));
     if (values.length < 2) return "";
     const W = 96, H = 28;
     const min = Math.min(...values), max = Math.max(...values);
@@ -487,16 +499,21 @@ function tenantTrend(mailboxes) {
         if (!keys.has(guid)) continue;
         for (const s of samples) {
             const day = Date.UTC(s.t.getUTCFullYear(), s.t.getUTCMonth(), s.t.getUTCDate());
-            const bucket = byDay.get(day) || { primary: 0, archive: 0 };
+            const bucket = byDay.get(day) || { primary: 0, archive: 0, archiveKnown: false };
             bucket.primary += s.gb;
-            bucket.archive += s.archiveGB;
+            if (s.archiveGB !== null) {
+                bucket.archive += s.archiveGB;
+                bucket.archiveKnown = true;
+            }
             byDay.set(day, bucket);
         }
     }
     const days = [...byDay.keys()].sort((a, b) => a - b);
     return {
         primary: days.map(d => ({ t: new Date(d), v: byDay.get(d).primary })),
-        archive: days.map(d => ({ t: new Date(d), v: byDay.get(d).archive }))
+        archive: days
+            .filter(d => byDay.get(d).archiveKnown)
+            .map(d => ({ t: new Date(d), v: byDay.get(d).archive }))
     };
 }
 
@@ -580,7 +597,16 @@ function renderFreshness() {
 
 function collectionHealth() {
     const status = state.collectionStatus;
-    if (!status) {
+    const stateName = String(pick(status, "status", "Status") || "");
+    const completed = parseDate(pick(status, "completedUtc", "CompletedUtc"));
+    const staleAfterRaw = pick(status, "staleAfterMinutes", "StaleAfterMinutes");
+    const staleAfter = toNumber(staleAfterRaw);
+    const valid = status &&
+        ["Succeeded", "Partial", "Failed"].includes(stateName) &&
+        completed &&
+        Number.isInteger(staleAfter) &&
+        staleAfter >= 1;
+    if (!valid) {
         return {
             tone: "tone-warn",
             label: "Collection status unavailable",
@@ -589,18 +615,15 @@ function collectionHealth() {
         };
     }
 
-    const completed = parseDate(pick(status, "completedUtc", "CompletedUtc"));
-    const ageMinutes = completed ? Math.floor((Date.now() - completed.getTime()) / 60000) : null;
-    const staleAfter = toNumber(pick(status, "staleAfterMinutes", "StaleAfterMinutes")) ?? 60;
-    const stateName = String(pick(status, "status", "Status") || "Unknown");
+    const ageMinutes = Math.floor((Date.now() - completed.getTime()) / 60000);
     const partial = pick(status, "partialCollection", "PartialCollection") === true;
     const testData = pick(status, "testData", "TestData") === true;
     const failed = /failed/i.test(stateName);
-    const stale = ageMinutes !== null && ageMinutes > staleAfter;
+    const stale = ageMinutes > staleAfter;
     const tone = failed || partial || stale ? (failed ? "tone-crit" : "tone-warn") : "tone-ok";
     const detail = [
         `${stateName}${partial ? " · partial collection" : ""}`,
-        completed ? `completed ${fmtRelative(completed)}` : "completion time unknown",
+        `completed ${fmtRelative(completed)}`,
         testData ? "synthetic test data" : "live or persisted collection data"
     ].join(" · ");
     return { tone, label: failed ? "Collection failed" : partial ? "Partial collection" : stale ? "Collection is stale" : "Collection healthy", detail, short: failed ? "Collection failed" : partial ? "Partial" : stale ? "Stale" : "Operational" };
@@ -613,7 +636,7 @@ function renderCollectionHealth() {
         strip.className = `collection-strip ${health.tone}`;
         strip.innerHTML = `<span class="collection-icon">${icon(health.tone === "tone-ok" ? "check" : "alert")}</span>
             <div><strong>${escapeHtml(health.label)}</strong><span>${escapeHtml(health.detail)}</span></div>
-            ${document.getElementById("reportsContent") ? "" : `<a class="btn" href="${escapeHtml(pageUrl("reports"))}">View reports</a>`}`;
+            ${document.getElementById("reportsContent") ? "" : `<a class="btn" href="${escapeHtml(buildUrl({}, pageUrl("reports")).href)}">View reports</a>`}`;
     }
     const sidebar = document.getElementById("sidebarCollectionState");
     if (sidebar) {
@@ -626,7 +649,11 @@ function readinessRows(mailboxes) {
     const reporting = window.MailboxReporting;
     const summary = reporting
         ? reporting.aggregate(mailboxes)
-        : { warningCount: 0, criticalCount: 0, overQuotaCount: 0, inactive90Count: 0, licenseGapCount: 0, noRetentionPolicyCount: 0, delegationCount: 0 };
+        : {
+            warningCount: 0, criticalCount: 0, overQuotaCount: 0, inactive90Count: 0,
+            licenseGapCount: 0, noRetentionPolicyCount: 0, delegationCount: 0,
+            archiveUnavailableCount: 0, permissionUnavailableCount: 0, retentionUnavailableCount: 0
+        };
     return [
         {
             icon: "alert",
@@ -649,14 +676,24 @@ function readinessRows(mailboxes) {
         {
             icon: "archive",
             label: "Retention coverage",
-            detail: `${fmtNumber(summary.noRetentionPolicyCount)} mailboxes without a recorded retention policy`,
-            tone: summary.noRetentionPolicyCount ? "tone-warn" : "tone-ok"
+            detail: `${fmtNumber(summary.noRetentionPolicyCount)} without a recorded policy · ${fmtNumber(summary.retentionUnavailableCount)} unavailable`,
+            tone: summary.noRetentionPolicyCount || summary.retentionUnavailableCount ? "tone-warn" : "tone-ok"
         },
         {
             icon: "users",
             label: "Delegation inventory",
-            detail: `${fmtNumber(summary.delegationCount)} explicit permissions across ${fmtNumber(mailboxes.length)} mailboxes`,
-            tone: "tone-info"
+            detail: summary.permissionUnavailableCount
+                ? `${fmtNumber(summary.delegationCount)} explicit permissions · ${fmtNumber(summary.permissionUnavailableCount)} unavailable`
+                : `${fmtNumber(summary.delegationCount)} explicit permissions across ${fmtNumber(mailboxes.length)} mailboxes`,
+            tone: summary.permissionUnavailableCount ? "tone-warn" : "tone-info"
+        },
+        {
+            icon: "archive",
+            label: "Archive storage availability",
+            detail: summary.archiveUnavailableCount
+                ? `${fmtNumber(summary.archiveUnavailableCount)} mailbox records do not include archive metrics`
+                : "Archive metrics are available for all mailbox records",
+            tone: summary.archiveUnavailableCount ? "tone-warn" : "tone-ok"
         }
     ];
 }
@@ -684,6 +721,22 @@ function luminance(hex) {
     const rgb = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255)
         .map(value => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
     return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+}
+
+function contrastRatio(left, right) {
+    const leftLuminance = luminance(left);
+    const rightLuminance = luminance(right);
+    return (Math.max(leftLuminance, rightLuminance) + 0.05) /
+        (Math.min(leftLuminance, rightLuminance) + 0.05);
+}
+
+function accessibleForeground(background, preferred) {
+    if (/^#[0-9a-f]{6}$/i.test(preferred || "") && contrastRatio(background, preferred) >= 4.5) {
+        return preferred;
+    }
+    return contrastRatio(background, "#111827") >= contrastRatio(background, "#ffffff")
+        ? "#111827"
+        : "#ffffff";
 }
 
 function blendHex(left, right, amount) {
@@ -743,7 +796,7 @@ function applyAppearance(options = {}) {
     if (theme) {
         const background = appearance.forceDarkest ? darkestThemeColor(theme) : theme.background;
         const dark = luminance(background) < 0.35;
-        const foreground = theme.foreground || (dark ? "#f8fafc" : "#111827");
+        const foreground = accessibleForeground(background, theme.foreground);
         const surface = blendHex(background, foreground, dark ? 0.07 : 0.035);
         const surface2 = blendHex(background, foreground, dark ? 0.035 : 0.018);
         const primary = theme.blue || "#5b5ce2";
@@ -783,6 +836,9 @@ function applyTheme(theme) {
     const appearance = { ...readAppearance(), theme };
     saveAppearance(appearance);
     applyAppearance(appearance);
+    if (document.body.dataset.page === "settings" && typeof window.dashboardRenderSettings === "function") {
+        window.dashboardRenderSettings();
+    }
 }
 
 function wireChrome() {
@@ -838,11 +894,11 @@ function wireChrome() {
         if (!reporting) throw new Error("reporting.js did not load.");
         const summary = reporting.aggregate(rows);
         const cards = [
-            { type: "capacity", icon: "db", title: "Capacity & quota", text: `${fmtNumber(summary.overQuotaCount + summary.criticalCount + summary.warningCount)} mailboxes need capacity review.`, count: rows.length },
+            { type: "capacity", icon: "db", title: "Capacity & quota", text: `${fmtNumber(summary.overQuotaCount + summary.criticalCount + summary.warningCount)} need capacity review${summary.archiveUnavailableCount ? ` · ${fmtNumber(summary.archiveUnavailableCount)} archive records unavailable` : ""}.`, count: rows.length },
             { type: "activity", icon: "sleep", title: "Activity & inactivity", text: `${fmtNumber(summary.inactive90Count)} mailboxes are inactive for 90+ days or unknown.`, count: rows.length },
             { type: "licensing", icon: "check", title: "Licensing", text: `${fmtNumber(summary.licenseGapCount)} confirmed required-license gaps.`, count: rows.filter(m => m.licenseRequired !== null && m.licenseRequired !== undefined).length },
-            { type: "permissions", icon: "users", title: "Mailbox permissions", text: `${fmtNumber(summary.delegationCount)} explicit permission records.`, count: summary.delegationCount },
-            { type: "retention", icon: "archive", title: "Retention & holds", text: `${fmtNumber(summary.noRetentionPolicyCount)} mailboxes lack a recorded policy.`, count: rows.length }
+            { type: "permissions", icon: "users", title: "Mailbox permissions", text: `${fmtNumber(summary.delegationCount)} explicit permission records${summary.permissionUnavailableCount ? ` · ${fmtNumber(summary.permissionUnavailableCount)} unavailable` : ""}.`, count: summary.delegationCount },
+            { type: "retention", icon: "archive", title: "Retention & holds", text: `${fmtNumber(summary.noRetentionPolicyCount)} lack a policy${summary.retentionUnavailableCount ? ` · ${fmtNumber(summary.retentionUnavailableCount)} unavailable` : ""}.`, count: rows.length }
         ];
         document.getElementById("reportMailboxCount").textContent = `${fmtNumber(rows.length)} mailbox${rows.length === 1 ? "" : "es"}`;
         document.getElementById("reportCards").innerHTML = cards.map(card => `
@@ -856,7 +912,7 @@ function wireChrome() {
                     <button type="button" class="btn" data-export-report="${card.type}" data-report-format="json">JSON</button>
                 </div>
             </article>`).join("");
-        document.getElementById("reportSummary").textContent = `${fmtGB(summary.primaryGB)} primary · ${fmtGB(summary.archiveGB)} archive · ${fmtNumber(rows.length)} mailboxes`;
+        document.getElementById("reportSummary").textContent = `${fmtGB(summary.primaryGB)} primary · ${summary.archiveGB === null ? "archive unavailable" : `${fmtGB(summary.archiveGB)} archive`} · ${fmtNumber(rows.length)} mailboxes`;
         const health = collectionHealth();
         const pill = document.getElementById("reportHealthPill");
         if (pill) {
@@ -981,14 +1037,16 @@ function renderOverview() {
     renderReadiness(document.getElementById("readinessList"), rows);
 
     const primaryTotal = rows.reduce((s, m) => s + m.totalGB, 0);
-    const archiveTotal = rows.reduce((s, m) => s + m.archiveGB, 0);
+    const archiveValues = rows.map(m => m.archiveGB).filter(value => value !== null);
+    const archiveTotal = archiveValues.length ? archiveValues.reduce((sum, value) => sum + value, 0) : null;
+    const archiveUnavailable = rows.filter(m => m.archiveGB === null).length;
     const attention = counts.warning + counts.critical + counts.over;
     const inactive = rows.filter(m => !m.lastLogon || daysSince(m.lastLogon) > INACTIVE_DAYS).length;
 
     document.getElementById("kpis").innerHTML = [
         { label: "Mailboxes", value: fmtNumber(rows.length), foot: rows.length === scoped.length ? `${escapeHtml(activeScope()?.name || "")}` : `of ${fmtNumber(scoped.length)} in scope`, icon: "users", tone: "tone-info" },
         { label: "Primary storage", value: fmtGB(primaryTotal), foot: `avg ${fmtGB(rows.length ? primaryTotal / rows.length : 0)}`, icon: "db", tone: "", spark: trend.primary.map(p => p.v), color: "var(--primary)" },
-        { label: "Archive storage", value: fmtGB(archiveTotal), foot: `${fmtNumber(rows.filter(m => m.archiveEnabled).length)} archives enabled`, icon: "archive", tone: "tone-unl", spark: trend.archive.map(p => p.v), color: "var(--unl)" },
+        { label: "Archive storage", value: archiveTotal === null ? "Unavailable" : fmtGB(archiveTotal), foot: archiveUnavailable ? `${fmtNumber(archiveUnavailable)} mailbox records unavailable` : `${fmtNumber(rows.filter(m => m.archiveEnabled === true).length)} archives enabled`, icon: "archive", tone: archiveUnavailable ? "tone-warn" : "tone-unl", spark: trend.archive.map(p => p.v), color: "var(--unl)" },
         { label: "Needs attention", value: fmtNumber(attention), foot: `${fmtNumber(counts.over)} over · ${fmtNumber(counts.critical)} critical`, icon: "alert", tone: attention ? "tone-crit" : "tone-ok" },
         { label: `Inactive ${INACTIVE_DAYS}d+`, value: fmtNumber(inactive), foot: `${rows.length ? Math.round((inactive / rows.length) * 100) : 0}% of mailboxes`, icon: "sleep", tone: "tone-warn" }
     ].map(k => `
@@ -1000,7 +1058,7 @@ function renderOverview() {
 
     document.getElementById("trendChart").innerHTML = areaChart([
         { name: "Primary", color: "var(--primary)", points: trend.primary },
-        { name: "Archive", color: "var(--unl)", points: trend.archive }
+        ...(trend.archive.length ? [{ name: "Archive", color: "var(--unl)", points: trend.archive }] : [])
     ], { label: "Storage trend" });
 
     const segments = Object.entries(STATUS).map(([key, s]) => ({ key, label: s.label, color: s.color, value: counts[key] }));
@@ -1058,7 +1116,11 @@ function renderTable(rows) {
                 <div><a href="${escapeHtml(href)}"><strong>${escapeHtml(m.name)}</strong></a><small>${escapeHtml(m.smtp)}</small></div></div></td>
             <td>${escapeHtml(m.type.replace(/Mailbox$/, ""))}</td>
             <td class="num">${escapeHtml(fmtGB(m.totalGB))}</td>
-            <td class="num">${m.archiveEnabled ? escapeHtml(fmtGB(m.archiveGB)) : '<span style="color:var(--text-3)">Off</span>'}</td>
+            <td class="num">${m.archiveEnabled === null || m.archiveGB === null
+                ? '<span style="color:var(--text-3)">Unavailable</span>'
+                : m.archiveEnabled
+                    ? escapeHtml(fmtGB(m.archiveGB))
+                    : '<span style="color:var(--text-3)">Off</span>'}</td>
             <td><div class="usage-cell" style="--tone:${tone}"><div class="usage-track"><div class="usage-fill" style="width:${Math.min(100, m.usagePercent ?? 0)}%"></div></div><span>${m.quotaGB ? escapeHtml(fmtPct(m.usagePercent)) : "∞"}</span></div></td>
             <td>${statusChip(m.status)}</td>
             <td title="${escapeHtml(fmtDate(m.lastLogon, true))}">${escapeHtml(fmtRelative(m.lastLogon))}</td>
@@ -1156,9 +1218,9 @@ function renderMailbox() {
         <section class="grid grid-kpi">
             ${[
                 { label: "Primary storage", value: fmtGB(m.totalGB), foot: delta === null ? "No previous sample" : `${delta >= 0 ? "+" : "−"}${fmtGB(Math.abs(delta))} since last sample`, icon: "db", tone: "", spark: samples.map(s => s.gb), color: "var(--primary)" },
-                { label: "Archive storage", value: m.archiveEnabled ? fmtGB(m.archiveGB) : "Disabled", foot: m.archiveEnabled ? `${fmtNumber(m.archiveItems)} items` : "No archive", icon: "archive", tone: "tone-unl", spark: samples.map(s => s.archiveGB), color: "var(--unl)" },
+                { label: "Archive storage", value: m.archiveGB === null ? "Unavailable" : m.archiveEnabled ? fmtGB(m.archiveGB) : "Disabled", foot: m.archiveGB === null ? "Metrics not provided by the collector" : m.archiveEnabled ? `${m.archiveItems === null ? "Item count unavailable" : `${fmtNumber(m.archiveItems)} items`}` : "No archive", icon: "archive", tone: m.archiveGB === null ? "tone-warn" : "tone-unl", spark: samples.map(s => s.archiveGB), color: "var(--unl)" },
                 { label: "Items", value: fmtNumber(m.items), foot: "in primary mailbox", icon: "mailbox", tone: "tone-info", spark: samples.map(s => s.items), color: "var(--primary-2)" },
-                { label: "Delegates", value: fmtNumber(m.permissions.length), foot: "explicit permissions", icon: "users", tone: "tone-warn" }
+                { label: "Delegates", value: m.permissions === null ? "Unavailable" : fmtNumber(m.permissions.length), foot: m.permissions === null ? "Metrics not provided by the collector" : "explicit permissions", icon: "users", tone: "tone-warn" }
             ].map(k => `
                 <article class="card kpi ${k.tone}">
                     <div class="kpi-top"><span class="kpi-label">${escapeHtml(k.label)}</span><span class="kpi-icon">${icon(k.icon)}</span></div>
@@ -1172,7 +1234,7 @@ function renderMailbox() {
                 <div class="card-head"><div><h2>Storage history</h2><p>${fmtNumber(samples.length)} sample${samples.length === 1 ? "" : "s"} in history</p></div></div>
                 ${areaChart([
                     { name: "Primary", color: "var(--primary)", points: samples.map(s => ({ t: s.t, v: s.gb })) },
-                    ...(m.archiveEnabled ? [{ name: "Archive", color: "var(--unl)", points: samples.map(s => ({ t: s.t, v: s.archiveGB })) }] : [])
+                    ...(m.archiveEnabled && samples.some(s => s.archiveGB !== null) ? [{ name: "Archive", color: "var(--unl)", points: samples.filter(s => s.archiveGB !== null).map(s => ({ t: s.t, v: s.archiveGB })) }] : [])
                 ], { label: "Mailbox storage history" })}
             </article>
             <article class="card">
@@ -1199,7 +1261,7 @@ function renderMailbox() {
                 <dl class="facts">
                     <div><dt>Licence required</dt><dd>${m.licenseRequired === true ? "Yes" : m.licenseRequired === false ? "No" : "Unknown"}</dd></div>
                     <div><dt>Licence assigned</dt><dd>${m.hasLicense === true ? "Yes" : m.hasLicense === false ? "No" : "Unknown"}</dd></div>
-                    <div><dt>Retention policy</dt><dd>${escapeHtml(m.retentionPolicy || "None")}</dd></div>
+                    <div><dt>Retention policy</dt><dd>${m.retentionPolicy === null ? "Unavailable" : escapeHtml(m.retentionPolicy || "None")}</dd></div>
                     <div><dt>Litigation hold</dt><dd>${m.litigationHold === true ? "Enabled" : m.litigationHold === false ? "Off" : "Unknown"}</dd></div>
                     <div><dt>Exchange GUID</dt><dd style="font-family:ui-monospace,Consolas,monospace;font-size:12px">${escapeHtml(m.guid || "—")}</dd></div>
                 </dl>
@@ -1207,8 +1269,8 @@ function renderMailbox() {
         </section>
 
         <section class="card">
-            <div class="card-head"><div><h2>Delegates</h2><p>${fmtNumber(m.permissions.length)} explicit permission${m.permissions.length === 1 ? "" : "s"}</p></div></div>
-            ${m.permissions.length ? `<div class="table-wrap"><table><thead><tr><th>Delegate</th><th>Access rights</th><th>Inherited</th></tr></thead><tbody>
+            <div class="card-head"><div><h2>Delegates</h2><p>${m.permissions === null ? "Permission data unavailable" : `${fmtNumber(m.permissions.length)} explicit permission${m.permissions.length === 1 ? "" : "s"}`}</p></div></div>
+            ${m.permissions === null ? `<div class="empty">Permission data is unavailable from the collector for this mailbox.</div>` : m.permissions.length ? `<div class="table-wrap"><table><thead><tr><th>Delegate</th><th>Access rights</th><th>Inherited</th></tr></thead><tbody>
                 ${m.permissions.map(p => `<tr style="cursor:default"><td>${escapeHtml(pick(p, "User", "user") || "—")}</td>
                     <td>${[].concat(pick(p, "AccessRights", "accessRights") || []).map(r => `<span class="chip chip-plain" style="margin:2px">${escapeHtml(r)}</span>`).join("")}</td>
                     <td>${pick(p, "IsInherited", "isInherited") ? "Yes" : "No"}</td></tr>`).join("")}

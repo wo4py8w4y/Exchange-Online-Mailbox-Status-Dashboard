@@ -42,13 +42,23 @@
             inactive90Count: 0,
             licenseGapCount: 0,
             noRetentionPolicyCount: 0,
-            delegationCount: 0
+            delegationCount: 0,
+            archiveUnavailableCount: 0,
+            permissionUnavailableCount: 0,
+            retentionUnavailableCount: 0
         };
+        let knownArchiveValues = 0;
 
         for (const mailbox of mailboxes) {
             const status = mailbox.status || statusOf(mailbox);
             summary.primaryGB += finiteNumber(mailbox.totalGB) ?? 0;
-            summary.archiveGB += finiteNumber(mailbox.archiveGB) ?? 0;
+            const archiveGB = finiteNumber(mailbox.archiveGB);
+            if (archiveGB === null) {
+                summary.archiveUnavailableCount++;
+            } else {
+                summary.archiveGB += archiveGB;
+                knownArchiveValues++;
+            }
             summary.archiveCount += mailbox.archiveEnabled ? 1 : 0;
             summary.warningCount += status === "warning" ? 1 : 0;
             summary.criticalCount += status === "critical" ? 1 : 0;
@@ -56,10 +66,19 @@
             const inactiveDays = daysSince(mailbox.lastLogon, now);
             summary.inactive90Count += inactiveDays === null || inactiveDays >= 90 ? 1 : 0;
             summary.licenseGapCount += mailbox.licenseRequired === true && mailbox.hasLicense === false ? 1 : 0;
-            summary.noRetentionPolicyCount += !mailbox.retentionPolicy ? 1 : 0;
-            summary.delegationCount += Array.isArray(mailbox.permissions) ? mailbox.permissions.length : 0;
+            if (mailbox.retentionPolicy === null || mailbox.retentionPolicy === undefined) {
+                summary.retentionUnavailableCount++;
+            } else {
+                summary.noRetentionPolicyCount += !mailbox.retentionPolicy ? 1 : 0;
+            }
+            if (Array.isArray(mailbox.permissions)) {
+                summary.delegationCount += mailbox.permissions.length;
+            } else {
+                summary.permissionUnavailableCount++;
+            }
         }
 
+        if (knownArchiveValues === 0) summary.archiveGB = null;
         return summary;
     }
 
@@ -102,7 +121,8 @@
                     mailbox.name, mailbox.smtp, mailbox.type, mailbox.licenseRequired,
                     mailbox.hasLicense, mailbox.licenseType,
                     mailbox.licenseRequired === true && mailbox.hasLicense === false ? "Gap" :
-                        mailbox.licenseRequired === false || mailbox.hasLicense === true ? "Compliant" : "Unknown"
+                        mailbox.licenseRequired === false || (mailbox.licenseRequired === true && mailbox.hasLicense === true) ?
+                            "Compliant" : "Unknown"
                 ])
             };
         }
@@ -140,7 +160,10 @@
 
     function toCsv(report) {
         const quote = value => {
-            const text = value === null || value === undefined ? "" : String(value);
+            let text = value === null || value === undefined ? "" : String(value);
+            if (typeof value === "string" && /^[\t\r\n ]*[=+\-@]/.test(text)) {
+                text = `'${text}`;
+            }
             return `"${text.replace(/"/g, "\"\"")}"`;
         };
         return [report.headers, ...report.rows]
